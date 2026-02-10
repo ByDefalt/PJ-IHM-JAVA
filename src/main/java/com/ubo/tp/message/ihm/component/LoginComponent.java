@@ -14,7 +14,7 @@ import java.awt.event.ActionListener;
  * Il ne contient aucune logique métier ni dépendance vers les controllers.
  * </p>
  */
-public class LoginComponent extends JPanel {
+public class LoginComponent extends JPanel implements Component {
 
     private final Logger LOGGER;
 

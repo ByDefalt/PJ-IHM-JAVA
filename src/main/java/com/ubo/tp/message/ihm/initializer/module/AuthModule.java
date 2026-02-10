@@ -15,6 +15,8 @@ import com.ubo.tp.message.logger.Logger;
 import com.ubo.tp.message.navigation.NavigationService;
 import com.ubo.tp.message.core.IDataManager;
 
+import java.util.Collections;
+
 /**
  * Module d'authentification : enregistre les vues de login et register via le ViewRegistry.
  */
@@ -33,16 +35,16 @@ public class AuthModule implements UIModule {
                 "loginController",
                 ILoginController.class,
                 ctx -> new LoginController(ctx.getLogger(), ctx.getNavigation(), ctx.getDataManager()),
-                ctx -> new LoginComponent(ctx.getLogger()),
-                (ctrl, comp, ctx) -> new LoginView(ctrl, comp, ctx.getLogger())
+                ctx -> Collections.singletonList(new LoginComponent(ctx.getLogger())),
+                (ctrl, comps, ctx) -> new LoginView(ctrl, comps.getFirst(), ctx.getLogger())
         ));
 
         viewRegistry.register("register", ViewRegistryUtils.createViewFromController(
                 "registerController",
                 IRegisterController.class,
                 ctx -> new RegisterController(ctx.getLogger(), ctx.getNavigation(), ctx.getDataManager()),
-                ctx -> new RegisterComponent(ctx.getLogger()),
-                (ctrl, comp, ctx) -> new RegisterView(ctrl, comp, ctx.getLogger())
+                ctx -> Collections.singletonList(new RegisterComponent(ctx.getLogger())),
+                (ctrl, comps, ctx) -> new RegisterView(ctrl, comps.getFirst(), ctx.getLogger())
         ));
     }
 }

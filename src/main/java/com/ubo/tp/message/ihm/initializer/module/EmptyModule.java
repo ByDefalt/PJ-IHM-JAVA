@@ -3,6 +3,7 @@ package com.ubo.tp.message.ihm.initializer.module;
 import com.ubo.tp.message.controller.impl.EmptyController;
 import com.ubo.tp.message.controller.service.IEmptyController;
 import com.ubo.tp.message.core.IDataManager;
+import com.ubo.tp.message.ihm.component.SwingComponentWrapper;
 import com.ubo.tp.message.ihm.initializer.registry.ControllerRegistry;
 import com.ubo.tp.message.ihm.initializer.registry.ViewRegistry;
 import com.ubo.tp.message.ihm.initializer.registry.utils.ViewRegistryUtils;
@@ -16,13 +17,13 @@ public class EmptyModule implements UIModule{
     @Override
     public void register(NavigationService navigation, IDataManager dataManager, Logger logger, ControllerRegistry controllerRegistry, ViewRegistry viewRegistry) {
         controllerRegistry.register("emptyController", IEmptyController.class,
-                ctx -> new EmptyController());
-        viewRegistry.register("empty", ViewRegistryUtils.createViewFromController(
+                _ -> new EmptyController());
+        viewRegistry.register("empty", ViewRegistryUtils.<IEmptyController, SwingComponentWrapper, JComponent>createViewFromControllerSingle(
                 "emptyController",
                 IEmptyController.class,
-                ctx -> new EmptyController(),
-                ctx -> new JPanel(), // empty component
-                (ctrl, comp, ctx) -> new EmptyView(ctrl, ctx.getLogger())
+                _ -> new EmptyController(),
+                _ -> new SwingComponentWrapper(new JPanel()),
+                (ctrl, _, ctx) -> new EmptyView(ctrl, ctx.getLogger())
         ));
     }
 }

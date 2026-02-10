@@ -13,7 +13,7 @@ import java.awt.event.ActionListener;
  * accesseurs ainsi qu'une méthode pour attacher le listener du bouton d'enregistrement.
  * </p>
  */
-public class RegisterComponent extends JPanel {
+public class RegisterComponent extends JPanel implements Component {
 
     private final Logger LOGGER;
 
