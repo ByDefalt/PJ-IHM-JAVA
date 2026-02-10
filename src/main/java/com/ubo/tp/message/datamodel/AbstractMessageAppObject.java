@@ -1,6 +1,5 @@
 package com.ubo.tp.message.datamodel;
 
-import java.util.Observable;
 import java.util.UUID;
 
 /**

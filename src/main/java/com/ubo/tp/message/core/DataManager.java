@@ -12,6 +12,7 @@ import com.ubo.tp.message.datamodel.Channel;
 import com.ubo.tp.message.datamodel.IMessageRecipient;
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.datamodel.User;
+import com.ubo.tp.message.logger.Logger;
 
 /**
  * Classe permettant de manipuler les données de l'application.
@@ -35,13 +36,16 @@ public class DataManager {
 	 */
 	protected IWatchableDirectory mWatchableDirectory;
 
+	private final Logger logger;
+
 	/**
 	 * Constructeur.
 	 */
-	public DataManager(IDatabase database, EntityManager entityManager) {
+	public DataManager(IDatabase database, EntityManager entityManager, Logger logger) {
 		mDatabase = database;
 		mEntityManager = entityManager;
-	}
+        this.logger = logger;
+    }
 
 	/**
 	 * Ajoute un observateur sur les modifications de la base de données.
@@ -176,7 +180,7 @@ public class DataManager {
 	 * @param directoryPath
 	 */
 	public void setExchangeDirectory(String directoryPath) {
-		System.out.println("DataManager : setExchangeDirectory : " + directoryPath);
+		logger.debug("DataManager : setExchangeDirectory : " + directoryPath);
 		mEntityManager.setExchangeDirectory(directoryPath);
 
 		mWatchableDirectory = new WatchableDirectory(directoryPath);

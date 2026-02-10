@@ -3,7 +3,14 @@ package com.ubo.tp.message.ihm;
 import java.io.File;
 
 import com.ubo.tp.message.core.DataManager;
+import com.ubo.tp.message.ihm.initializer.module.AuthModule;
+import com.ubo.tp.message.ihm.initializer.module.SettingsModule;
+import com.ubo.tp.message.ihm.initializer.UIInitializer;
+import com.ubo.tp.message.ihm.service.IMessageAppMainView;
 import com.ubo.tp.message.logger.Logger;
+import com.ubo.tp.message.controller.impl.MessageAppMainController;
+import com.ubo.tp.message.navigation.AppNavigationService;
+import com.ubo.tp.message.navigation.NavigationService;
 
 /**
  * Classe principale l'application.
@@ -17,9 +24,9 @@ public class MessageApp {
 	protected DataManager mDataManager;
 
 	/**
-	 * Vue principale de l'application.
+	 * Contrôleur de la vue principale de l'application.
 	 */
-	protected MessageAppMainView mMainView;
+	protected MessageAppMainController mMainController;
 
 	private final Logger logger;
 
@@ -57,8 +64,18 @@ public class MessageApp {
 	 * Initialisation de l'interface graphique.
 	 */
 	protected void initGui() {
-		// this.mMainView...
-		mMainView = new MessageAppMainView(mDataManager, logger);
+		// this.mMainController...
+		mMainController = new MessageAppMainController(mDataManager, logger);
+
+		// Créer le service de navigation basé sur la vue principale
+		NavigationService navigation = new AppNavigationService(mMainController.getView());
+
+		// Initialiser les vues via UIInitializer et modules (OCP)
+		UIInitializer uiInit = new UIInitializer(navigation, mDataManager, logger);
+		uiInit.register(new AuthModule());
+		uiInit.register(new SettingsModule());
+
+		uiInit.initViews();
 	}
 
 	/**
@@ -91,7 +108,7 @@ public class MessageApp {
 	}
 
 	public void show() {
-		mMainView.show();
+		mMainController.getView().show();
 	}
 
 
@@ -99,7 +116,7 @@ public class MessageApp {
 		return mDataManager;
 	}
 
-	public MessageAppMainView getmMainView() {
-		return mMainView;
+	public IMessageAppMainView getmMainView() {
+		return mMainController != null ? mMainController.getView() : null;
 	}
 }

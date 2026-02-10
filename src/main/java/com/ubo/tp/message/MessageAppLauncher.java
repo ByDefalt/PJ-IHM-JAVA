@@ -29,18 +29,19 @@ public class MessageAppLauncher {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		Logger logger = LoggerFactory.consoleLogger(LogLevel.DEBUG);
 
 		Database database = new Database();
 
 		EntityManager entityManager = new EntityManager(database);
 
-		DataManager dataManager = new DataManager(database, entityManager);
+
+		DataManager dataManager = new DataManager(database, entityManager, logger);
 		DataBaseObserverImpl dataBaseObserver = new DataBaseObserverImpl();
 		dataManager.addObserver(dataBaseObserver);
 
 		DbConnector dbConnector = new DbConnector(database);
 
-		Logger logger = LoggerFactory.consoleLogger(LogLevel.INFO);
 
 		if (IS_MOCK_ENABLED) {
 			MessageAppMock mock = new MessageAppMock(dbConnector, dataManager);
