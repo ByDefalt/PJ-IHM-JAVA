@@ -44,10 +44,15 @@ public class RegisterView extends JPanel {
 
         this.component.addRegisterListener(e -> {
             if (LOGGER != null) LOGGER.debug("Register button clicked");
-            controller.onRegisterButtonClicked(this.component.getTagField().getText(),
+            boolean userIsCreated = controller.onRegisterButtonClicked(this.component.getTagField().getText(),
                     this.component.getNameField().getText(),
                     new String(this.component.getPasswordField().getPassword()),
                     new String(this.component.getConfirmPasswordField().getPassword()));
+                if (userIsCreated) {
+                    if (LOGGER != null) LOGGER.info("User registered successfully, navigating to login view");
+                }else{
+                    if (LOGGER != null) LOGGER.warn("User registration failed, user already exists");
+                }
         });
 
         if (LOGGER != null) LOGGER.debug("RegisterView initialisée");

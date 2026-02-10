@@ -19,5 +19,5 @@ public interface ILoginController {
      * Callback invoqué lorsque l'utilisateur valide le formulaire de connexion.
      * Le contrôleur doit authentifier l'utilisateur et naviguer si nécessaire.
      */
-    void onLoginButtonClicked();
+    void onLoginButtonClicked(String tag, String name, String password);
 }

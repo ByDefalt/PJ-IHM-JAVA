@@ -52,7 +52,9 @@ public class LoginView extends JPanel {
 
         this.component.addLoginListener(e -> {
             if (LOGGER != null) LOGGER.debug("Bouton de connexion cliqué");
-            controller.onLoginButtonClicked();
+            controller.onLoginButtonClicked(this.component.getTagField().getText(),
+                    this.component.getNameField().getText(),
+                    new String(this.component.getPasswordField().getPassword()));
         });
 
 

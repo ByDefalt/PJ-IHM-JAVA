@@ -9,5 +9,5 @@ public interface IRegisterController {
      * Callback invoqué lorsque l'utilisateur valide son inscription.
      * Le contrôleur doit créer l'utilisateur, gérer les erreurs et naviguer si nécessaire.
      */
-    void onRegisterButtonClicked(String tag, String name, String password, String confirmPassword);
+    boolean onRegisterButtonClicked(String tag, String name, String password, String confirmPassword);
 }

@@ -24,15 +24,15 @@ public class AuthModule implements UIModule {
 
         // register controllers into controllerRegistry using InitializationContext
         controllerRegistry.register("loginController", ILoginController.class,
-                ctx -> new LoginController(ctx.getLogger(), ctx.getNavigation()));
+                ctx -> new LoginController(ctx.getLogger(), ctx.getNavigation(), ctx.getDataManager()));
         controllerRegistry.register("registerController", IRegisterController.class,
-                ctx -> new RegisterController(ctx.getLogger(), ctx.getNavigation()));
+                ctx -> new RegisterController(ctx.getLogger(), ctx.getNavigation(), ctx.getDataManager()));
 
         // register creators that will be invoked later by UIInitializer
         viewRegistry.register("login", ViewRegistryUtils.createViewFromController(
                 "loginController",
                 ILoginController.class,
-                ctx -> new LoginController(ctx.getLogger(), ctx.getNavigation()),
+                ctx -> new LoginController(ctx.getLogger(), ctx.getNavigation(), ctx.getDataManager()),
                 ctx -> new LoginComponent(ctx.getLogger()),
                 (ctrl, comp, ctx) -> new LoginView(ctrl, comp, ctx.getLogger())
         ));
@@ -40,7 +40,7 @@ public class AuthModule implements UIModule {
         viewRegistry.register("register", ViewRegistryUtils.createViewFromController(
                 "registerController",
                 IRegisterController.class,
-                ctx -> new RegisterController(ctx.getLogger(), ctx.getNavigation()),
+                ctx -> new RegisterController(ctx.getLogger(), ctx.getNavigation(), ctx.getDataManager()),
                 ctx -> new RegisterComponent(ctx.getLogger()),
                 (ctrl, comp, ctx) -> new RegisterView(ctrl, comp, ctx.getLogger())
         ));

@@ -1,12 +1,10 @@
 package com.ubo.tp.message;
 
 import com.ubo.tp.message.core.DataManager;
-import com.ubo.tp.message.core.IDataManager;
 import com.ubo.tp.message.core.database.DataBaseObserverImpl;
 import com.ubo.tp.message.core.database.Database;
 import com.ubo.tp.message.core.database.DbConnector;
 import com.ubo.tp.message.core.database.EntityManager;
-import com.ubo.tp.message.ihm.MessageApp;
 import mock.MessageAppMock;
 import com.ubo.tp.message.logger.Logger;
 import com.ubo.tp.message.logger.LoggerFactory;
