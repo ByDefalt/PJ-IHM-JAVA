@@ -1,13 +1,25 @@
 package com.ubo.tp.message.ihm.initializer.registry.utils;
 
 import com.ubo.tp.message.ihm.initializer.model.InitializationContext;
-import com.ubo.tp.message.ihm.initializer.registry.ControllerRegistry;
 
 import javax.swing.JComponent;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
- * Helpers to build view creators for the ViewRegistry to avoid repeating boilerplate.
+ * Utilitaires pour construire des créateurs de vues réutilisables afin de
+ * réduire le boilerplate lors de l'enregistrement dans le {@link com.ubo.tp.message.ihm.initializer.registry.ViewRegistry}.
+ *
+ * Exemple d'utilisation :
+ * <pre>
+ * viewRegistry.register("register", ViewRegistryUtils.createViewFromController(
+ *   "registerController",
+ *   IRegisterController.class,
+ *   ctx -> new RegisterController(),
+ *   ctx -> new RegisterComponent(ctx.getLogger()),
+ *   (ctrl, comp, ctx) -> new RegisterView(ctrl, comp, ctx.getLogger())
+ * ));
+ * </pre>
  */
 public final class ViewRegistryUtils {
 
@@ -19,17 +31,18 @@ public final class ViewRegistryUtils {
     }
 
     /**
-     * Create a view creator that resolves a controller from the ControllerRegistry
-     * and builds the component and view using the provided factories.
+     * Crée un créateur de vue qui résout d'abord un controller via le ControllerRegistry
+     * puis construit le component et la view.
      *
-     * Example usage:
-     * viewRegistry.register("register", ViewRegistryUtils.createViewFromController(
-     *     "registerController",
-     *     IRegisterController.class,
-     *     ctx -> new RegisterController(),
-     *     ctx -> new RegisterComponent(ctx.getLogger()),
-     *     (ctrl, comp, ctx) -> new RegisterView(ctrl, comp, ctx.getLogger())
-     * ));
+     * @param controllerId id logique du controller à rechercher
+     * @param controllerType type attendu du controller
+     * @param controllerFallbackCreator supplier de repli pour le controller si non trouvé
+     * @param componentCreator fonction de création du component UI
+     * @param viewConstructor fonction qui assemble controller + component + context en Vue
+     * @param <C> type du controller
+     * @param <Comp> type du component (JComponent)
+     * @param <V> type de la view (JComponent)
+     * @return fonction prenant un {@link InitializationContext} et retournant un JComponent
      */
     public static <C, Comp extends JComponent, V extends JComponent>
     Function<InitializationContext, JComponent> createViewFromController(
@@ -41,7 +54,7 @@ public final class ViewRegistryUtils {
     ) {
         return ctx -> {
             if (ctx == null) return null;
-            ControllerRegistry registry = ctx.getControllerRegistry();
+            com.ubo.tp.message.ihm.initializer.registry.ControllerRegistry registry = ctx.getControllerRegistry();
             C controller = null;
             try {
                 controller = registry.create(controllerId, ctx, controllerType);

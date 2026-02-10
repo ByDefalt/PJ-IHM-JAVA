@@ -1,5 +1,11 @@
 package com.ubo.tp.message.logger;
 
+/**
+ * Logger muet (no-op) qui ignore tous les messages.
+ * <p>
+ * Utile pour les tests ou pour désactiver le logging sans propager des nulls.
+ * </p>
+ */
 public class NullLogger implements Logger {
 
     public NullLogger() {
@@ -26,4 +32,3 @@ public class NullLogger implements Logger {
     @Override
     public boolean isLevelEnabled(LogLevel level) { return false; }
 }
-

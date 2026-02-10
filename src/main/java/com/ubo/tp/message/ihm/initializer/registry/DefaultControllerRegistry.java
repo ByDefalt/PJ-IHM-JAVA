@@ -8,6 +8,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/**
+ * Implémentation par défaut de {@link ControllerRegistry}.
+ * <p>
+ * Utilise des maps thread-safe (ConcurrentHashMap) pour stocker les créateurs et
+ * les singletons. Les méthodes sont sûres pour un usage concurrent typique.
+ * </p>
+ */
 public class DefaultControllerRegistry implements ControllerRegistry {
 
     private final Map<String, Function<InitializationContext, Object>> creators = new ConcurrentHashMap<>();

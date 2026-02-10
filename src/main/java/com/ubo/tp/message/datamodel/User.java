@@ -3,9 +3,10 @@ package com.ubo.tp.message.datamodel;
 import java.util.UUID;
 
 /**
- * Classe du modèle représentant un utilisateur.
- *
- * @author S.Lucas
+ * Modèle représentant un utilisateur de l'application.
+ * <p>
+ * Contient un tag unique, mot de passe, nom affiché et un statut de connexion.
+ * </p>
  */
 public class User extends AbstractMessageAppObject implements IMessageRecipient {
 
@@ -31,24 +32,23 @@ public class User extends AbstractMessageAppObject implements IMessageRecipient 
 	protected boolean mOnline = false;
 
 	/**
-	 * Constructeur.
+	 * Constructeur convenience : génère un UUID aléatoire.
 	 *
-	 * @param userTag      Tag correspondant à l'utilisateur.
-	 * @param userTag      Tag correspondant à l'utilisateur.
-	 * @param userPassword mot de passe de l'utilisateur.
-	 * @param name         Nom de l'utilisateur.
+	 * @param userTag      tag unique de l'utilisateur
+	 * @param userPassword mot de passe
+	 * @param name         nom affiché
 	 */
 	public User(String userTag, String userPassword, String name) {
 		this(UUID.randomUUID(), userTag, userPassword, name);
 	}
 
 	/**
-	 * Constructeur.
+	 * Constructeur complet.
 	 *
-	 * @param uuid         Identifiant unique de l'utilisateur.
-	 * @param userTag      Tag correspondant à l'utilisateur.
-	 * @param userPassword mot de passe de l'utilisateur.
-	 * @param name         Nom de l'utilisateur.
+	 * @param uuid         identifiant unique
+	 * @param userTag      tag unique
+	 * @param userPassword mot de passe
+	 * @param name         nom affiché
 	 */
 	public User(UUID uuid, String userTag, String userPassword, String name) {
 		super(uuid);
@@ -59,54 +59,60 @@ public class User extends AbstractMessageAppObject implements IMessageRecipient 
 
 	/**
 	 * Retourne le nom de l'utilisateur.
+	 *
+	 * @return nom affiché
 	 */
 	public String getName() {
 		return mName;
 	}
 
 	/**
-	 * Assigne le nom de l'utilisateur.
+	 * Modifie le nom affiché de l'utilisateur.
 	 *
-	 * @param name
+	 * @param name nouveau nom
 	 */
 	public void setName(String name) {
 		this.mName = name;
 	}
 
 	/**
-	 * Retourne le tag correspondant à l'utilisateur.
+	 * Retourne le tag unique de l'utilisateur.
+	 *
+	 * @return tag unique
 	 */
 	public String getUserTag() {
 		return this.mUserTag;
 	}
 
 	/**
-	 * Retourne le mot de passe de l'utilisateur.
+	 * Retourne le mot de passe (brut). Utiliser uniquement pour sérialisation/échange.
+	 *
+	 * @return mot de passe
 	 */
 	public String getUserPassword() {
 		return this.mUserPassword;
 	}
 
 	/**
-	 * Assigne le mot de passe de l'utilisateur.
+	 * Modifie le mot de passe de l'utilisateur.
 	 *
-	 * @param userPassword
+	 * @param userPassword nouveau mot de passe
 	 */
 	public void setUserPassword(String userPassword) {
 		this.mUserPassword = userPassword;
 	}
 
 	/**
-	 * Retourne le statut de connection.
+	 * @return true si l'utilisateur est connecté
 	 */
 	public boolean isOnline() {
 		return this.mOnline;
 	}
 
 	/**
-	 * Assigne le statut de connection.
+	 * Définit le statut en ligne de l'utilisateur.
 	 *
-	 * @param online
+	 * @param online flag en ligne
 	 */
 	public void setOnline(boolean online) {
 		this.mOnline = online;

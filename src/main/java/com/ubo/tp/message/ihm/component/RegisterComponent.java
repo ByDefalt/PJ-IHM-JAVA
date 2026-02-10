@@ -6,17 +6,28 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
+/**
+ * Composant UI pur pour le formulaire d'inscription.
+ * <p>
+ * Fournit les champs nécessaires (tag, nom, email, mot de passe) et expose des
+ * accesseurs ainsi qu'une méthode pour attacher le listener du bouton d'enregistrement.
+ * </p>
+ */
 public class RegisterComponent extends JPanel {
 
     private final Logger LOGGER;
 
     private JTextField tagField;
     private JTextField nameField;
-    private JTextField emailField;
     private JPasswordField passwordField;
     private JPasswordField confirmPasswordField;
     private JButton registerButton;
 
+    /**
+     * Crée le composant d'inscription et initialise la vue.
+     *
+     * @param logger logger optionnel pour consigner les actions
+     */
     public RegisterComponent(Logger logger) {
         this.LOGGER = logger;
         this.init();
@@ -35,9 +46,6 @@ public class RegisterComponent extends JPanel {
 
         createNameLabel();
         createNameField();
-
-        createEmailLabel();
-        createEmailField();
 
         createPasswordLabel();
         createPasswordField();
@@ -133,29 +141,6 @@ public class RegisterComponent extends JPanel {
         this.add(nameField, gbc);
     }
 
-    private void createEmailLabel() {
-        int row = 3;
-        GridBagConstraints gbc = new GridBagConstraints(
-                0, row, 1, 1, 0.3, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE,
-                new Insets(5, 5, 5, 5), 0, 0
-        );
-        JLabel lbl = new JLabel("Email :");
-        lbl.setFont(new Font("Arial", Font.PLAIN, 14));
-        this.add(lbl, gbc);
-    }
-
-    private void createEmailField() {
-        int row = 3;
-        GridBagConstraints gbc = new GridBagConstraints(
-                1, row, 1, 1, 0.7, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(5, 5, 5, 5), 0, 0
-        );
-        emailField = new JTextField();
-        emailField.setFont(new Font("Arial", Font.PLAIN, 14));
-        this.add(emailField, gbc);
-    }
 
     private void createPasswordLabel() {
         int row = 4;
@@ -225,10 +210,6 @@ public class RegisterComponent extends JPanel {
         return nameField;
     }
 
-    public JTextField getEmailField() {
-        return emailField;
-    }
-
     public JPasswordField getPasswordField() {
         return passwordField;
     }
@@ -241,5 +222,10 @@ public class RegisterComponent extends JPanel {
         return registerButton;
     }
 
+    /**
+     * Ajoute un listener au bouton d'inscription.
+     *
+     * @param l listener d'action
+     */
     public void addRegisterListener(ActionListener l) { if (registerButton != null) registerButton.addActionListener(l); }
 }

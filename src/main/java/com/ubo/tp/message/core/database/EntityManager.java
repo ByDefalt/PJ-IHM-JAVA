@@ -15,10 +15,18 @@ import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.datamodel.User;
 
 /**
- * Classe de gestion de la mise à jour de la base de données et de génération
- * des fichiers
- *
- * @author S.Lucas
+ * Gestionnaire des entités et adaptateur entre le système de fichiers (répertoire
+ * d'échange) et la base en mémoire {@link Database}.
+ * <p>
+ * Cette classe écoute les changements de fichiers (implémente
+ * {@link IWatchableDirectoryObserver}) et convertit les fichiers en entités
+ * (User, Message, Channel) pour les insérer/modifier/supprimer dans la base.
+ * Elle expose également des opérations utilitaires pour écrire un message,
+ * un utilisateur ou un canal dans le répertoire d'échange.
+ * </p>
+ * <p>
+ * Remarque : les méthodes de parsing/écriture délèguent à {@link DataFilesManager}.
+ * </p>
  */
 public class EntityManager implements IWatchableDirectoryObserver {
 
@@ -416,7 +424,7 @@ public class EntityManager implements IWatchableDirectoryObserver {
 	/**
 	 * Configure le chemin d'accès au répertoire d'échange.
 	 *
-	 * @param directoryPath
+	 * @param directoryPath chemin du répertoire d'échange (non-null)
 	 */
 	public void setExchangeDirectory(String directoryPath) {
 		this.mDirectoryPath = directoryPath;
@@ -424,13 +432,13 @@ public class EntityManager implements IWatchableDirectoryObserver {
 	}
 
 	/**
-	 * Génération du fichier correspondant au message.
+	 * Génération/écriture du fichier correspondant au message.
 	 *
-	 * @param message
+	 * @param message message à écrire
+	 * @throws RuntimeException si le répertoire d'échange n'est pas configuré
 	 */
 	public void writeMessageFile(Message message) {
 		if (mDirectoryPath != null) {
-			// Génération du fichier de propriété
 			mDataFileManager.writeMessageFile(message);
 		} else {
 			throw new RuntimeException("Le répertoire d'échange n'est pas configuré !");
@@ -438,13 +446,13 @@ public class EntityManager implements IWatchableDirectoryObserver {
 	}
 
 	/**
-	 * Génération du fichier correspondant à l'utilisateur.
+	 * Génération/écriture du fichier correspondant à l'utilisateur.
 	 *
-	 * @param user
+	 * @param user utilisateur à écrire
+	 * @throws RuntimeException si le répertoire d'échange n'est pas configuré
 	 */
 	public void writeUserFile(User user) {
 		if (mDirectoryPath != null) {
-			// Génération du fichier de propriété
 			mDataFileManager.writeUserFile(user);
 		} else {
 			throw new RuntimeException("Le répertoire d'échange n'est pas configuré !");
@@ -452,13 +460,13 @@ public class EntityManager implements IWatchableDirectoryObserver {
 	}
 
 	/**
-	 * Génération du fichier correspondant à canal.
+	 * Génération/écriture du fichier correspondant à un canal.
 	 *
-	 * @param user
+	 * @param channel canal à écrire
+	 * @throws RuntimeException si le répertoire d'échange n'est pas configuré
 	 */
 	public void writeChannelFile(Channel channel) {
 		if (mDirectoryPath != null) {
-			// Génération du fichier de propriété
 			mDataFileManager.writeChannelFile(channel);
 		} else {
 			throw new RuntimeException("Le répertoire d'échange n'est pas configuré !");

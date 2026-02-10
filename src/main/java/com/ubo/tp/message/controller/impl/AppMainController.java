@@ -6,8 +6,11 @@ import com.ubo.tp.message.ihm.screen.AppMainView;
 import com.ubo.tp.message.logger.Logger;
 
 /**
- * Contrôleur pour la vue principale. Contient la logique liée aux actions utilisateur
- * et manipule le DataManager.
+ * Contrôleur pour la vue principale de l'application.
+ * <p>
+ * Ce contrôleur orchestre l'initialisation de la vue principale et expose les
+ * actions nécessaires à l'IHM (ex : sélection du répertoire d'échange).
+ * </p>
  */
 public class AppMainController {
 
@@ -17,6 +20,9 @@ public class AppMainController {
 
     /**
      * Constructeur par défaut : instancie la vue concrete.
+     *
+     * @param dataManager service d'accès aux données (abstraction)
+     * @param logger service de logging
      */
     public AppMainController(IDataManager dataManager, Logger logger) {
         this(dataManager, logger, new AppMainView(logger));
@@ -24,6 +30,10 @@ public class AppMainController {
 
     /**
      * Constructeur permettant l'injection d'une vue (utile pour tests).
+     *
+     * @param dataManager service d'accès aux données
+     * @param logger logger de l'application
+     * @param view vue principale injectée
      */
     public AppMainController(IDataManager dataManager, Logger logger, IMessageAppMainView view) {
         this.dataManager = dataManager;
@@ -34,11 +44,21 @@ public class AppMainController {
         this.view.setOnExchangeDirectorySelected(this::onExchangeDirectorySelected);
     }
 
+    /**
+     * Callback appelé lorsque l'utilisateur choisit un répertoire d'échange.
+     *
+     * @param directoryPath chemin du répertoire sélectionné
+     */
     private void onExchangeDirectorySelected(String directoryPath) {
         logger.info("Controller: répertoire sélectionné -> " + directoryPath);
         dataManager.setExchangeDirectory(directoryPath);
     }
 
+    /**
+     * Retourne la vue principale associée à ce contrôleur.
+     *
+     * @return instance de {@link IMessageAppMainView}
+     */
     public IMessageAppMainView getView() {
         return this.view;
     }

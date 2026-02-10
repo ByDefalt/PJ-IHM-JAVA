@@ -15,9 +15,22 @@ import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.logger.Logger;
 
 /**
- * Classe permettant de manipuler les données de l'application.
- *
- * @author S.Lucas
+ * Implémentation concrète de {@link IDataManager}.
+ * <p>
+ * Sert d'adaptateur entre la base en mémoire ({@link IDatabase}), le
+ * {@link EntityManager} (responsable de la conversion fichier &lt;-&gt; entités)
+ * et la surveillance du répertoire d'échange.
+ * </p>
+ * <p>
+ * Responsabilités principales :
+ * <ul>
+ *   <li>Déléguer les requêtes de lecture à {@link IDatabase}.</li>
+ *   <li>Déléguer l'écriture (publication) à {@link EntityManager} qui génère
+ *       les fichiers de sortie.</li>
+ *   <li>Configurer et démarrer la surveillance du répertoire d'échange via
+ *       {@link WatchableDirectory}.</li>
+ * </ul>
+ * </p>
  */
 public class DataManager implements IDataManager {
 
@@ -40,6 +53,10 @@ public class DataManager implements IDataManager {
 
 	/**
 	 * Constructeur.
+	 *
+	 * @param database base de données en mémoire
+	 * @param entityManager gestionnaire de conversion fichier/entité
+	 * @param logger logger applicatif
 	 */
 	public DataManager(IDatabase database, EntityManager entityManager, Logger logger) {
 		mDatabase = database;
@@ -48,48 +65,42 @@ public class DataManager implements IDataManager {
     }
 
 	/**
-	 * Ajoute un observateur sur les modifications de la base de données.
-	 *
-	 * @param observer
+	 * {@inheritDoc}
 	 */
 	public void addObserver(IDatabaseObserver observer) {
 		this.mDatabase.addObserver(observer);
 	}
 
 	/**
-	 * Supprime un observateur sur les modifications de la base de données.
-	 *
-	 * @param observer
+	 * {@inheritDoc}
 	 */
 	public void removeObserver(IDatabaseObserver observer) {
 		this.mDatabase.removeObserver(observer);
 	}
 
 	/**
-	 * Retourne la liste des Utilisateurs.
+	 * {@inheritDoc}
 	 */
 	public Set<User> getUsers() {
 		return this.mDatabase.getUsers();
 	}
 
 	/**
-	 * Retourne la liste des Messages.
+	 * {@inheritDoc}
 	 */
 	public Set<Message> getMessages() {
 		return this.mDatabase.getMessages();
 	}
 
 	/**
-	 * Retourne la liste des Canaux.
+	 * {@inheritDoc}
 	 */
 	public Set<Channel> getChannels() {
 		return this.mDatabase.getChannels();
 	}
 
 	/**
-	 * Ecrit un message.
-	 *
-	 * @param message
+	 * {@inheritDoc}
 	 */
 	public void sendMessage(Message message) {
 		// Ecrit un message
@@ -97,9 +108,7 @@ public class DataManager implements IDataManager {
 	}
 
 	/**
-	 * Ecrit un Utilisateur.
-	 *
-	 * @param user
+	 * {@inheritDoc}
 	 */
 	public void sendUser(User user) {
 		// Ecrit un utilisateur
@@ -107,9 +116,7 @@ public class DataManager implements IDataManager {
 	}
 
 	/**
-	 * Ecrit un Canal.
-	 *
-	 * @param channel
+	 * {@inheritDoc}
 	 */
 	public void sendChannel(Channel channel) {
 		// Ecrit un canal
@@ -117,9 +124,7 @@ public class DataManager implements IDataManager {
 	}
 
 	/**
-	 * Retourne tous les Messages d'un utilisateur.
-	 *
-	 * @param user utilisateur dont les messages sont à rechercher.
+	 * {@inheritDoc}
 	 */
 	public Set<Message> getMessagesFrom(User user) {
 		Set<Message> userMessages = new HashSet<>();
@@ -136,10 +141,7 @@ public class DataManager implements IDataManager {
 	}
 
 	/**
-	 * Retourne tous les Messages d'un utilisateur addressé à un autre.
-	 *
-	 * @param sender utilisateur dont les messages sont à rechercher.
-	 * @param recipient destinataire des messages recherchés.
+	 * {@inheritDoc}
 	 */
 	public Set<Message> getMessagesFrom(User sender, IMessageRecipient recipient) {
 		Set<Message> userMessages = new HashSet<>();
@@ -156,9 +158,7 @@ public class DataManager implements IDataManager {
 	}
 
 	/**
-	 * Retourne tous les Messages adressés à un utilisateur.
-	 *
-	 * @param user utilisateur dont les messages sont à rechercher.
+	 * {@inheritDoc}
 	 */
 	public Set<Message> getMessagesTo(User user) {
 		Set<Message> userMessages = new HashSet<>();
@@ -175,9 +175,12 @@ public class DataManager implements IDataManager {
 	}
 
 	/**
-	 * Assignation du répertoire d'échange.
-	 * 
-	 * @param directoryPath
+	 * {@inheritDoc}
+	 * <p>
+	 * Configure le répertoire d'échange côté gestionnaire d'entités et démarre
+	 * la surveillance des fichiers. Le {@link EntityManager} est enregistré comme
+	 * observateur du watcher pour synchroniser la base avec les fichiers.
+	 * </p>
 	 */
 	public void setExchangeDirectory(String directoryPath) {
 		logger.debug("DataManager : setExchangeDirectory : " + directoryPath);

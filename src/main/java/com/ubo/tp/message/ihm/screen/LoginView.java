@@ -7,6 +7,13 @@ import com.ubo.tp.message.logger.Logger;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Vue de l'écran de connexion.
+ * <p>
+ * Cette classe assemble le composant UI pur {@link LoginComponent} et branche
+ * ses événements vers le {@link ILoginController} fourni.
+ * </p>
+ */
 public class LoginView extends JPanel {
 
     private final ILoginController controller;
@@ -14,6 +21,13 @@ public class LoginView extends JPanel {
     private final LoginComponent component;
     private final Logger LOGGER;
 
+    /**
+     * Crée la vue de connexion.
+     *
+     * @param controller contrôleur à invoquer pour les actions utilisateur
+     * @param component composant UI pur contenant les champs et boutons
+     * @param logger logger optionnel pour trace
+     */
     public LoginView(ILoginController controller, LoginComponent component, Logger logger) {
         this.controller = controller;
         this.component = component;

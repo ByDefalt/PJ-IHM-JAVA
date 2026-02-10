@@ -7,11 +7,24 @@ import java.awt.GridBagConstraints;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Implémentation de {@link NavigationService} basée sur la vue principale
+ * ({@link IMessageAppMainView}).
+ * <p>
+ * Gère un ensemble d'identifiants enregistrés et délègue l'ajout/affichage
+ * à la vue principale. Les opérations d'enregistrement sont idempotentes.
+ * </p>
+ */
 public class AppNavigationService implements NavigationService {
 
     private final IMessageAppMainView mainView;
     private final Set<String> registered = new HashSet<>();
 
+    /**
+     * Crée un service de navigation attaché à la vue principale.
+     *
+     * @param mainView vue principale utilisée pour l'affichage des composants
+     */
     public AppNavigationService(IMessageAppMainView mainView) {
         this.mainView = mainView;
     }

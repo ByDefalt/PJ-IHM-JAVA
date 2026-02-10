@@ -3,11 +3,24 @@ package com.ubo.tp.message.logger;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Logger minimal qui écrit les messages vers la console (System.out / System.err)
+ * selon le niveau configuré.
+ * <p>
+ * Le formatage inclut un timestamp et le niveau. Le logger filtre les messages
+ * en comparant l'ordinal des niveaux (implémentation simple et efficace).
+ * </p>
+ */
 public class ConsoleLogger implements Logger {
 
     private final LogLevel level;
     private final DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
+    /**
+     * Crée un logger console avec le niveau minimal à afficher.
+     *
+     * @param level niveau minimal (ex : INFO)
+     */
     public ConsoleLogger(LogLevel level) {
         this.level = level;
     }
@@ -62,4 +75,3 @@ public class ConsoleLogger implements Logger {
         return enabled(level);
     }
 }
-

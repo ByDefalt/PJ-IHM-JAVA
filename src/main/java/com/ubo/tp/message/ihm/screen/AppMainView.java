@@ -8,7 +8,11 @@ import java.awt.*;
 import java.util.function.Consumer;
 
 /**
- * Classe de la vue principale de l'application.
+ * Vue principale de l'application (fenêtre principale).
+ * <p>
+ * Expose une API pour ajouter / afficher / retirer des vues secondaires via
+ * un identifiant, et fournit un callback pour la sélection du répertoire d'échange.
+ * </p>
  */
 public class AppMainView implements IMessageAppMainView {
 
@@ -25,6 +29,11 @@ public class AppMainView implements IMessageAppMainView {
 
     public static final String DEFAULT_VIEW_ID = "default";
 
+    /**
+     * Crée et configure la fenêtre principale.
+     *
+     * @param logger logger de l'application
+     */
     public AppMainView(Logger logger) {
         this.logger = logger;
 

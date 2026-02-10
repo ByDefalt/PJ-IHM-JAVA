@@ -6,7 +6,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
-// Composant UI pur pour le formulaire de login. Aucune dépendance aux controllers.
+/**
+ * Composant UI pur pour le formulaire de connexion.
+ * <p>
+ * Ce composant contient uniquement les éléments d'interface (champs et
+ * boutons) et expose des accesseurs et méthodes pour attacher des listeners.
+ * Il ne contient aucune logique métier ni dépendance vers les controllers.
+ * </p>
+ */
 public class LoginComponent extends JPanel {
 
     private final Logger LOGGER;
@@ -17,6 +24,11 @@ public class LoginComponent extends JPanel {
     private JButton loginButton;
     private JButton registerButton;
 
+    /**
+     * Crée et initialise le composant de login.
+     *
+     * @param logger logger optionnel pour consigner les actions
+     */
     public LoginComponent(Logger logger) {
         this.LOGGER = logger;
         this.init();
@@ -181,6 +193,17 @@ public class LoginComponent extends JPanel {
     public JButton getLoginButton() { return loginButton; }
     public JButton getRegisterButton() { return registerButton; }
 
+    /**
+     * Ajoute un listener exécuté lorsque l'utilisateur clique sur "Se connecter".
+     *
+     * @param l listener action (non-null)
+     */
     public void addLoginListener(ActionListener l) { if (loginButton != null) loginButton.addActionListener(l); }
+
+    /**
+     * Ajoute un listener exécuté lorsque l'utilisateur clique sur "S'inscrire".
+     *
+     * @param l listener action (non-null)
+     */
     public void addRegisterListener(ActionListener l) { if (registerButton != null) registerButton.addActionListener(l); }
 }

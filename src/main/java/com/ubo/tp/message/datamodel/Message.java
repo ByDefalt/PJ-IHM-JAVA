@@ -3,9 +3,11 @@ package com.ubo.tp.message.datamodel;
 import java.util.UUID;
 
 /**
- * Classe du modèle représentant un message.
- *
- * @author S.Lucas
+ * Modèle représentant un message échangé dans l'application.
+ * <p>
+ * Contient l'émetteur (User), l'identifiant du destinataire (UUID), la date
+ * d'émission et le texte du message.
+ * </p>
  */
 public class Message extends AbstractMessageAppObject {
 
@@ -15,12 +17,12 @@ public class Message extends AbstractMessageAppObject {
 	protected final User mSender;
 
 	/**
-	 * Destinataire du message.
+	 * Destinataire du message (UUID d'un User ou d'un Channel).
 	 */
 	protected final UUID mRecipient;
 
 	/**
-	 * Date d'émission du message.
+	 * Date d'émission du message (millis epoch).
 	 */
 	protected final long mEmissionDate;
 
@@ -30,24 +32,24 @@ public class Message extends AbstractMessageAppObject {
 	protected final String mText;
 
 	/**
-	 * Constructeur.
+	 * Constructeur convenience : génère un UUID et utilise la date courante.
 	 *
-	 * @param sender    utilisateur à l'origine du message.
-	 * @param recipient destinataire du message.
-	 * @param text      corps du message.
+	 * @param sender    utilisateur à l'origine du message
+	 * @param recipient identifiant du destinataire (user ou channel)
+	 * @param text      corps du message
 	 */
 	public Message(User sender, UUID recipient, String text) {
 		this(UUID.randomUUID(), sender, recipient, System.currentTimeMillis(), text);
 	}
 
 	/**
-	 * Constructeur.
+	 * Constructeur complet.
 	 *
-	 * @param messageUuid  identifiant du message.
-	 * @param sender       utilisateur à l'origine du message.
-	 * @param recipient    destinataire du message.
-	 * @param emissionDate date d'émission du message.
-	 * @param text         corps du message.
+	 * @param messageUuid  identifiant du message
+	 * @param sender       utilisateur émetteur
+	 * @param recipient    identifiant du destinataire
+	 * @param emissionDate date d'émission en millis
+	 * @param text         contenu du message
 	 */
 	public Message(UUID messageUuid, User sender, UUID recipient, long emissionDate, String text) {
 		super(messageUuid);
@@ -79,7 +81,9 @@ public class Message extends AbstractMessageAppObject {
 	}
 
 	/**
-	 * Retourne la date d'émission.
+	 * Retourne la date d'émission sous forme de timestamp en millisecondes.
+	 *
+	 * @return timestamp d'émission
 	 */
 	public long getEmissionDate() {
 		return this.mEmissionDate;
