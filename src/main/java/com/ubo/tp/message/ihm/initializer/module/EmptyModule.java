@@ -17,13 +17,13 @@ public class EmptyModule implements UIModule{
     @Override
     public void register(NavigationService navigation, IDataManager dataManager, Logger logger, ControllerRegistry controllerRegistry, ViewRegistry viewRegistry) {
         controllerRegistry.register("emptyController", IEmptyController.class,
-                _ -> new EmptyController());
-        viewRegistry.register("empty", ViewRegistryUtils.<IEmptyController, SwingComponentWrapper, JComponent>createViewFromControllerSingle(
+                ctx -> new EmptyController());
+        viewRegistry.register("empty", ViewRegistryUtils.createViewFromControllerSingle(
                 "emptyController",
                 IEmptyController.class,
-                _ -> new EmptyController(),
-                _ -> new SwingComponentWrapper(new JPanel()),
-                (ctrl, _, ctx) -> new EmptyView(ctrl, ctx.getLogger())
+                ctx -> new EmptyController(),
+                ctx -> new SwingComponentWrapper(new JPanel()),
+                (ctrl, comp, ctx) -> new EmptyView(ctrl, ctx.getLogger())
         ));
     }
 }

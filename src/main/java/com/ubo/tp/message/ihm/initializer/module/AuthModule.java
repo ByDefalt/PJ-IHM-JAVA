@@ -31,20 +31,20 @@ public class AuthModule implements UIModule {
                 ctx -> new RegisterController(ctx.getLogger(), ctx.getNavigation(), ctx.getDataManager()));
 
         // register creators that will be invoked later by UIInitializer
-        viewRegistry.register("login", ViewRegistryUtils.createViewFromController(
+        viewRegistry.register("login", LoginView.class, ViewRegistryUtils.createViewFromController(
                 "loginController",
                 ILoginController.class,
                 ctx -> new LoginController(ctx.getLogger(), ctx.getNavigation(), ctx.getDataManager()),
                 ctx -> Collections.singletonList(new LoginComponent(ctx.getLogger())),
-                (ctrl, comps, ctx) -> new LoginView(ctrl, comps.getFirst(), ctx.getLogger())
+                (ctrl, comps, ctx) -> new LoginView(ctrl, (LoginComponent) comps.getFirst(), ctx.getLogger())
         ));
 
-        viewRegistry.register("register", ViewRegistryUtils.createViewFromController(
+        viewRegistry.register("register", RegisterView.class, ViewRegistryUtils.createViewFromController(
                 "registerController",
                 IRegisterController.class,
                 ctx -> new RegisterController(ctx.getLogger(), ctx.getNavigation(), ctx.getDataManager()),
                 ctx -> Collections.singletonList(new RegisterComponent(ctx.getLogger())),
-                (ctrl, comps, ctx) -> new RegisterView(ctrl, comps.getFirst(), ctx.getLogger())
+                (ctrl, comps, ctx) -> new RegisterView(ctrl, (RegisterComponent) comps.getFirst(), ctx.getLogger())
         ));
     }
 }

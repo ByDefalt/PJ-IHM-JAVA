@@ -14,7 +14,7 @@ import java.awt.*;
  * ses événements vers le {@link ILoginController} fourni.
  * </p>
  */
-public class LoginView extends JPanel {
+public class LoginView extends View {
 
     private final ILoginController controller;
 

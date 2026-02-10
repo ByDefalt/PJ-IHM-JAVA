@@ -192,7 +192,7 @@ public class DataFilesManager {
 			String text = properties.getProperty(PROPERTY_KEY_MESSAGE_TEXT, "NoText");
 
 			User sender = getUserFromUuid(senderUuid, userMap);
-			long emissionDate = Long.valueOf(emissionDateStr);
+			long emissionDate = Long.parseLong(emissionDateStr);
 
 			message = new Message(UUID.fromString(uuid), sender, UUID.fromString(recipientUuid), emissionDate, text);
 		}
@@ -225,7 +225,7 @@ public class DataFilesManager {
 	 * 
 	 * @param uuid
 	 * @param userMap
-	 * @return
+	 * @return L'utilisateur identifié ou l'utilisateur inconnu si aucun utilisateur ne
 	 */
 	protected User getUserFromUuid(String uuid, Map<UUID, User> userMap) {
 		// Récupération de l'utilisateur en fonction de l'UUID
@@ -263,18 +263,18 @@ public class DataFilesManager {
 	 * @param users
 	 */
 	protected String getUsersAsString(List<User> users) {
-		String usersAsString = "";
+		StringBuilder usersAsString = new StringBuilder();
 
 		Iterator<User> iterator = users.iterator();
 		while (iterator.hasNext()) {
-			usersAsString += iterator.next();
+			usersAsString.append(iterator.next());
 
 			if (iterator.hasNext()) {
-				usersAsString += USER_SEPARATOR;
+				usersAsString.append(USER_SEPARATOR);
 			}
 		}
 
-		return usersAsString;
+		return usersAsString.toString();
 	}
 
 	/**

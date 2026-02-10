@@ -8,7 +8,6 @@ import com.ubo.tp.message.navigation.NavigationService;
 import com.ubo.tp.message.navigation.AppNavigationService;
 import com.ubo.tp.message.ihm.initializer.UIInitializer;
 import com.ubo.tp.message.ihm.initializer.module.AuthModule;
-import com.ubo.tp.message.ihm.initializer.module.SettingsModule;
 import com.ubo.tp.message.ihm.service.IMessageAppMainView;
 
 import javax.swing.*;
@@ -82,7 +81,6 @@ public class MessageApp {
 		UIInitializer uiInit = new UIInitializer(navigation, mDataManager, logger);
 
 		uiInit.register(new AuthModule());
-		uiInit.register(new SettingsModule());
 		uiInit.register(new EmptyModule());
 
 		uiInit.initViews();

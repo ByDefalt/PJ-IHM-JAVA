@@ -1,6 +1,7 @@
 package com.ubo.tp.message.ihm.initializer.registry;
 
 import com.ubo.tp.message.ihm.initializer.model.InitializationContext;
+import com.ubo.tp.message.controller.service.Controller;
 
 import java.util.Set;
 import java.util.function.Function;
@@ -27,9 +28,9 @@ public interface ControllerRegistry {
      * @param type classe attendue du controller
      * @param creator fonction de création qui reçoit le {@link InitializationContext}
      *                et retourne une instance du controller
-     * @param <T> type du controller
+     * @param <T> type du controller (doit étendre {@link Controller})
      */
-    <T> void register(String id, Class<T> type, Function<InitializationContext, T> creator);
+    <T extends Controller> void register(String id, Class<T> type, Function<InitializationContext, T> creator);
 
     /**
      * Indique si un identifiant est connu (créateur ou singleton présent).
@@ -45,11 +46,11 @@ public interface ControllerRegistry {
      * @param id identifiant du controller
      * @param context contexte d'initialisation passé au créateur
      * @param type type attendu en sortie
-     * @param <T> type du controller
+     * @param <T> type du controller (doit étendre {@link Controller})
      * @return instance du controller ou null si non trouvé
      * @throws ClassCastException si l'instance existante n'est pas du type attendu
      */
-    <T> T create(String id, InitializationContext context, Class<T> type);
+    <T extends Controller> T create(String id, InitializationContext context, Class<T> type);
 
     /**
      * Retourne l'ensemble des ids enregistrés (créateurs disponibles).
@@ -73,8 +74,8 @@ public interface ControllerRegistry {
      * @param context contexte d'initialisation
      * @param type type attendu
      * @param factory supplier de repli utilisé si aucun créateur n'est présent
-     * @param <T> type du controller
+     * @param <T> type du controller (doit étendre {@link Controller})
      * @return instance créée ou existante
      */
-    <T> T getOrCreate(String id, InitializationContext context, Class<T> type, Supplier<T> factory);
+    <T extends Controller> T getOrCreate(String id, InitializationContext context, Class<T> type, Supplier<T> factory);
 }

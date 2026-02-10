@@ -354,7 +354,7 @@ public class EntityManager implements IWatchableDirectoryObserver {
 	 * Extraction du fichier pour récupérer le canal correspondant. <br/>
 	 * <i>Retourne <code>null</code> si un problème est rencontré</i>.
 	 *
-	 * @param channelFile , Fichier properties du canal à ectraire.
+	 * @param userFile , Fichier properties du canal à ectraire.
 	 */
 	protected Channel extractChannel(File userFile) {
 		return mDataFileManager.readChannel(userFile, mUserMap);

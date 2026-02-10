@@ -1,8 +1,8 @@
 package com.ubo.tp.message.ihm.initializer.registry;
 
 import com.ubo.tp.message.ihm.initializer.model.InitializationContext;
+import com.ubo.tp.message.ihm.screen.View;
 
-import javax.swing.JComponent;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,7 +14,7 @@ import java.util.function.Function;
  */
 public class DefaultViewRegistry implements ViewRegistry {
 
-    private final Map<String, Function<InitializationContext, JComponent>> creators = new ConcurrentHashMap<>();
+    private final Map<String, Function<InitializationContext, View>> creators = new ConcurrentHashMap<>();
 
     /**
      * Enregistre un créateur de vue associé à un identifiant.
@@ -23,9 +23,10 @@ public class DefaultViewRegistry implements ViewRegistry {
      * @param creator La fonction créatrice de la vue.
      */
     @Override
-    public void register(String id, Function<InitializationContext, JComponent> creator) {
-        if (id == null || creator == null) return;
-        creators.putIfAbsent(id, creator);
+    @SuppressWarnings("unchecked")
+    public <V extends View> void register(String id, Class<V> type, Function<InitializationContext, V> creator) {
+        if (id == null || creator == null || type == null) return;
+        creators.putIfAbsent(id, (Function<InitializationContext, View>) creator);
     }
 
     /**
@@ -44,12 +45,17 @@ public class DefaultViewRegistry implements ViewRegistry {
      *
      * @param id      L'identifiant de la vue.
      * @param context Le contexte d'initialisation.
-     * @return La composante JComponent créée, ou null si aucun créateur n'est trouvé.
+     * @return La vue créée, ou null si aucun créateur n'est trouvé.
      */
     @Override
-    public JComponent create(String id, InitializationContext context) {
-        Function<InitializationContext, JComponent> f = creators.get(id);
-        return f != null ? f.apply(context) : null;
+    @SuppressWarnings("unchecked")
+    public <V extends View> V create(String id, InitializationContext context, Class<V> type) {
+        Function<InitializationContext, View> f = creators.get(id);
+        if (f == null) return null;
+        View view = f.apply(context);
+        if (view == null) return null;
+        if (type.isInstance(view)) return (V) view;
+        throw new ClassCastException("View created for id '" + id + "' is not of expected type: " + type.getName());
     }
 
     /**

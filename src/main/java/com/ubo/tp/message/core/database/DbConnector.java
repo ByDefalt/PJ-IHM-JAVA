@@ -86,7 +86,7 @@ public class DbConnector {
 	/**
 	 * Ajoute un canal à la base de données.
 	 *
-	 * @param newChannel
+	 * @param channelToAdd
 	 */
 	public void addChannel(Channel channelToAdd) {
 		this.mDatabase.addChannel(channelToAdd);
@@ -95,7 +95,7 @@ public class DbConnector {
 	/**
 	 * Supprime un canal de la base de données.
 	 *
-	 * @param deletedChannel
+	 * @param channelToRemove
 	 */
 	public void deleteChannel(Channel channelToRemove) {
 		this.mDatabase.deleteChannel(channelToRemove);
@@ -104,7 +104,7 @@ public class DbConnector {
 	/**
 	 * Modification d'un canal de la base de données.
 	 *
-	 * @param modifiedChannel
+	 * @param channelToModify
 	 */
 	public void modifiyChannel(Channel channelToModify) {
 		this.mDatabase.modifiyChannel(channelToModify);

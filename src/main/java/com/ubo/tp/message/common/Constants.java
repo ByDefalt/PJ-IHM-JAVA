@@ -2,6 +2,7 @@ package com.ubo.tp.message.common;
 
 import com.ubo.tp.message.datamodel.User;
 
+import java.nio.file.FileSystems;
 import java.util.UUID;
 
 /**
@@ -33,7 +34,7 @@ public class Constants {
 	/**
 	 * Séparateur de fichier du système.
 	 */
-	public static final String SYSTEM_FILE_SEPARATOR = System.getProperty("file.separator");
+	public static final String SYSTEM_FILE_SEPARATOR = FileSystems.getDefault().getSeparator();
 
 	/**
 	 * Identifiant de l'utilisateur inconnu.

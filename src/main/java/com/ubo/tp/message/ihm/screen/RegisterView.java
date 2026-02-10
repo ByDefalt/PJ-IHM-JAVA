@@ -14,7 +14,7 @@ import java.awt.*;
  * vers le {@link IRegisterController} fourni.
  * </p>
  */
-public class RegisterView extends JPanel {
+public class RegisterView extends View{
 
     private final IRegisterController controller;
     private final RegisterComponent component;

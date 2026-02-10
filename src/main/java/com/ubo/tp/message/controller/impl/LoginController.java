@@ -1,7 +1,6 @@
 package com.ubo.tp.message.controller.impl;
 
 import com.ubo.tp.message.controller.service.ILoginController;
-import com.ubo.tp.message.core.DataManager;
 import com.ubo.tp.message.core.IDataManager;
 import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.logger.Logger;

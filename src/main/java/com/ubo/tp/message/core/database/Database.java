@@ -157,7 +157,7 @@ public class Database implements IDatabase {
 	/**
 	 * Ajoute un canal à la base de données.
 	 *
-	 * @param newChannel
+	 * @param channelToAdd
 	 */
 	protected void addChannel(Channel channelToAdd) {
 		// Ajout du canal
@@ -172,7 +172,7 @@ public class Database implements IDatabase {
 	/**
 	 * Supprime un canal de la base de données.
 	 *
-	 * @param deletedChannel
+	 * @param channelToRemove
 	 */
 	protected void deleteChannel(Channel channelToRemove) {
 		// Suppression de l'utilisateur
@@ -187,7 +187,7 @@ public class Database implements IDatabase {
 	/**
 	 * Modification d'un canal de la base de données.
 	 *
-	 * @param modifiedChannel
+	 * @param channelToModify
 	 */
 	protected void modifiyChannel(Channel channelToModify) {
 		// Ré-ajout pour écraser l'ancienne copie.

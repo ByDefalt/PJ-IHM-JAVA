@@ -7,7 +7,7 @@ package com.ubo.tp.message.controller.service;
  * afin de séparer la logique métier/contrôleur de la vue.
  * </p>
  */
-public interface ILoginController {
+public interface ILoginController extends Controller {
 
     /**
      * Callback invoqué lorsque l'utilisateur demande l'écran d'enregistrement.

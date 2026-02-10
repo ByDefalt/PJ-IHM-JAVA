@@ -19,12 +19,12 @@ import java.util.List;
  * Classe responsable de l'initialisation des vues de l'interface (enregistrement
  * des cartes auprès du NavigationService). Permet de sortir cette logique de
  * la classe MessageApp pour centraliser la configuration UI.
- *
+ * <p>
  * Lifecycle & recommandations :
  * - L'initialisation des vues se fait via la méthode {@link #initViews()} qui :
  *   1) construit un {@link InitializationContext} (contenant DataManager,
  *      NavigationService, Logger et ControllerRegistry),
- *   2) appelle {@link UIModule#register(...)} pour que chaque module enregistre
+ *   2) appelle {@link UIModule#register} pour que chaque module enregistre
  *      ses créateurs de controllers et views dans les registries,
  *   3) invoque ensuite les créateurs de vues pour obtenir les composants et les
  *      enregistre auprès du {@link NavigationService}.
@@ -99,8 +99,8 @@ public class UIInitializer {
 
     /**
      * Enregistre les modules (appelle leur méthode register).
-     *
-     * Séparation de responsabilité : cette méthode ne crée pas de vues, elle
+     * <p>
+     * Séparation de responsabilité : cette m��thode ne crée pas de vues, elle
      * permet seulement aux modules d'enregistrer des créateurs dans les
      * registries (ControllerRegistry, ViewRegistry). Appel idempotent si les
      * créateurs utilisent putIfAbsent.

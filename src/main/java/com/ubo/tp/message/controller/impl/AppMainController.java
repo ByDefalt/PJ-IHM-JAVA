@@ -1,5 +1,6 @@
 package com.ubo.tp.message.controller.impl;
 
+import com.ubo.tp.message.controller.service.Controller;
 import com.ubo.tp.message.core.IDataManager;
 import com.ubo.tp.message.ihm.service.IMessageAppMainView;
 import com.ubo.tp.message.ihm.screen.AppMainView;
@@ -12,7 +13,7 @@ import com.ubo.tp.message.logger.Logger;
  * actions nécessaires à l'IHM (ex : sélection du répertoire d'échange).
  * </p>
  */
-public class AppMainController {
+public class AppMainController implements Controller {
 
     private final IDataManager dataManager;
     private final Logger logger;

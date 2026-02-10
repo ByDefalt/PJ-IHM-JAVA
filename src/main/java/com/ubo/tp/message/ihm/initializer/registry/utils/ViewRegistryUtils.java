@@ -1,9 +1,10 @@
 package com.ubo.tp.message.ihm.initializer.registry.utils;
 
+import com.ubo.tp.message.controller.service.Controller;
 import com.ubo.tp.message.ihm.component.Component;
 import com.ubo.tp.message.ihm.initializer.model.InitializationContext;
+import com.ubo.tp.message.ihm.screen.View;
 
-import javax.swing.JComponent;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -42,11 +43,11 @@ public final class ViewRegistryUtils {
      * @param viewConstructor fonction qui assemble controller + liste de components + context en Vue
      * @param <C> type du controller
      * @param <Comp> type du component (implémentation de Component)
-     * @param <V> type de la view (JComponent)
-     * @return fonction prenant un {@link InitializationContext} et retournant un JComponent
+     * @param <V> type de la view (View)
+     * @return fonction prenant un {@link InitializationContext} et retournant une View
      */
-    public static <C, Comp extends Component, V extends JComponent>
-    Function<InitializationContext, JComponent> createViewFromController(
+    public static <C extends Controller, Comp extends Component, V extends View>
+    Function<InitializationContext, V> createViewFromController(
             String controllerId,
             Class<C> controllerType,
             Function<InitializationContext, C> controllerFallbackCreator,
@@ -66,8 +67,7 @@ public final class ViewRegistryUtils {
                 controller = controllerFallbackCreator != null ? controllerFallbackCreator.apply(ctx) : null;
             }
             List<Comp> comps = componentCreator.apply(ctx);
-            V view = viewConstructor.apply(controller, comps, ctx);
-            return (JComponent) view;
+            return viewConstructor.apply(controller, comps, ctx);
         };
     }
 
@@ -76,8 +76,8 @@ public final class ViewRegistryUtils {
      * accepte une factory de component unique et la convertit en List interne.
      * Permet d'éviter d'écrire Collections.singletonList(...) partout.
      */
-    public static <C, Comp extends Component, V extends JComponent>
-    Function<InitializationContext, JComponent> createViewFromControllerSingle(
+    public static <C extends Controller, Comp extends Component, V extends View>
+    Function<InitializationContext, V> createViewFromControllerSingle(
             String controllerId,
             Class<C> controllerType,
             Function<InitializationContext, C> controllerFallbackCreator,

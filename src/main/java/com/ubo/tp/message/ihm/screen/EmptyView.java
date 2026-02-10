@@ -3,9 +3,7 @@ package com.ubo.tp.message.ihm.screen;
 import com.ubo.tp.message.controller.service.IEmptyController;
 import com.ubo.tp.message.logger.Logger;
 
-import javax.swing.*;
-
-public class EmptyView extends JPanel {
+public class EmptyView extends View {
     private final IEmptyController emptyController;
     private final Logger LOGGER;
 

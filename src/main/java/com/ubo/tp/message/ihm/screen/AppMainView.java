@@ -5,6 +5,7 @@ import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -14,7 +15,7 @@ import java.util.function.Consumer;
  * un identifiant, et fournit un callback pour la sélection du répertoire d'échange.
  * </p>
  */
-public class AppMainView implements IMessageAppMainView {
+public class AppMainView extends View implements IMessageAppMainView {
 
 
     private final JFrame mainFrame;
@@ -62,19 +63,19 @@ public class AppMainView implements IMessageAppMainView {
         JMenu fileMenu = new JMenu("Fichier");
 
         // Sélecteur de fichier
-        JMenuItem selectDirItem = new JMenuItem("Sélectionner répertoire", new ImageIcon(this.loadIcon("/images/editIcon_20.png")));
+        JMenuItem selectDirItem = new JMenuItem("Sélectionner répertoire", new ImageIcon(Objects.requireNonNull(this.loadIcon("/images/editIcon_20.png"))));
         selectDirItem.addActionListener(e -> this.showFileChooser());
         fileMenu.add(selectDirItem);
 
         fileMenu.addSeparator(); // Séparateur
 
-        JMenuItem exitItem = new JMenuItem("Quitter", new ImageIcon(this.loadIcon("/images/exitIcon_20.png")));
+        JMenuItem exitItem = new JMenuItem("Quitter", new ImageIcon(Objects.requireNonNull(this.loadIcon("/images/exitIcon_20.png"))));
         exitItem.addActionListener(e -> System.exit(0));
         fileMenu.add(exitItem);
 
         // Menu Aide
         JMenu helpMenu = new JMenu("Aide");
-        JMenuItem aboutItem = new JMenuItem("À propos", new ImageIcon(this.loadIcon("/images/logo_20.png")));
+        JMenuItem aboutItem = new JMenuItem("À propos", new ImageIcon(Objects.requireNonNull(this.loadIcon("/images/logo_20.png"))));
         aboutItem.addActionListener(e -> this.showAboutDialog());
         helpMenu.add(aboutItem);
 
@@ -99,27 +100,11 @@ public class AppMainView implements IMessageAppMainView {
 
         // Logo
         Image logoImage = this.loadIcon("/images/logo_50.png");
-        JLabel logoLabel = new JLabel(new ImageIcon(logoImage));
+        JLabel logoLabel = new JLabel(new ImageIcon(Objects.requireNonNull(logoImage)));
         panel.add(logoLabel, BorderLayout.WEST);
 
         // Texte À propos
-        JPanel textPanel = new JPanel(new BorderLayout(5, 5));
-        JLabel titleLabel = new JLabel("MessageApp");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
-
-        JTextArea descArea = new JTextArea(
-            "Application de messagerie\n\n" +
-            "Version 1.0\n\n" +
-            "© 2026 Message App"
-        );
-        descArea.setEditable(false);
-        descArea.setLineWrap(true);
-        descArea.setWrapStyleWord(true);
-        descArea.setOpaque(false);
-        descArea.setFont(new Font("Arial", Font.PLAIN, 12));
-
-        textPanel.add(titleLabel, BorderLayout.NORTH);
-        textPanel.add(descArea, BorderLayout.CENTER);
+        JPanel textPanel = getTextPanel();
         panel.add(textPanel, BorderLayout.CENTER);
 
         // Bouton OK
@@ -132,6 +117,30 @@ public class AppMainView implements IMessageAppMainView {
         aboutDialog.add(panel);
         aboutDialog.setVisible(true);
         this.logger.debug("Dialogue À propos affiché");
+    }
+
+    private JPanel getTextPanel() {
+        JPanel textPanel = new JPanel(new BorderLayout(5, 5));
+        JLabel titleLabel = new JLabel("MessageApp");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+
+        JTextArea descArea = new JTextArea(
+                """
+                        Application de messagerie
+                        
+                        Version 1.0
+                        
+                        © 2026 Message App"""
+        );
+        descArea.setEditable(false);
+        descArea.setLineWrap(true);
+        descArea.setWrapStyleWord(true);
+        descArea.setOpaque(false);
+        descArea.setFont(new Font("Arial", Font.PLAIN, 12));
+
+        textPanel.add(titleLabel, BorderLayout.NORTH);
+        textPanel.add(descArea, BorderLayout.CENTER);
+        return textPanel;
     }
 
     /**

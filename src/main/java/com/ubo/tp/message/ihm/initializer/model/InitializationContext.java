@@ -11,7 +11,7 @@ import com.ubo.tp.message.navigation.NavigationService;
  * registries. Il regroupe les services nécessaires (DataManager, NavigationService,
  * Logger) ainsi que l'accès au {@link ControllerRegistry} qui permet de récupérer
  * ou créer d'autres controllers.
- *
+ * <p>
  * Lifecycle / portée :
  * - Une instance de InitializationContext est construite par {@link UIInitializer}
  *   au moment de l'initialisation des vues (méthode {@code initViews()}).

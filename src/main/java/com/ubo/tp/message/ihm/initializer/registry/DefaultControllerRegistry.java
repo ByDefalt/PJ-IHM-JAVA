@@ -1,6 +1,7 @@
 package com.ubo.tp.message.ihm.initializer.registry;
 
 import com.ubo.tp.message.ihm.initializer.model.InitializationContext;
+import com.ubo.tp.message.controller.service.Controller;
 
 import java.util.Map;
 import java.util.Set;
@@ -17,15 +18,15 @@ import java.util.function.Supplier;
  */
 public class DefaultControllerRegistry implements ControllerRegistry {
 
-    private final Map<String, Function<InitializationContext, Object>> creators = new ConcurrentHashMap<>();
+    // stocke des créateurs hétérogènes ; le wildcard évite l'erreur de cast
+    private final Map<String, Function<InitializationContext, ?>> creators = new ConcurrentHashMap<>();
     private final Map<String, Object> singletons = new ConcurrentHashMap<>();
     private final Map<String, Class<?>> types = new ConcurrentHashMap<>();
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T> void register(String id, Class<T> type, Function<InitializationContext, T> creator) {
+    public <T extends Controller> void register(String id, Class<T> type, Function<InitializationContext, T> creator) {
         if (id == null || creator == null || type == null) return;
-        creators.putIfAbsent(id, (Function<InitializationContext, Object>) creator);
+        creators.putIfAbsent(id, creator);
         types.putIfAbsent(id, type);
     }
 
@@ -36,7 +37,7 @@ public class DefaultControllerRegistry implements ControllerRegistry {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T create(String id, InitializationContext context, Class<T> type) {
+    public <T extends Controller> T create(String id, InitializationContext context, Class<T> type) {
         // first, check singleton cache
         Object existing = singletons.get(id);
         if (existing != null) {
@@ -44,7 +45,7 @@ public class DefaultControllerRegistry implements ControllerRegistry {
             throw new ClassCastException("Controller for id '" + id + "' is not of expected type " + type.getName());
         }
 
-        Function<InitializationContext, Object> f = creators.get(id);
+        Function<InitializationContext, ?> f = creators.get(id);
         if (f == null) return null;
         Object obj = f.apply(context);
         if (obj == null) return null;
@@ -66,7 +67,7 @@ public class DefaultControllerRegistry implements ControllerRegistry {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T getOrCreate(String id, InitializationContext context, Class<T> type, Supplier<T> factory) {
+    public <T extends Controller> T getOrCreate(String id, InitializationContext context, Class<T> type, Supplier<T> factory) {
         // If already exists as singleton return it
         Object instance = singletons.get(id);
         if (instance != null) {
@@ -77,7 +78,7 @@ public class DefaultControllerRegistry implements ControllerRegistry {
         // computeIfAbsent to ensure thread-safety when creating singleton
         Object created = singletons.computeIfAbsent(id, k -> {
             // try to use registered creator first
-            Function<InitializationContext, Object> f = creators.get(id);
+            Function<InitializationContext, ?> f = creators.get(id);
             if (f != null) {
                 Object c = f.apply(context);
                 if (c != null) return c;

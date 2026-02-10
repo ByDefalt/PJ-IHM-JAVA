@@ -1,4 +1,4 @@
 package com.ubo.tp.message.controller.service;
 
-public interface IEmptyController {
+public interface IEmptyController extends Controller {
 }

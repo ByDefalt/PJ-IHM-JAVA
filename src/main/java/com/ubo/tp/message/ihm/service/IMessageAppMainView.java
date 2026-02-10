@@ -8,7 +8,7 @@ import java.awt.GridBagConstraints;
  * Interface exposée par la vue principale pour être utilisée par le contrôleur.
  * Ne contient que les méthodes nécessaires au contrôleur.
  */
-public interface IMessageAppMainView {
+public interface IMessageAppMainView{
 
     /**
      * Affiche la vue principale.
