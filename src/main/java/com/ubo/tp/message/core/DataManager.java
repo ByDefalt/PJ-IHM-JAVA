@@ -19,7 +19,7 @@ import com.ubo.tp.message.logger.Logger;
  *
  * @author S.Lucas
  */
-public class DataManager {
+public class DataManager implements IDataManager {
 
 	/**
 	 * Base de donnée de l'application.

@@ -1,16 +1,17 @@
 package com.ubo.tp.message.ihm;
 
-import java.io.File;
-
-import com.ubo.tp.message.core.DataManager;
+import com.ubo.tp.message.core.IDataManager;
+import com.ubo.tp.message.logger.Logger;
+import com.ubo.tp.message.controller.impl.AppMainController;
+import com.ubo.tp.message.navigation.NavigationService;
+import com.ubo.tp.message.navigation.AppNavigationService;
+import com.ubo.tp.message.ihm.initializer.UIInitializer;
 import com.ubo.tp.message.ihm.initializer.module.AuthModule;
 import com.ubo.tp.message.ihm.initializer.module.SettingsModule;
-import com.ubo.tp.message.ihm.initializer.UIInitializer;
 import com.ubo.tp.message.ihm.service.IMessageAppMainView;
-import com.ubo.tp.message.logger.Logger;
-import com.ubo.tp.message.controller.impl.MessageAppMainController;
-import com.ubo.tp.message.navigation.AppNavigationService;
-import com.ubo.tp.message.navigation.NavigationService;
+
+import javax.swing.*;
+import java.io.File;
 
 /**
  * Classe principale l'application.
@@ -21,12 +22,12 @@ public class MessageApp {
 	/**
 	 * Base de données.
 	 */
-	protected DataManager mDataManager;
+	protected IDataManager mDataManager;
 
 	/**
 	 * Contrôleur de la vue principale de l'application.
 	 */
-	protected MessageAppMainController mMainController;
+	protected AppMainController mMainController;
 
 	private final Logger logger;
 
@@ -35,7 +36,7 @@ public class MessageApp {
 	 *
 	 * @param dataManager
 	 */
-	public MessageApp(DataManager dataManager, Logger logger) {
+	public MessageApp(IDataManager dataManager, Logger logger) {
 		this.mDataManager = dataManager;
 		this.logger = logger;
 	}
@@ -58,6 +59,12 @@ public class MessageApp {
 	 * Initialisation du look and feel de l'application.
 	 */
 	protected void initLookAndFeel() {
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			this.logger.debug("LookAndFeel défini sur le système");
+		} catch (Exception e) {
+			this.logger.warn("Impossible de définir le Look and Feel natif: " + e.getMessage());
+		}
 	}
 
 	/**
@@ -65,13 +72,14 @@ public class MessageApp {
 	 */
 	protected void initGui() {
 		// this.mMainController...
-		mMainController = new MessageAppMainController(mDataManager, logger);
+		mMainController = new AppMainController(mDataManager, logger);
 
 		// Créer le service de navigation basé sur la vue principale
 		NavigationService navigation = new AppNavigationService(mMainController.getView());
 
 		// Initialiser les vues via UIInitializer et modules (OCP)
 		UIInitializer uiInit = new UIInitializer(navigation, mDataManager, logger);
+
 		uiInit.register(new AuthModule());
 		uiInit.register(new SettingsModule());
 
@@ -112,7 +120,7 @@ public class MessageApp {
 	}
 
 
-	public DataManager getmDataManager() {
+	public IDataManager getmDataManager() {
 		return mDataManager;
 	}
 

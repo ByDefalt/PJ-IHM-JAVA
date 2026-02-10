@@ -30,7 +30,7 @@ public class RegisterView extends JPanel {
 
         this.component.addRegisterListener(e -> {
             if (LOGGER != null) LOGGER.debug("Register button clicked");
-            controller.onRegisterSubmit();
+            controller.onRegisterButtonClicked();
         });
 
         if (LOGGER != null) LOGGER.debug("RegisterView initialisée");

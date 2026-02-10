@@ -1,6 +1,6 @@
 package com.ubo.tp.message.ihm.initializer.module;
 
-import com.ubo.tp.message.core.DataManager;
+import com.ubo.tp.message.core.IDataManager;
 import com.ubo.tp.message.ihm.initializer.registry.ControllerRegistry;
 import com.ubo.tp.message.ihm.initializer.registry.ViewRegistry;
 import com.ubo.tp.message.logger.Logger;
@@ -12,5 +12,5 @@ import com.ubo.tp.message.navigation.NavigationService;
  * UIInitializer).
  */
 public interface UIModule {
-    void register(NavigationService navigation, DataManager dataManager, Logger logger, ControllerRegistry controllerRegistry, ViewRegistry viewRegistry);
+    void register(NavigationService navigation, IDataManager dataManager, Logger logger, ControllerRegistry controllerRegistry, ViewRegistry viewRegistry);
 }

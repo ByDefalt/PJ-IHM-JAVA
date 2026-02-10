@@ -18,9 +18,13 @@ public class LoginController implements ILoginController {
     @Override
     public void onRegisterButtonClicked() {
         logger.debug("LoginController: onRegisterButtonClicked called");
-
-        // La vue d'inscription est pré-enregistrée dans la vue principale par l'amont
         navigation.showView("register");
+    }
+
+    @Override
+    public void onLoginButtonClicked() {
+        logger.debug("LoginController: onLoginButtonClicked called");
+
     }
 
 }

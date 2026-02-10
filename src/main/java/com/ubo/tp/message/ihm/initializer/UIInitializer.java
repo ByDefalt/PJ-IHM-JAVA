@@ -1,6 +1,6 @@
 package com.ubo.tp.message.ihm.initializer;
 
-import com.ubo.tp.message.core.DataManager;
+import com.ubo.tp.message.core.IDataManager;
 import com.ubo.tp.message.ihm.initializer.model.InitializationContext;
 import com.ubo.tp.message.ihm.initializer.module.UIModule;
 import com.ubo.tp.message.ihm.initializer.registry.ControllerRegistry;
@@ -10,6 +10,7 @@ import com.ubo.tp.message.ihm.initializer.registry.ViewRegistry;
 import com.ubo.tp.message.logger.Logger;
 import com.ubo.tp.message.navigation.NavigationService;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,13 +36,13 @@ import java.util.List;
 public class UIInitializer {
 
     private final NavigationService navigation;
-    private final DataManager dataManager;
+    private final IDataManager dataManager;
     private final Logger logger;
     private final List<UIModule> modules = new ArrayList<>();
     private final ViewRegistry viewRegistry = new DefaultViewRegistry();
     private final ControllerRegistry controllerRegistry = new DefaultControllerRegistry();
 
-    public UIInitializer(NavigationService navigation, DataManager dataManager, Logger logger) {
+    public UIInitializer(NavigationService navigation, IDataManager dataManager, Logger logger) {
         this.navigation = navigation;
         this.dataManager = dataManager;
         this.logger = logger;
@@ -65,6 +66,7 @@ public class UIInitializer {
 
     public ControllerRegistry getControllerRegistry() { return controllerRegistry; }
     public ViewRegistry getViewRegistry() { return viewRegistry; }
+    public IDataManager getDataManager() { return dataManager; }
 
     /**
      * Supprime une vue enregistrée : la retire du NavigationService et du ViewRegistry.
@@ -129,7 +131,7 @@ public class UIInitializer {
 
         for (String id : viewRegistry.getIds()) {
             try {
-                javax.swing.JComponent comp = viewRegistry.create(id, ctx);
+                JComponent comp = viewRegistry.create(id, ctx);
                 if (comp != null && !navigation.hasView(id)) {
                     navigation.addView(id, comp);
                 }

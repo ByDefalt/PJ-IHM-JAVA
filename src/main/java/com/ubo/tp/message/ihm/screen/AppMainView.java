@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 /**
  * Classe de la vue principale de l'application.
  */
-public class MessageAppMainView implements IMessageAppMainView {
+public class AppMainView implements IMessageAppMainView {
 
 
     private final JFrame mainFrame;
@@ -25,13 +25,10 @@ public class MessageAppMainView implements IMessageAppMainView {
 
     public static final String DEFAULT_VIEW_ID = "default";
 
-    public MessageAppMainView(Logger logger) {
+    public AppMainView(Logger logger) {
         this.logger = logger;
 
-        this.logger.info("Initialisation de MessageAppMainView");
-
-        // Configurer le Look and Feel natif du système
-        this.setSystemLookAndFeel();
+        this.logger.info("Initialisation de AppMainView");
 
         this.mainFrame = new JFrame("MessageApp");
         this.mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -45,20 +42,9 @@ public class MessageAppMainView implements IMessageAppMainView {
 
         this.createMenuBar();
 
-        this.logger.info("MessageAppMainView initialisée");
+        this.logger.info("AppMainView initialisée");
     }
 
-    /**
-     * Configure le Look and Feel natif du système d'exploitation.
-     */
-    private void setSystemLookAndFeel() {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            this.logger.debug("LookAndFeel défini sur le système");
-        } catch (Exception e) {
-            this.logger.warn("Impossible de définir le Look and Feel natif: " + e.getMessage());
-        }
-    }
 
     private void createMenuBar() {
         JMenuBar menuBar = new JMenuBar();

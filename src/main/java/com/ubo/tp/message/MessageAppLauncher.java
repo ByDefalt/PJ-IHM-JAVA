@@ -1,6 +1,7 @@
 package com.ubo.tp.message;
 
 import com.ubo.tp.message.core.DataManager;
+import com.ubo.tp.message.core.IDataManager;
 import com.ubo.tp.message.core.database.DataBaseObserverImpl;
 import com.ubo.tp.message.core.database.Database;
 import com.ubo.tp.message.core.database.DbConnector;
@@ -37,7 +38,7 @@ public class MessageAppLauncher {
 
 
 		DataManager dataManager = new DataManager(database, entityManager, logger);
-		DataBaseObserverImpl dataBaseObserver = new DataBaseObserverImpl();
+        DataBaseObserverImpl dataBaseObserver = new DataBaseObserverImpl();
 		dataManager.addObserver(dataBaseObserver);
 
 		DbConnector dbConnector = new DbConnector(database);

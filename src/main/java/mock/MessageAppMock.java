@@ -17,6 +17,7 @@ import javax.swing.SwingUtilities;
 
 import com.ubo.tp.message.common.Constants;
 import com.ubo.tp.message.core.DataManager;
+import com.ubo.tp.message.core.IDataManager;
 import com.ubo.tp.message.core.database.DbConnector;
 import com.ubo.tp.message.datamodel.Channel;
 import com.ubo.tp.message.datamodel.Message;
@@ -37,14 +38,14 @@ public class MessageAppMock {
 	/**
 	 * Gestionnaire de données.
 	 */
-	protected DataManager mDataManager;
+	protected IDataManager mDataManager;
 
 	/**
 	 * Constructeur.
 	 *
 	 * @param dbConnector , lien vers la BDD de l'application.
 	 */
-	public MessageAppMock(DbConnector dbConnector, DataManager dataManager) {
+	public MessageAppMock(DbConnector dbConnector, IDataManager dataManager) {
 		this.mDbConnector = dbConnector;
 		this.mDataManager = dataManager;
 	}

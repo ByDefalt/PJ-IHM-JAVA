@@ -36,6 +36,12 @@ public class LoginView extends JPanel {
             controller.onRegisterButtonClicked();
         });
 
+        this.component.addLoginListener(e -> {
+            if (LOGGER != null) LOGGER.debug("Bouton de connexion cliqué");
+            controller.onLoginButtonClicked();
+        });
+
+
         if (LOGGER != null) LOGGER.debug("LoginView initialisée");
     }
 }

@@ -3,4 +3,5 @@ package com.ubo.tp.message.controller.service;
 public interface ILoginController {
 
     public void onRegisterButtonClicked();
+    public void onLoginButtonClicked();
 }

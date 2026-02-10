@@ -15,6 +15,7 @@ public class DefaultControllerRegistry implements ControllerRegistry {
     private final Map<String, Class<?>> types = new ConcurrentHashMap<>();
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> void register(String id, Class<T> type, Function<InitializationContext, T> creator) {
         if (id == null || creator == null || type == null) return;
         creators.putIfAbsent(id, (Function<InitializationContext, Object>) creator);

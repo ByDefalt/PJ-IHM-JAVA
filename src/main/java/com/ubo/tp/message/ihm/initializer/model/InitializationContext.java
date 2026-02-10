@@ -1,6 +1,6 @@
 package com.ubo.tp.message.ihm.initializer.model;
 
-import com.ubo.tp.message.core.DataManager;
+import com.ubo.tp.message.core.IDataManager;
 import com.ubo.tp.message.ihm.initializer.UIInitializer;
 import com.ubo.tp.message.ihm.initializer.registry.ControllerRegistry;
 import com.ubo.tp.message.logger.Logger;
@@ -23,19 +23,19 @@ import com.ubo.tp.message.navigation.NavigationService;
  *   ou utiliser un singleton / DI container approprié).
  */
 public class InitializationContext {
-    private final DataManager dataManager;
+    private final IDataManager dataManager;
     private final NavigationService navigation;
     private final Logger logger;
     private final ControllerRegistry controllerRegistry;
 
-    public InitializationContext(DataManager dataManager, NavigationService navigation, Logger logger, ControllerRegistry controllerRegistry) {
+    public InitializationContext(IDataManager dataManager, NavigationService navigation, Logger logger, ControllerRegistry controllerRegistry) {
         this.dataManager = dataManager;
         this.navigation = navigation;
         this.logger = logger;
         this.controllerRegistry = controllerRegistry;
     }
 
-    public DataManager getDataManager() {
+    public IDataManager getDataManager() {
         return dataManager;
     }
 
