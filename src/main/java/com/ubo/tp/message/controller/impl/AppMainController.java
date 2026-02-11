@@ -3,9 +3,11 @@ package com.ubo.tp.message.controller.impl;
 import com.ubo.tp.message.controller.service.Controller;
 import com.ubo.tp.message.core.IDataManager;
 import com.ubo.tp.message.ihm.service.IAppMainView;
-import com.ubo.tp.message.ihm.view.AppMainView;
-import com.ubo.tp.message.ihm.view.LoginView;
+import com.ubo.tp.message.ihm.view.*;
 import com.ubo.tp.message.logger.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Contrôleur pour la vue principale de l'application.
@@ -31,7 +33,12 @@ public class AppMainController implements Controller {
 
         LoginController loginController = new LoginController(logger, dataManager);
         LoginView loginView = new LoginView(logger, loginController, new NavigationController(logger, dataManager, this.getView()));
+
+
         this.view.setMainContent(loginView);
+
+        InputMessageView inputMessageView = new InputMessageView(logger);
+        this.view.setMainContent(inputMessageView);
     }
 
     /**

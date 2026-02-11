@@ -1,0 +1,109 @@
+package com.ubo.tp.message.ihm.view;
+
+import com.ubo.tp.message.ihm.service.View;
+import com.ubo.tp.message.logger.Logger;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+
+public class InputMessageView extends JComponent implements View {
+
+    private final Logger LOGGER;
+
+    private JTextField inputField;
+    private JButton sendButton;
+
+    public InputMessageView(Logger logger) {
+        this.LOGGER = logger;
+        this.setLayout(new GridBagLayout());
+        this.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
+        this.setOpaque(false);
+
+        init();
+
+        if (this.LOGGER != null) this.LOGGER.debug("InputMessageView initialisée");
+    }
+
+    public InputMessageView() {
+        this(null);
+    }
+
+    private void init() {
+        createInputField();
+        createSendButton();
+        createConnector();
+    }
+
+    private void createInputField() {
+        inputField = new JTextField();
+        inputField.setFont(new Font("Arial", Font.PLAIN, 14));
+        inputField.setColumns(30);
+        inputField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                BorderFactory.createEmptyBorder(6, 8, 6, 8)
+        ));
+
+        GridBagConstraints gbc = new GridBagConstraints(
+                0, 0, 1, 1, 1.0, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(0, 0, 0, 6), 0, 0
+        );
+        this.add(inputField, gbc);
+    }
+
+    private void createSendButton() {
+        sendButton = new JButton("➤");
+        sendButton.setToolTipText("Envoyer");
+        sendButton.setFont(new Font("Arial", Font.BOLD, 14));
+        sendButton.setBackground(new Color(88, 101, 242));
+        sendButton.setForeground(Color.WHITE);
+        sendButton.setFocusPainted(false);
+        sendButton.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 10));
+
+        GridBagConstraints gbc = new GridBagConstraints(
+                1, 0, 1, 1, 0.0, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.NONE,
+                new Insets(0, 0, 0, 0), 0, 0
+        );
+        this.add(sendButton, gbc);
+    }
+
+    private void createConnector() {
+        // Enter key
+        inputField.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    if (LOGGER != null) LOGGER.debug("Enter pressed in InputMessageView: " + getMessageText());
+                    // do not consume here; controller can listen to the field as well
+                }
+            }
+        });
+
+        // Send button action (simple debug log; controller may add its own ActionListener)
+        sendButton.addActionListener(e -> {
+            if (LOGGER != null) LOGGER.debug("Send button clicked in InputMessageView: " + getMessageText());
+            // default behavior: do nothing else. Controller should attach own listener to sendButton.
+        });
+    }
+
+    // API publique pour que le controller manipule la vue
+    public JTextField getInputField() { return inputField; }
+    public JButton getSendButton() { return sendButton; }
+
+    public String getMessageText() { return inputField.getText(); }
+
+    public void clearInput() { inputField.setText(""); }
+
+    /**
+     * Récupère le texte courant et le vide (utile pour le controller lors d'un envoi).
+     */
+    public String consumeMessage() {
+        String t = getMessageText();
+        clearInput();
+        return t;
+    }
+
+}

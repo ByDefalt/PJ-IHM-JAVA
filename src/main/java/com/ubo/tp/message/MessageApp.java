@@ -102,7 +102,7 @@ public class MessageApp {
 	}
 
 	public void show() {
-		mMainController.getView().show();
+		mMainController.getView().setVisibility(true);
 	}
 
 

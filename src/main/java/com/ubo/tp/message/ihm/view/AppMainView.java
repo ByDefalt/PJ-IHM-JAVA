@@ -170,7 +170,8 @@ public class AppMainView extends JComponent implements IAppMainView {
         }
     }
 
-    public void show() {
+    @Override
+    public void setVisibility(boolean visible) {
         this.logger.debug("Request to show main frame");
         SwingUtilities.invokeLater(() -> {
             this.logger.debug("Showing main frame on EDT");
@@ -202,22 +203,6 @@ public class AppMainView extends JComponent implements IAppMainView {
             gbc.weighty = 1.0;
             gbc.fill = GridBagConstraints.BOTH;
             wrapper.add(component, gbc);
-
-            wrapper.setName(id);
-
-            this.contentPanel.add(wrapper, id);
-            this.contentPanel.revalidate();
-            this.contentPanel.repaint();
-        });
-    }
-
-    @Override
-    public void addView(String id, View view, GridBagConstraints constraints) {
-        JComponent component = (JComponent) view;
-        if (component == null || id == null) return;
-        SwingUtilities.invokeLater(() -> {
-            JPanel wrapper = new JPanel(new GridBagLayout());
-            wrapper.add(component, constraints);
 
             wrapper.setName(id);
 

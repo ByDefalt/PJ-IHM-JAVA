@@ -12,7 +12,7 @@ public interface IAppMainView extends View {
     /**
      * Affiche la vue principale.
      */
-    void show();
+    void setVisibility(boolean visible);
 
     /**
      * Définit le callback appelé quand un répertoire d'échange est sélectionné.
@@ -34,14 +34,6 @@ public interface IAppMainView extends View {
      */
     void addView(String id, View view);
 
-    /**
-     * Ajoute une vue identifiée par un id avec des GridBagConstraints personnalisées.
-     * Le composant sera encapsulé dans un wrapper utilisant GridBagLayout et ces contraintes.
-     * @param id identifiant de la vue
-     * @param view composant Swing à ajouter
-     * @param gbc contraintes GridBag
-     */
-    void addView(String id, View view, GridBagConstraints gbc);
 
     /**
      * Affiche la vue précédemment ajoutée identifiée par `id`.
