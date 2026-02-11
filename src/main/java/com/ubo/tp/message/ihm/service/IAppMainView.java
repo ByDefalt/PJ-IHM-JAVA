@@ -1,14 +1,13 @@
 package com.ubo.tp.message.ihm.service;
 
 import java.util.function.Consumer;
-import javax.swing.JComponent;
 import java.awt.GridBagConstraints;
 
 /**
  * Interface exposée par la vue principale pour être utilisée par le contrôleur.
  * Ne contient que les méthodes nécessaires au contrôleur.
  */
-public interface IMessageAppMainView{
+public interface IAppMainView extends View {
 
     /**
      * Affiche la vue principale.
@@ -26,23 +25,23 @@ public interface IMessageAppMainView{
      * Permet d'injecter des panels tels que la `LoginView`.
      * @param component composant Swing à afficher
      */
-    void setMainContent(JComponent component);
+    void setMainContent(View component);
 
     /**
      * Ajoute une vue identifiée par un id (utilise un CardLayout en interne).
      * @param id identifiant de la vue
-     * @param component composant Swing à ajouter
+     * @param view composant Swing à ajouter
      */
-    void addView(String id, JComponent component);
+    void addView(String id, View view);
 
     /**
      * Ajoute une vue identifiée par un id avec des GridBagConstraints personnalisées.
      * Le composant sera encapsulé dans un wrapper utilisant GridBagLayout et ces contraintes.
      * @param id identifiant de la vue
-     * @param component composant Swing à ajouter
+     * @param view composant Swing à ajouter
      * @param gbc contraintes GridBag
      */
-    void addView(String id, JComponent component, GridBagConstraints gbc);
+    void addView(String id, View view, GridBagConstraints gbc);
 
     /**
      * Affiche la vue précédemment ajoutée identifiée par `id`.

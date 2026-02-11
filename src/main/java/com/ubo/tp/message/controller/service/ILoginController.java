@@ -10,12 +10,6 @@ package com.ubo.tp.message.controller.service;
 public interface ILoginController extends Controller {
 
     /**
-     * Callback invoqué lorsque l'utilisateur demande l'écran d'enregistrement.
-     * Le contrôleur doit déclencher la navigation appropriée.
-     */
-    void onRegisterButtonClicked();
-
-    /**
      * Callback invoqué lorsque l'utilisateur valide le formulaire de connexion.
      * Le contrôleur doit authentifier l'utilisateur et naviguer si nécessaire.
      */

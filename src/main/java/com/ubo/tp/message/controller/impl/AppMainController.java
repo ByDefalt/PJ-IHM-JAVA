@@ -2,8 +2,9 @@ package com.ubo.tp.message.controller.impl;
 
 import com.ubo.tp.message.controller.service.Controller;
 import com.ubo.tp.message.core.IDataManager;
-import com.ubo.tp.message.ihm.service.IMessageAppMainView;
-import com.ubo.tp.message.ihm.screen.AppMainView;
+import com.ubo.tp.message.ihm.service.IAppMainView;
+import com.ubo.tp.message.ihm.view.AppMainView;
+import com.ubo.tp.message.ihm.view.LoginView;
 import com.ubo.tp.message.logger.Logger;
 
 /**
@@ -17,7 +18,7 @@ public class AppMainController implements Controller {
 
     private final IDataManager dataManager;
     private final Logger logger;
-    private final IMessageAppMainView view;
+    private final IAppMainView view;
 
     /**
      * Constructeur par défaut : instancie la vue concrete.
@@ -27,6 +28,10 @@ public class AppMainController implements Controller {
      */
     public AppMainController(IDataManager dataManager, Logger logger) {
         this(dataManager, logger, new AppMainView(logger));
+
+        LoginController loginController = new LoginController(logger, dataManager);
+        LoginView loginView = new LoginView(logger, loginController, new NavigationController(logger, dataManager, this.getView()));
+        this.view.setMainContent(loginView);
     }
 
     /**
@@ -36,7 +41,7 @@ public class AppMainController implements Controller {
      * @param logger logger de l'application
      * @param view vue principale injectée
      */
-    public AppMainController(IDataManager dataManager, Logger logger, IMessageAppMainView view) {
+    public AppMainController(IDataManager dataManager, Logger logger, IAppMainView view) {
         this.dataManager = dataManager;
         this.logger = logger;
         this.view = view;
@@ -58,9 +63,9 @@ public class AppMainController implements Controller {
     /**
      * Retourne la vue principale associée à ce contrôleur.
      *
-     * @return instance de {@link IMessageAppMainView}
+     * @return instance de {@link IAppMainView}
      */
-    public IMessageAppMainView getView() {
+    public IAppMainView getView() {
         return this.view;
     }
 }

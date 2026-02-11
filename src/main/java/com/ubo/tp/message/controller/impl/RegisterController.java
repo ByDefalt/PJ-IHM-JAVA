@@ -4,7 +4,6 @@ import com.ubo.tp.message.controller.service.IRegisterController;
 import com.ubo.tp.message.core.IDataManager;
 import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.logger.Logger;
-import com.ubo.tp.message.navigation.NavigationService;
 
 import java.util.Set;
 
@@ -18,24 +17,25 @@ import java.util.Set;
 public class RegisterController implements IRegisterController {
 
     private final Logger logger;
-    private final NavigationService navigation;
     private final IDataManager dataManager;
 
     /**
      * Constructeur du RegisterController.
      *
      * @param logger service de logging (peut être null)
-     * @param navigation service de navigation pour changer de vue
      */
-    public RegisterController(Logger logger, NavigationService navigation, IDataManager dataManager) {
+    public RegisterController(Logger logger, IDataManager dataManager) {
         this.logger = logger;
-        this.navigation = navigation;
         this.dataManager = dataManager;
         if (this.logger != null) this.logger.debug("RegisterController created");
     }
 
     @Override
     public boolean onRegisterButtonClicked(String tag, String name, String password, String confirmPassword) {
+        return register(tag, name, password, confirmPassword);
+    }
+
+    public boolean register(String tag, String name, String password, String confirmPassword) {
         logger.debug("RegisterController: onRegisterButtonClicked called");
         logger.info("Registering user with tag: " + tag + ", name: " + name + ", password: " + password + ", confirmPassword: " + confirmPassword);
         if (validateUserData(tag, name, password, confirmPassword)) {

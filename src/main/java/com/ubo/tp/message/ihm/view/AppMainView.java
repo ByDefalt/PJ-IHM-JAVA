@@ -1,6 +1,7 @@
-package com.ubo.tp.message.ihm.screen;
+package com.ubo.tp.message.ihm.view;
 
-import com.ubo.tp.message.ihm.service.IMessageAppMainView;
+import com.ubo.tp.message.ihm.service.IAppMainView;
+import com.ubo.tp.message.ihm.service.View;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
@@ -15,17 +16,14 @@ import java.util.function.Consumer;
  * un identifiant, et fournit un callback pour la sélection du répertoire d'échange.
  * </p>
  */
-public class AppMainView extends View implements IMessageAppMainView {
-
+public class AppMainView extends JComponent implements IAppMainView {
 
     private final JFrame mainFrame;
     private final Logger logger;
 
-    // Panneau central où on injecte le contenu (login, main app, etc.)
     private final JPanel contentPanel;
     private final CardLayout contentLayout;
 
-    // Callback appelé quand un répertoire d'échange est sélectionné
     private Consumer<String> onExchangeDirectorySelected;
 
     public static final String DEFAULT_VIEW_ID = "default";
@@ -186,14 +184,14 @@ public class AppMainView extends View implements IMessageAppMainView {
     }
 
     @Override
-    public void setMainContent(JComponent component) {
-        // alias: add with default id and show it
-        this.addView(DEFAULT_VIEW_ID, component);
+    public void setMainContent(View view) {
+        this.addView(DEFAULT_VIEW_ID, view);
         this.showView(DEFAULT_VIEW_ID);
     }
 
     @Override
-    public void addView(String id, JComponent component) {
+    public void addView(String id, View view) {
+        JComponent component = (JComponent) view;
         if (component == null || id == null) return;
         SwingUtilities.invokeLater(() -> {
             JPanel wrapper = new JPanel(new GridBagLayout());
@@ -205,7 +203,6 @@ public class AppMainView extends View implements IMessageAppMainView {
             gbc.fill = GridBagConstraints.BOTH;
             wrapper.add(component, gbc);
 
-            // tag the wrapper so we can find/remove it later
             wrapper.setName(id);
 
             this.contentPanel.add(wrapper, id);
@@ -215,14 +212,13 @@ public class AppMainView extends View implements IMessageAppMainView {
     }
 
     @Override
-    public void addView(String id, JComponent component, GridBagConstraints constraints) {
+    public void addView(String id, View view, GridBagConstraints constraints) {
+        JComponent component = (JComponent) view;
         if (component == null || id == null) return;
         SwingUtilities.invokeLater(() -> {
             JPanel wrapper = new JPanel(new GridBagLayout());
-            // Appliquer les contraintes fournies
             wrapper.add(component, constraints);
 
-            // tag the wrapper for removal/lookup
             wrapper.setName(id);
 
             this.contentPanel.add(wrapper, id);

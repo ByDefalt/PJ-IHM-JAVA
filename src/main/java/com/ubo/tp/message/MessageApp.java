@@ -1,14 +1,9 @@
 package com.ubo.tp.message;
 
 import com.ubo.tp.message.core.IDataManager;
-import com.ubo.tp.message.ihm.initializer.module.EmptyModule;
 import com.ubo.tp.message.logger.Logger;
 import com.ubo.tp.message.controller.impl.AppMainController;
-import com.ubo.tp.message.navigation.NavigationService;
-import com.ubo.tp.message.navigation.AppNavigationService;
-import com.ubo.tp.message.ihm.initializer.UIInitializer;
-import com.ubo.tp.message.ihm.initializer.module.AuthModule;
-import com.ubo.tp.message.ihm.service.IMessageAppMainView;
+import com.ubo.tp.message.ihm.service.IAppMainView;
 
 import javax.swing.*;
 import java.io.File;
@@ -74,16 +69,7 @@ public class MessageApp {
 		// this.mMainController...
 		mMainController = new AppMainController(mDataManager, logger);
 
-		// Créer le service de navigation basé sur la vue principale
-		NavigationService navigation = new AppNavigationService(mMainController.getView());
 
-		// Initialiser les vues via UIInitializer et modules (OCP)
-		UIInitializer uiInit = new UIInitializer(navigation, mDataManager, logger);
-
-		uiInit.register(new AuthModule());
-		uiInit.register(new EmptyModule());
-
-		uiInit.initViews();
 	}
 
 	/**
@@ -124,7 +110,7 @@ public class MessageApp {
 		return mDataManager;
 	}
 
-	public IMessageAppMainView getmMainView() {
+	public IAppMainView getmMainView() {
 		return mMainController != null ? mMainController.getView() : null;
 	}
 }

@@ -1,9 +1,12 @@
-package com.ubo.tp.message.ihm.screen;
+package com.ubo.tp.message.ihm.view;
 
 import com.ubo.tp.message.controller.service.IEmptyController;
+import com.ubo.tp.message.ihm.service.View;
 import com.ubo.tp.message.logger.Logger;
 
-public class EmptyView extends View {
+import javax.swing.*;
+
+public class EmptyView extends JComponent implements View {
     private final IEmptyController emptyController;
     private final Logger LOGGER;
 

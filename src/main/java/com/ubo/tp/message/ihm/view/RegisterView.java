@@ -1,19 +1,14 @@
-package com.ubo.tp.message.ihm.component;
+package com.ubo.tp.message.ihm.view;
 
+import com.ubo.tp.message.controller.impl.RegisterController;
+import com.ubo.tp.message.controller.service.INavigationController;
+import com.ubo.tp.message.ihm.service.View;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 
-/**
- * Composant UI pur pour le formulaire d'inscription.
- * <p>
- * Fournit les champs nécessaires (tag, nom, email, mot de passe) et expose des
- * accesseurs ainsi qu'une méthode pour attacher le listener du bouton d'enregistrement.
- * </p>
- */
-public class RegisterComponent extends JPanel implements Component {
+public class RegisterView extends JComponent implements View {
 
     private final Logger LOGGER;
 
@@ -22,14 +17,20 @@ public class RegisterComponent extends JPanel implements Component {
     private JPasswordField passwordField;
     private JPasswordField confirmPasswordField;
     private JButton registerButton;
+    private JButton loginButton;
+
+    private final RegisterController controller;
+    private final INavigationController navigationController;
 
     /**
      * Crée le composant d'inscription et initialise la vue.
      *
      * @param logger logger optionnel pour consigner les actions
      */
-    public RegisterComponent(Logger logger) {
+    public RegisterView(Logger logger, RegisterController controller, INavigationController navigationController) {
         this.LOGGER = logger;
+        this.controller = controller;
+        this.navigationController = navigationController;
         this.init();
     }
 
@@ -54,6 +55,9 @@ public class RegisterComponent extends JPanel implements Component {
         createConfirmPasswordField();
 
         createRegisterButton();
+        createLoginButton();
+
+        createConnector();
 
         if (LOGGER != null) LOGGER.debug("RegisterComponent initialisé");
     }
@@ -173,7 +177,7 @@ public class RegisterComponent extends JPanel implements Component {
                 GridBagConstraints.WEST, GridBagConstraints.NONE,
                 new Insets(5, 5, 10, 5), 0, 0
         );
-        JLabel lbl = new JLabel("Confirmer :");
+        JLabel lbl = new JLabel("Confirmer Mot de passe :");
         lbl.setFont(new Font("Arial", Font.PLAIN, 14));
         this.add(lbl, gbc);
     }
@@ -193,13 +197,45 @@ public class RegisterComponent extends JPanel implements Component {
     private void createRegisterButton() {
         int row = 6;
         GridBagConstraints gbc = new GridBagConstraints(
-                0, row, 2, 1, 0.0, 0.0,
+                1, row, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.NONE,
                 new Insets(10, 10, 10, 10), 0, 0
         );
         registerButton = new JButton("S'inscrire");
         registerButton.setFont(new Font("Arial", Font.BOLD, 14));
         this.add(registerButton, gbc);
+    }
+
+    private void createLoginButton() {
+        int row = 6;
+        GridBagConstraints gbc = new GridBagConstraints(
+                0, row, 1, 1, 0.0, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.NONE,
+                new Insets(10, 10, 10, 10), 0, 0
+        );
+        loginButton = new JButton("Se Connecter");
+        loginButton.setFont(new Font("Arial", Font.BOLD, 14));
+        this.add(loginButton, gbc);
+    }
+
+    public void createConnector(){
+        this.getRegisterButton().addActionListener(e -> {
+            if (LOGGER != null) LOGGER.debug("Register button clicked");
+            boolean userIsCreated = controller.onRegisterButtonClicked(this.getTagField().getText(),
+                    this.getNameField().getText(),
+                    new String(this.getPasswordField().getPassword()),
+                    new String(this.getConfirmPasswordField().getPassword()));
+            if (userIsCreated) {
+                if (LOGGER != null) LOGGER.info("User registered successfully, navigating to login view");
+            }else{
+                if (LOGGER != null) LOGGER.warn("User registration failed, user already exists");
+            }
+        });
+
+        this.getLoginButton().addActionListener(e -> {
+            if (LOGGER != null) LOGGER.debug("Bouton Retour cliqué");
+            navigationController.navigateToLogin();
+        });
     }
 
     public JTextField getTagField() {
@@ -222,10 +258,6 @@ public class RegisterComponent extends JPanel implements Component {
         return registerButton;
     }
 
-    /**
-     * Ajoute un listener au bouton d'inscription.
-     *
-     * @param l listener d'action
-     */
-    public void addRegisterListener(ActionListener l) { if (registerButton != null) registerButton.addActionListener(l); }
+    public JButton getLoginButton() { return loginButton; }
+
 }
