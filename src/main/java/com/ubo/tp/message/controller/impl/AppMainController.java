@@ -2,6 +2,7 @@ package com.ubo.tp.message.controller.impl;
 
 import com.ubo.tp.message.controller.service.Controller;
 import com.ubo.tp.message.core.IDataManager;
+import com.ubo.tp.message.factory.ComposantFactory;
 import com.ubo.tp.message.ihm.service.IAppMainView;
 import com.ubo.tp.message.ihm.view.*;
 import com.ubo.tp.message.logger.Logger;
@@ -30,15 +31,13 @@ public class AppMainController implements Controller {
      */
     public AppMainController(IDataManager dataManager, Logger logger) {
         this(dataManager, logger, new AppMainView(logger));
-
-        LoginController loginController = new LoginController(logger, dataManager);
-        LoginView loginView = new LoginView(logger, loginController, new NavigationController(logger, dataManager, this.getView()));
-
-
-        this.view.setMainContent(loginView);
-
-        InputMessageView inputMessageView = new InputMessageView(logger);
-        this.view.setMainContent(inputMessageView);
+        this.view.setMainContent(
+                ComposantFactory.createLoginView(
+                        logger,
+                        dataManager,
+                        new NavigationController(logger, dataManager, this.view)
+                )
+        );
     }
 
     /**

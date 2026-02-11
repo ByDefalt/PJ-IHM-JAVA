@@ -2,6 +2,7 @@ package com.ubo.tp.message.controller.impl;
 
 import com.ubo.tp.message.controller.service.INavigationController;
 import com.ubo.tp.message.core.IDataManager;
+import com.ubo.tp.message.factory.ComposantFactory;
 import com.ubo.tp.message.ihm.service.IAppMainView;
 import com.ubo.tp.message.ihm.view.LoginView;
 import com.ubo.tp.message.ihm.view.RegisterView;
@@ -28,17 +29,13 @@ public class NavigationController implements INavigationController {
     @Override
     public void navigateToLogin() {
         LOGGER.info("navigateToLogin");
-        LoginController loginController = new LoginController(LOGGER, dataManager);
-        LoginView loginView = new LoginView(LOGGER, loginController, this);
-        this.setMainContent(loginView);
+        this.setMainContent(ComposantFactory.createLoginView(LOGGER, dataManager, this));
     }
 
     @Override
     public void navigateToRegister() {
         LOGGER.info("navigateToRegister");
-        RegisterController registerController = new RegisterController(LOGGER, dataManager);
-        RegisterView registerView = new RegisterView(LOGGER, registerController, this);
-        this.setMainContent(registerView);
+        this.setMainContent(ComposantFactory.createRegisterView(LOGGER, dataManager, this));
     }
 
 }
