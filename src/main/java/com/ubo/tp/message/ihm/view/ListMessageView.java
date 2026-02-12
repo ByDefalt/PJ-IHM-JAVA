@@ -1,5 +1,7 @@
 package com.ubo.tp.message.ihm.view;
 
+import com.ubo.tp.message.datamodel.Message;
+import com.ubo.tp.message.ihm.service.IListMessageView;
 import com.ubo.tp.message.ihm.service.View;
 import com.ubo.tp.message.logger.Logger;
 
@@ -7,20 +9,25 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * Vue affichant une liste de MessageView empilés verticalement dans une zone défilante.
  * Style sombre conservé via les couleurs de fond du conteneur.
  */
-public class ListMessageView extends JComponent implements View {
+public class ListMessageView extends JComponent implements IListMessageView {
 
     private final Logger logger;
 
     private final JPanel messagesPanel;
     private final JScrollPane scrollPane;
+    private Runnable onRefreshRequested;
+
+
     private final List<MessageView> messages = new ArrayList<>();
 
-    public ListMessageView(Logger logger, List<MessageView> initialMessages) {
+    public ListMessageView(Logger logger) {
         this.logger = logger;
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
@@ -33,15 +40,9 @@ public class ListMessageView extends JComponent implements View {
 
         addScrollPaneToThis();
 
-        if (initialMessages != null && !initialMessages.isEmpty()) {
-            setMessages(initialMessages);
-        }
+
 
         if (this.logger != null) this.logger.debug("ListMessageView initialisée");
-    }
-
-    public ListMessageView(Logger logger) {
-        this(logger, null);
     }
 
     private JPanel createMessagesPanel() {
@@ -69,15 +70,20 @@ public class ListMessageView extends JComponent implements View {
         this.add(scrollPane, gbc);
     }
 
+
+    @Override
+    public void setOnRefreshRequested(Runnable onRefreshRequested) {
+        this.onRefreshRequested = onRefreshRequested;
+    }
+
+
     /**
      * Remplace la liste entière de messages par `newMessages`.
      */
     public void setMessages(List<MessageView> newMessages) {
         clearMessages();
         if (newMessages == null) return;
-        for (MessageView mv : newMessages) {
-            addMessage(mv);
-        }
+        // TODO()
         revalidate();
         repaint();
     }

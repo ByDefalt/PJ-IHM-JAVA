@@ -1,6 +1,7 @@
 package com.ubo.tp.message.ihm.view;
 
-import com.ubo.tp.message.ihm.service.IMessageView;
+import com.ubo.tp.message.datamodel.Message;
+import com.ubo.tp.message.ihm.service.IListMessageView;
 import com.ubo.tp.message.ihm.service.View;
 import com.ubo.tp.message.logger.Logger;
 
@@ -13,7 +14,7 @@ import java.awt.*;
  * Utilise GridBagLayout et sépare la construction en méthodes.
  * La vue est autonome et n'a pas de référence au controller.
  */
-public class MessageView extends JComponent implements IMessageView {
+public class MessageView extends JComponent implements View {
 
     private final Logger logger;
 
@@ -21,23 +22,19 @@ public class MessageView extends JComponent implements IMessageView {
     private JTextArea contentArea;
     private JLabel timeLabel;
 
-    public MessageView(Logger logger, String author, String content, String time) {
+    public MessageView(Logger logger, Message message) {
         this.logger = logger;
         this.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         this.setLayout(new GridBagLayout());
         this.setOpaque(false);
 
-        init(author, content, time);
+        init(message);
 
-        if (this.logger != null) this.logger.debug("MessageView initialisée pour '" + author + "'");
+        if (this.logger != null) this.logger.debug("MessageView initialisée pour '" + message.getSender() + "'");
     }
 
-    public MessageView(String author, String content) {
-        this(null, author, content, null);
-    }
-
-    private void init(String author, String content, String time) {
-        createBubble(author, content, time);
+    private void init(Message message) {
+        createBubble(message.getSender().getName(), message.getText(), String.valueOf(message.getEmissionDate()));
     }
 
     private void createBubble(String author, String content, String time) {
@@ -102,11 +99,10 @@ public class MessageView extends JComponent implements IMessageView {
         bubble.add(contentArea, gbcContent);
     }
 
-    @Override
-    public void setMessage(String author, String content, String time) {
-        if (author != null) authorLabel.setText(author);
-        if (content != null) contentArea.setText(content);
-        if (time != null) timeLabel.setText(time);
+    public void setMessage(Message message) {
+        authorLabel.setText(message.getSender() != null ? message.getSender().getName() : "");
+        contentArea.setText(message.getText() != null ? message.getText() : "");
+        timeLabel.setText(String.valueOf(message.getEmissionDate()));
         revalidate();
         repaint();
     }
