@@ -1,4 +1,5 @@
 package com.ubo.tp.message.controller.impl;
 
-public class UserController {
+
+public class UserController{
 }

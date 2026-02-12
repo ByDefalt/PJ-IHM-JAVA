@@ -1,5 +1,6 @@
 package com.ubo.tp.message.ihm.view;
 
+import com.ubo.tp.message.ihm.service.IMessageView;
 import com.ubo.tp.message.ihm.service.View;
 import com.ubo.tp.message.logger.Logger;
 
@@ -12,7 +13,7 @@ import java.awt.*;
  * Utilise GridBagLayout et sépare la construction en méthodes.
  * La vue est autonome et n'a pas de référence au controller.
  */
-public class MessageView extends JComponent implements View {
+public class MessageView extends JComponent implements IMessageView {
 
     private final Logger logger;
 
@@ -101,6 +102,7 @@ public class MessageView extends JComponent implements View {
         bubble.add(contentArea, gbcContent);
     }
 
+    @Override
     public void setMessage(String author, String content, String time) {
         if (author != null) authorLabel.setText(author);
         if (content != null) contentArea.setText(content);

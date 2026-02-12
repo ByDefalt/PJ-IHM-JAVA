@@ -1,12 +1,13 @@
 package com.ubo.tp.message.ihm.view;
 
+import com.ubo.tp.message.ihm.service.ICanalView;
 import com.ubo.tp.message.ihm.service.View;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class CanalView extends JComponent implements View {
+public class CanalView extends JComponent implements ICanalView {
 
     private final Logger LOGGER;
 

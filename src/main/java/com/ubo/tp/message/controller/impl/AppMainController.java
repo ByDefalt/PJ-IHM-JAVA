@@ -19,26 +19,10 @@ import java.util.List;
  */
 public class AppMainController implements Controller {
 
-    private final IDataManager dataManager;
     private final Logger logger;
-    private final IAppMainView view;
 
-    /**
-     * Constructeur par défaut : instancie la vue concrete.
-     *
-     * @param dataManager service d'accès aux données (abstraction)
-     * @param logger service de logging
-     */
-    public AppMainController(IDataManager dataManager, Logger logger) {
-        this(dataManager, logger, new AppMainView(logger));
-        this.view.setMainContent(
-                ComposantFactory.createLoginView(
-                        logger,
-                        dataManager,
-                        new NavigationController(logger, dataManager, this.view)
-                )
-        );
-    }
+    private final IDataManager dataManager;
+    private final IAppMainView view;
 
     /**
      * Constructeur permettant l'injection d'une vue (utile pour tests).
@@ -54,6 +38,14 @@ public class AppMainController implements Controller {
 
         // Connecter le callback de la vue à la logique du contrôleur
         this.view.setOnExchangeDirectorySelected(this::onExchangeDirectorySelected);
+
+        this.view.setMainContent(
+                ComposantFactory.createLoginView(
+                        logger,
+                        dataManager,
+                        new NavigationController(logger, dataManager, this.view)
+                )
+        );
     }
 
     /**

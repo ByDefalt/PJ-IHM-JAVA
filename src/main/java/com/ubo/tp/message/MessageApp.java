@@ -1,6 +1,7 @@
 package com.ubo.tp.message;
 
 import com.ubo.tp.message.core.IDataManager;
+import com.ubo.tp.message.ihm.view.AppMainView;
 import com.ubo.tp.message.logger.Logger;
 import com.ubo.tp.message.controller.impl.AppMainController;
 import com.ubo.tp.message.ihm.service.IAppMainView;
@@ -67,7 +68,7 @@ public class MessageApp {
 	 */
 	protected void initGui() {
 		// this.mMainController...
-		mMainController = new AppMainController(mDataManager, logger);
+		mMainController = new AppMainController(mDataManager, logger, new AppMainView(logger));
 
 
 	}
@@ -105,12 +106,4 @@ public class MessageApp {
 		mMainController.getView().setVisibility(true);
 	}
 
-
-	public IDataManager getmDataManager() {
-		return mDataManager;
-	}
-
-	public IAppMainView getmMainView() {
-		return mMainController != null ? mMainController.getView() : null;
-	}
 }

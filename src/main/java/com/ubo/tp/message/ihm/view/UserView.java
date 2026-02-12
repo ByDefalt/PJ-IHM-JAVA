@@ -1,5 +1,6 @@
 package com.ubo.tp.message.ihm.view;
 
+import com.ubo.tp.message.ihm.service.IUserView;
 import com.ubo.tp.message.ihm.service.View;
 import com.ubo.tp.message.logger.Logger;
 
@@ -7,7 +8,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
-public class UserView extends JComponent implements View {
+public class UserView extends JComponent implements IUserView {
 
     private final Logger LOGGER;
 
