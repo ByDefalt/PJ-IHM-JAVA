@@ -1,6 +1,8 @@
 package com.ubo.tp.message.ihm.view;
 
+import com.ubo.tp.message.controller.service.IListMessageController;
 import com.ubo.tp.message.ihm.service.View;
+import com.ubo.tp.message.ihm.service.IInputMessageView;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
@@ -8,12 +10,16 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-public class InputMessageView extends JComponent implements View {
+public class InputMessageView extends JComponent implements IInputMessageView {
 
     private final Logger LOGGER;
 
     private JTextField inputField;
     private JButton sendButton;
+
+    private IListMessageController controller;
+
+    private Runnable onSendRequested;
 
     public InputMessageView(Logger logger) {
         this.LOGGER = logger;
@@ -77,7 +83,7 @@ public class InputMessageView extends JComponent implements View {
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     if (LOGGER != null) LOGGER.debug("Enter pressed in InputMessageView: " + getMessageText());
-                    // do not consume here; controller can listen to the field as well
+                    if (onSendRequested != null) onSendRequested.run();
                 }
             }
         });
@@ -85,6 +91,7 @@ public class InputMessageView extends JComponent implements View {
         // Send button action (simple debug log; controller may add its own ActionListener)
         sendButton.addActionListener(e -> {
             if (LOGGER != null) LOGGER.debug("Send button clicked in InputMessageView: " + getMessageText());
+            if (onSendRequested != null) onSendRequested.run();
             // default behavior: do nothing else. Controller should attach own listener to sendButton.
         });
     }
@@ -104,6 +111,11 @@ public class InputMessageView extends JComponent implements View {
         String t = getMessageText();
         clearInput();
         return t;
+    }
+
+    @Override
+    public void setOnSendRequested(Runnable handler) {
+        this.onSendRequested = handler;
     }
 
 }

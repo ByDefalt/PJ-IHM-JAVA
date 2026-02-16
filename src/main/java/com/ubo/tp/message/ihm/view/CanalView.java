@@ -58,4 +58,7 @@ public class CanalView extends JComponent implements ICanalView {
     public String getCanalName() { return canalNameLabel.getText(); }
     public void setCanalName(String name) { this.canalNameLabel.setText(name); }
 
+    @Override
+    public JLabel getCanalLabel() { return canalNameLabel; }
+
 }

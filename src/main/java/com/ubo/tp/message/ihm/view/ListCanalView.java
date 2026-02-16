@@ -1,6 +1,8 @@
 package com.ubo.tp.message.ihm.view;
 
 import com.ubo.tp.message.ihm.service.View;
+import com.ubo.tp.message.ihm.service.IListCanalView;
+import com.ubo.tp.message.ihm.service.ICanalView;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
@@ -12,15 +14,15 @@ import java.util.List;
  * Vue affichant une liste de CanalView empilés verticalement dans une zone défilante.
  * Style cohérent avec `MessageView` / `ListMessageView` / `ListUserView`.
  */
-public class ListCanalView extends JComponent implements View {
+public class ListCanalView extends JComponent implements IListCanalView {
 
     private final Logger logger;
 
     private final JPanel canalsPanel;
     private final JScrollPane scrollPane;
-    private final List<CanalView> canalViews = new ArrayList<>();
+    private final List<ICanalView> canalViews = new ArrayList<>();
 
-    public ListCanalView(Logger logger, List<CanalView> initialCanals) {
+    public ListCanalView(Logger logger, List<ICanalView> initialCanals) {
         this.logger = logger;
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
@@ -77,10 +79,10 @@ public class ListCanalView extends JComponent implements View {
     /**
      * Remplace la liste entière de canaux par `newCanals`.
      */
-    public void setCanals(List<CanalView> newCanals) {
+    public void setCanals(List<ICanalView> newCanals) {
         clearCanals();
         if (newCanals == null) return;
-        for (CanalView cv : newCanals) addCanal(cv);
+        for (ICanalView cv : newCanals) addCanal(cv);
         revalidate();
         repaint();
     }
@@ -88,7 +90,7 @@ public class ListCanalView extends JComponent implements View {
     /**
      * Ajoute un CanalView à la fin de la liste et fait défiler vers le bas.
      */
-    public void addCanal(CanalView canalView) {
+    public void addCanal(ICanalView canalView) {
         if (canalView == null) return;
 
         int row = canalViews.size();
@@ -99,7 +101,7 @@ public class ListCanalView extends JComponent implements View {
         );
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        canalsPanel.add(canalView, gbc);
+        canalsPanel.add((Component) canalView, gbc);
         canalViews.add(canalView);
 
         // remove old glue and re-add it after the last element
@@ -139,6 +141,6 @@ public class ListCanalView extends JComponent implements View {
         repaint();
     }
 
-    public List<CanalView> getCanals() { return new ArrayList<>(canalViews); }
+    public List<ICanalView> getCanals() { return new ArrayList<>(canalViews); }
 
 }

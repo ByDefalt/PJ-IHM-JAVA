@@ -1,6 +1,8 @@
 package com.ubo.tp.message.ihm.view;
 
 import com.ubo.tp.message.ihm.service.View;
+import com.ubo.tp.message.ihm.service.IListUserView;
+import com.ubo.tp.message.ihm.service.IUserView;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
@@ -12,15 +14,15 @@ import java.util.List;
  * Vue affichant une liste d'UserView empilés verticalement dans une zone défilante.
  * Style cohérent avec `MessageView` / `ListMessageView` : fond sombre et GridBagLayout.
  */
-public class ListUserView extends JComponent implements View {
+public class ListUserView extends JComponent implements IListUserView {
 
     private final Logger logger;
 
     private final JPanel usersPanel;
     private final JScrollPane scrollPane;
-    private final List<UserView> userViews = new ArrayList<>();
+    private final List<IUserView> userViews = new ArrayList<>();
 
-    public ListUserView(Logger logger, List<UserView> initialUsers) {
+    public ListUserView(Logger logger, List<IUserView> initialUsers) {
         this.logger = logger;
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
@@ -77,10 +79,10 @@ public class ListUserView extends JComponent implements View {
     /**
      * Remplace la liste entière d'utilisateurs par `newUsers`.
      */
-    public void setUsers(List<UserView> newUsers) {
+    public void setUsers(List<IUserView> newUsers) {
         clearUsers();
         if (newUsers == null) return;
-        for (UserView uv : newUsers) addUser(uv);
+        for (IUserView uv : newUsers) addUser(uv);
         revalidate();
         repaint();
     }
@@ -88,7 +90,7 @@ public class ListUserView extends JComponent implements View {
     /**
      * Ajoute un UserView à la fin de la liste et fait défiler vers le bas.
      */
-    public void addUser(UserView userView) {
+    public void addUser(IUserView userView) {
         if (userView == null) return;
 
         int row = userViews.size();
@@ -99,7 +101,7 @@ public class ListUserView extends JComponent implements View {
         );
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        usersPanel.add(userView, gbc);
+        usersPanel.add((Component) userView, gbc);
         userViews.add(userView);
 
         // remove old glue and re-add it after the last element
@@ -139,6 +141,6 @@ public class ListUserView extends JComponent implements View {
         repaint();
     }
 
-    public List<UserView> getUsers() { return new ArrayList<>(userViews); }
+    public List<IUserView> getUsers() { return new ArrayList<>(userViews); }
 
 }

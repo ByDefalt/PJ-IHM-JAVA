@@ -1,7 +1,7 @@
 package com.ubo.tp.message.ihm.view;
 
 import com.ubo.tp.message.datamodel.Message;
-import com.ubo.tp.message.ihm.service.IListMessageView;
+import com.ubo.tp.message.ihm.service.IMessageView;
 import com.ubo.tp.message.ihm.service.View;
 import com.ubo.tp.message.logger.Logger;
 
@@ -14,7 +14,7 @@ import java.awt.*;
  * Utilise GridBagLayout et sépare la construction en méthodes.
  * La vue est autonome et n'a pas de référence au controller.
  */
-public class MessageView extends JComponent implements View {
+public class MessageView extends JComponent implements IMessageView {
 
     private final Logger logger;
 

@@ -1,10 +1,12 @@
 package com.ubo.tp.message.ihm.service;
 
-import com.ubo.tp.message.ihm.view.MessageView;
-
 import java.util.List;
 
+/**
+ * Interface pour la vue listant les messages. Utilise l'interface IMessageView
+ * afin de découpler la vue du type concret.
+ */
 public interface IListMessageView extends View{
-    void setMessages(List<MessageView> newMessages);
+    void setMessages(List<IMessageView> newMessages);
     void setOnRefreshRequested(Runnable onRefreshRequested);
 }

@@ -6,10 +6,14 @@ import com.ubo.tp.message.core.database.DataBaseObserverImpl;
 import com.ubo.tp.message.core.database.Database;
 import com.ubo.tp.message.core.database.DbConnector;
 import com.ubo.tp.message.core.database.EntityManager;
+import com.ubo.tp.message.datamodel.Message;
+import com.ubo.tp.message.datamodel.User;
 import mock.MessageAppMock;
 import com.ubo.tp.message.logger.Logger;
 import com.ubo.tp.message.logger.LoggerFactory;
 import com.ubo.tp.message.logger.LogLevel;
+
+import java.util.UUID;
 
 /**
  * Classe de lancement de l'application.
@@ -39,6 +43,11 @@ public class MessageAppLauncher {
 		IDataManager dataManager = new DataManager(database, entityManager, logger);
         DataBaseObserverImpl dataBaseObserver = new DataBaseObserverImpl();
 		dataManager.addObserver(dataBaseObserver);
+		dataManager.setExchangeDirectory("E:\\ihm");
+		User user = new User("toto", "toto", "toto");
+		dataManager.sendUser(user);
+		Message message = new Message(user, new UUID(12,12), "coucou");
+		dataManager.sendMessage(message);
 
 		DbConnector dbConnector = new DbConnector(database);
 

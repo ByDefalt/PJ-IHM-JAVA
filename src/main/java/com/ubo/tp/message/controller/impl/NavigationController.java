@@ -4,8 +4,6 @@ import com.ubo.tp.message.controller.service.INavigationController;
 import com.ubo.tp.message.core.IDataManager;
 import com.ubo.tp.message.factory.ComposantFactory;
 import com.ubo.tp.message.ihm.service.IAppMainView;
-import com.ubo.tp.message.ihm.view.LoginView;
-import com.ubo.tp.message.ihm.view.RegisterView;
 import com.ubo.tp.message.ihm.service.View;
 import com.ubo.tp.message.logger.Logger;
 

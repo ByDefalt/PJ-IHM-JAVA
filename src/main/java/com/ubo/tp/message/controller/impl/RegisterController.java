@@ -53,7 +53,7 @@ public class RegisterController implements IRegisterController {
         Set<User> users = dataManager.getUsers();
         boolean userExists = users.stream().anyMatch(u -> u.getName().equals(name));
         if (!userExists) {
-            dataManager.sendUser(new User(name, password, confirmPassword));
+            dataManager.sendUser(new User(tag, password, name));
             logger.info("User added successfully: " + name);
             return true;
         } else {

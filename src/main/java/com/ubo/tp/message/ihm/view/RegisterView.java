@@ -1,14 +1,15 @@
 package com.ubo.tp.message.ihm.view;
 
-import com.ubo.tp.message.controller.impl.RegisterController;
+import com.ubo.tp.message.controller.service.IRegisterController;
 import com.ubo.tp.message.controller.service.INavigationController;
 import com.ubo.tp.message.ihm.service.View;
+import com.ubo.tp.message.ihm.service.IRegisterView;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class RegisterView extends JComponent implements View {
+public class RegisterView extends JComponent implements IRegisterView {
 
     private final Logger LOGGER;
 
@@ -19,15 +20,18 @@ public class RegisterView extends JComponent implements View {
     private JButton registerButton;
     private JButton loginButton;
 
-    private final RegisterController controller;
+    private final IRegisterController controller;
     private final INavigationController navigationController;
+
+    private Runnable onRegisterRequested;
+    private Runnable onBackToLoginRequested;
 
     /**
      * Crée le composant d'inscription et initialise la vue.
      *
      * @param logger logger optionnel pour consigner les actions
      */
-    public RegisterView(Logger logger, RegisterController controller, INavigationController navigationController) {
+    public RegisterView(Logger logger, IRegisterController controller, INavigationController navigationController) {
         this.LOGGER = logger;
         this.controller = controller;
         this.navigationController = navigationController;
@@ -221,20 +225,26 @@ public class RegisterView extends JComponent implements View {
     public void createConnector(){
         this.getRegisterButton().addActionListener(e -> {
             if (LOGGER != null) LOGGER.debug("Register button clicked");
-            boolean userIsCreated = controller.onRegisterButtonClicked(this.getTagField().getText(),
-                    this.getNameField().getText(),
-                    new String(this.getPasswordField().getPassword()),
-                    new String(this.getConfirmPasswordField().getPassword()));
-            if (userIsCreated) {
-                if (LOGGER != null) LOGGER.info("User registered successfully, navigating to login view");
-            }else{
-                if (LOGGER != null) LOGGER.warn("User registration failed, user already exists");
+            if (onRegisterRequested != null) {
+                onRegisterRequested.run();
+            }
+            if (controller != null) {
+                boolean userIsCreated = controller.onRegisterButtonClicked(this.getTag(),
+                        this.getName(),
+                        this.getPassword(),
+                        this.getConfirmPassword());
+                if (userIsCreated) {
+                    if (LOGGER != null) LOGGER.info("User registered successfully, navigating to login view");
+                }else{
+                    if (LOGGER != null) LOGGER.warn("User registration failed, user already exists");
+                }
             }
         });
 
         this.getLoginButton().addActionListener(e -> {
             if (LOGGER != null) LOGGER.debug("Bouton Retour cliqué");
-            navigationController.navigateToLogin();
+            if (onBackToLoginRequested != null) onBackToLoginRequested.run();
+            if (navigationController != null) navigationController.navigateToLogin();
         });
     }
 
@@ -259,5 +269,32 @@ public class RegisterView extends JComponent implements View {
     }
 
     public JButton getLoginButton() { return loginButton; }
+
+    // IRegisterView impl
+    @Override
+    public String getTag() { return getTagField().getText(); }
+
+    @Override
+    public String getName() { return getNameField().getText(); }
+
+    @Override
+    public String getPassword() { return new String(getPasswordField().getPassword()); }
+
+    @Override
+    public String getConfirmPassword() { return new String(getConfirmPasswordField().getPassword()); }
+
+    @Override
+    public void setOnRegisterRequested(Runnable handler) { this.onRegisterRequested = handler; }
+
+    @Override
+    public void setOnBackToLoginRequested(Runnable handler) { this.onBackToLoginRequested = handler; }
+
+    @Override
+    public void clearFields() {
+        getTagField().setText("");
+        getNameField().setText("");
+        getPasswordField().setText("");
+        getConfirmPasswordField().setText("");
+    }
 
 }

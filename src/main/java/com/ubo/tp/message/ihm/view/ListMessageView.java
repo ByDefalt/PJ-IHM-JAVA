@@ -2,6 +2,7 @@ package com.ubo.tp.message.ihm.view;
 
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.ihm.service.IListMessageView;
+import com.ubo.tp.message.ihm.service.IMessageView;
 import com.ubo.tp.message.ihm.service.View;
 import com.ubo.tp.message.logger.Logger;
 
@@ -25,7 +26,7 @@ public class ListMessageView extends JComponent implements IListMessageView {
     private Runnable onRefreshRequested;
 
 
-    private final List<MessageView> messages = new ArrayList<>();
+    private final List<IMessageView> messages = new ArrayList<>();
 
     public ListMessageView(Logger logger) {
         this.logger = logger;
@@ -80,10 +81,10 @@ public class ListMessageView extends JComponent implements IListMessageView {
     /**
      * Remplace la liste entière de messages par `newMessages`.
      */
-    public void setMessages(List<MessageView> newMessages) {
+    public void setMessages(List<IMessageView> newMessages) {
         clearMessages();
         if (newMessages == null) return;
-        // TODO()
+        for (IMessageView mv : newMessages) addMessage(mv);
         revalidate();
         repaint();
     }
@@ -91,7 +92,7 @@ public class ListMessageView extends JComponent implements IListMessageView {
     /**
      * Ajoute un message à la fin de la liste et fait défiler vers le bas.
      */
-    public void addMessage(MessageView messageView) {
+    public void addMessage(IMessageView messageView) {
         if (messageView == null) return;
 
         int row = messages.size();
@@ -103,7 +104,7 @@ public class ListMessageView extends JComponent implements IListMessageView {
         // Make the message component stretch horizontally
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        messagesPanel.add(messageView, gbc);
+        messagesPanel.add((Component) messageView, gbc);
         messages.add(messageView);
 
         // add a glue/filler after last element so messages stay at top when few
@@ -151,6 +152,6 @@ public class ListMessageView extends JComponent implements IListMessageView {
         repaint();
     }
 
-    public List<MessageView> getMessages() { return new ArrayList<>(messages); }
+    public List<IMessageView> getMessages() { return new ArrayList<>(messages); }
 
 }
