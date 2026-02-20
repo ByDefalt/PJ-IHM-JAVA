@@ -18,6 +18,8 @@ public class LoginGraphicController implements ILoginGraphicController {
         this.loginView = loginView;
         this.loginController = loginController;
         this.navigationController = navigationController;
+
+        createConnector();
     }
 
     private void createConnector() {
