@@ -4,7 +4,7 @@ import com.ubo.tp.message.controller.impl.*;
 import com.ubo.tp.message.controller.service.*;
 import com.ubo.tp.message.core.IDataManager;
 import com.ubo.tp.message.ihm.service.*;
-import com.ubo.tp.message.ihm.view.*;
+import com.ubo.tp.message.ihm.view.swing.*;
 import com.ubo.tp.message.logger.Logger;
 
 public class ComposantFactory implements Factory {
@@ -24,17 +24,17 @@ public class ComposantFactory implements Factory {
         return new RegisterView(LOGGER, registerController, navigationController);
     }
 
-    public static IListCanalController createListCanalView(Logger LOGGER, IDataManager dataManager) {
+    public static IListCanalController createListCanalController(Logger LOGGER, IDataManager dataManager) {
         ListCanalView listCanalView = new ListCanalView(LOGGER);
         return new ListCanalController(LOGGER, dataManager, listCanalView);
     }
 
-    public static IListMessageController createListMessageView(Logger LOGGER, IDataManager dataManager) {
+    public static IListMessageController createListMessageController(Logger LOGGER, IDataManager dataManager) {
         ListMessageView listMessageView = new ListMessageView(LOGGER);
         return new ListMessageController(LOGGER, dataManager, listMessageView);
     }
 
-    public static IListUserController createListUserView(Logger LOGGER, IDataManager dataManager) {
+    public static IListUserController createListUserController(Logger LOGGER, IDataManager dataManager) {
         ListUserView listUserView = new ListUserView(LOGGER);
         return new ListUserController(LOGGER, dataManager, listUserView);
     }
@@ -46,9 +46,9 @@ public class ComposantFactory implements Factory {
 
     public static IChatMainView createChatMainView(Logger LOGGER, IDataManager dataManager) {
         IInputMessageView inputMessageView = createInputMessageView(LOGGER, dataManager);
-        IListMessageController listMessageController = createListMessageView(LOGGER, dataManager);
-        IListUserController listUserController = createListUserView(LOGGER, dataManager);
-        IListCanalController listCanalController = createListCanalView(LOGGER, dataManager);
+        IListMessageController listMessageController = createListMessageController(LOGGER, dataManager);
+        IListUserController listUserController = createListUserController(LOGGER, dataManager);
+        IListCanalController listCanalController = createListCanalController(LOGGER, dataManager);
         IChatMainController chatMainController = new ChatMainController(LOGGER, dataManager);
         return new ChatMainView(LOGGER, listCanalController.getView(), listUserController.getView(), listMessageController.getView(), inputMessageView, chatMainController);
     }

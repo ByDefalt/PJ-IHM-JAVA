@@ -1,11 +1,9 @@
 package com.ubo.tp.message.ihm.service;
 
-import javax.swing.*;
+import com.ubo.tp.message.datamodel.Channel;
 
 public interface ICanalView extends View {
-    String getCanalName();
+    Channel getChannel();
 
-    void setCanalName(String name);
-
-    JLabel getCanalLabel();
+    void updateChannel(Channel channel);
 }

@@ -1,13 +1,16 @@
 package com.ubo.tp.message.ihm.service;
 
-import java.util.List;
+import com.ubo.tp.message.datamodel.Message;
 
 /**
- * Interface pour la vue listant les messages. Utilise l'interface IMessageView
- * afin de découpler la vue du type concret.
+ * Interface pour la vue listant les messages. Maintenant la vue travaille
+ * directement avec des objets `Message` : elle est responsable de créer
+ * les `MessageView` nécessaires.
  */
 public interface IListMessageView extends View {
-    void setMessages(List<IMessageView> newMessages);
+    void addMessage(Message message);
 
-    void setOnRefreshRequested(Runnable onRefreshRequested);
+    void removeMessage(Message message);
+
+    void updateMessage(Message message);
 }

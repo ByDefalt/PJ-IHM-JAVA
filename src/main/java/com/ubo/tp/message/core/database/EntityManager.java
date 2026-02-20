@@ -99,8 +99,13 @@ public class EntityManager implements IWatchableDirectoryObserver {
             User newUser = this.extractUser(userFile);
 
             if (newUser != null) {
-                // Ajout de l'utilisateur
-                this.mDatabase.addUser(newUser);
+                // Si l'utilisateur existe déjà (UUID connu), on considère que c'est une modification
+                if (this.mUserMap.containsKey(newUser.getUuid())) {
+                    this.mDatabase.modifiyUser(newUser);
+                } else {
+                    // Ajout de l'utilisateur
+                    this.mDatabase.addUser(newUser);
+                }
 
                 // Stockage dans les maps
                 mUserMap.put(newUser.getUuid(), newUser);
@@ -119,8 +124,14 @@ public class EntityManager implements IWatchableDirectoryObserver {
             Message newMessage = this.extractMessage(messageFile);
 
             if (newMessage != null) {
-                // Ajout du message
-                this.mDatabase.addMessage(newMessage);
+                // Si le message existe déjà (UUID connu), on considère que c'est une modification
+                if (this.mMessageFileMap.containsValue(newMessage) || this.mMessageFileMap.containsKey(messageFile.getName())) {
+                    // Utiliser modifiy si l'UUID est déjà présent dans la DB
+                    this.mDatabase.modifiyMessage(newMessage);
+                } else {
+                    // Ajout du message
+                    this.mDatabase.addMessage(newMessage);
+                }
 
                 // MAJ de la map
                 this.mMessageFileMap.put(messageFile.getName(), newMessage);
@@ -138,8 +149,12 @@ public class EntityManager implements IWatchableDirectoryObserver {
             Channel newChannel = this.extractChannel(channelFile);
 
             if (newChannel != null) {
-                // Ajout du message
-                this.mDatabase.addChannel(newChannel);
+                if (this.mChannelFileMap.containsValue(newChannel) || this.mChannelFileMap.containsKey(channelFile.getName())) {
+                    this.mDatabase.modifiyChannel(newChannel);
+                } else {
+                    // Ajout du message
+                    this.mDatabase.addChannel(newChannel);
+                }
 
                 // MAJ de la map
                 this.mChannelFileMap.put(channelFile.getName(), newChannel);
@@ -465,31 +480,108 @@ public class EntityManager implements IWatchableDirectoryObserver {
     }
 
     /**
-     * Supprime tous les fichiers d'échange existants dans le répertoire configuré.
-     * <p>
-     * Utilisé pour vider le répertoire avant la création de nouveaux fichiers.
-     * </p>
+     * Supprime le fichier d'échange associé à un utilisateur.
+     * Si le fichier est supprimé avec succès, met également à jour la base
+     * et les maps internes.
+     *
+     * @param user utilisateur à supprimer
+     * @return true si la suppression a été effectuée (fichier supprimé ou suppression en base effectuée), false sinon
      */
-    public void clearExchangeDirectoryFiles() {
-        if (this.mDirectoryPath == null) return;
+    public boolean deleteUserFile(User user) {
+        if (user == null) return false;
+        if (mDirectoryPath == null) return false;
 
-        File dir = new File(this.mDirectoryPath);
-        if (!dir.exists() || !dir.isDirectory()) return;
+        String fileName = user.getUuid().toString() + "." + Constants.USER_FILE_EXTENSION;
+        File f = new File(this.mDirectoryPath + Constants.SYSTEM_FILE_SEPARATOR + fileName);
 
-        File[] files = dir.listFiles((d, name) ->
-                name.endsWith(Constants.USER_FILE_EXTENSION) ||
-                name.endsWith(Constants.MESSAGE_FILE_EXTENSION) ||
-                name.endsWith(Constants.CHANNEL_FILE_EXTENSION)
-        );
-
-        if (files == null) return;
-
-        for (File f : files) {
+        boolean deleted = false;
+        if (f.exists()) {
             try {
-                f.delete();
+                deleted = f.delete();
             } catch (Exception ignored) {
-                // ignore
+                deleted = false;
             }
         }
+
+        // Si le fichier a bien été supprimé (ou n'existait pas), on met à jour la base et les maps
+        if (deleted || !f.exists()) {
+            // suppression en base
+            this.mDatabase.deleteUser(user);
+
+            // MAJ des maps
+            mUserMap.remove(user.getUuid());
+            mUserFileMap.remove(fileName);
+
+            return true;
+        }
+
+        return false;
     }
+
+    /**
+     * Supprime le fichier d'échange associé à un message.
+     * Si le fichier est supprimé avec succès, met également à jour la base
+     * et les maps internes.
+     *
+     * @param message message à supprimer
+     * @return true si la suppression a été effectuée (fichier supprimé ou suppression en base effectuée), false sinon
+     */
+    public boolean deleteMessageFile(Message message) {
+        if (message == null) return false;
+        if (mDirectoryPath == null) return false;
+
+        String fileName = message.getUuid().toString() + "." + Constants.MESSAGE_FILE_EXTENSION;
+        File f = new File(this.mDirectoryPath + Constants.SYSTEM_FILE_SEPARATOR + fileName);
+
+        boolean deleted = false;
+        if (f.exists()) {
+            try {
+                deleted = f.delete();
+            } catch (Exception ignored) {
+                deleted = false;
+            }
+        }
+
+        if (deleted || !f.exists()) {
+            this.mDatabase.deleteMessage(message);
+            mMessageFileMap.remove(fileName);
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Supprime le fichier d'échange associé à un canal.
+     * Si le fichier est supprimé avec succès, met également à jour la base
+     * et les maps internes.
+     *
+     * @param channel canal à supprimer
+     * @return true si la suppression a été effectuée (fichier supprimé ou suppression en base effectuée), false sinon
+     */
+    public boolean deleteChannelFile(Channel channel) {
+        if (channel == null) return false;
+        if (mDirectoryPath == null) return false;
+
+        String fileName = channel.getUuid().toString() + "." + Constants.CHANNEL_FILE_EXTENSION;
+        File f = new File(this.mDirectoryPath + Constants.SYSTEM_FILE_SEPARATOR + fileName);
+
+        boolean deleted = false;
+        if (f.exists()) {
+            try {
+                deleted = f.delete();
+            } catch (Exception ignored) {
+                deleted = false;
+            }
+        }
+
+        if (deleted || !f.exists()) {
+            this.mDatabase.deleteChannel(channel);
+            mChannelFileMap.remove(fileName);
+            return true;
+        }
+
+        return false;
+    }
+
 }

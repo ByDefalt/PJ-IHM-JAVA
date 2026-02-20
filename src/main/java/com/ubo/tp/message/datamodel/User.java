@@ -121,14 +121,26 @@ public class User extends AbstractMessageAppObject implements IMessageRecipient 
     @Override
     public String toString() {
 
-        return "[" +
-                this.getClass().getName() +
-                "] : " +
-                this.getUuid() +
-                " {@" +
-                this.getUserTag() +
-                " / " +
-                this.getName() +
-                "}";
+        return "User{" +
+                "uuid=" + getUuid() +
+                ", userTag='" + mUserTag + '\'' +
+                ", name='" + mName + '\'' +
+                ", online=" + mOnline +
+                '}';
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        User user = (User) o;
+        return getUuid().equals(user.getUuid());
+    }
+
+    @Override
+    public int hashCode() {
+        // Utilise uniquement l'UUID pour rester cohérent avec equals()
+        return super.hashCode();
     }
 }

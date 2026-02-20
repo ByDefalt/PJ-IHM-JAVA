@@ -95,12 +95,26 @@ public class Message extends AbstractMessageAppObject {
     @Override
     public String toString() {
 
-        return "[" +
-                this.getClass().getName() +
-                "] : " +
-                this.getUuid() +
-                " {" +
-                this.getText() +
-                "}";
+        return "Message{" +
+                "uuid=" + getUuid() +
+                ", sender=" + mSender +
+                ", recipient=" + mRecipient +
+                ", emissionDate=" + mEmissionDate +
+                ", text='" + mText + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Message message = (Message) o;
+        return getUuid().equals(message.getUuid());
+    }
+
+    @Override
+    public int hashCode() {
+        // Utilise uniquement l'UUID pour rester cohérent avec equals()
+        return super.hashCode();
     }
 }

@@ -1,4 +1,4 @@
-package com.ubo.tp.message.ihm.view;
+package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.ihm.service.IAppMainView;
 import com.ubo.tp.message.ihm.service.View;
@@ -11,10 +11,6 @@ import java.util.function.Consumer;
 
 /**
  * Vue principale de l'application (fenêtre principale).
- * <p>
- * Expose une API pour ajouter / afficher / retirer des vues secondaires via
- * un identifiant, et fournit un callback pour la sélection du répertoire d'échange.
- * </p>
  */
 public class AppMainView extends JComponent implements IAppMainView {
 
@@ -25,19 +21,15 @@ public class AppMainView extends JComponent implements IAppMainView {
     private final CardLayout contentLayout;
     private Consumer<String> onExchangeDirectorySelected;
 
-    /**
-     * Crée et configure la fenêtre principale.
-     *
-     * @param logger logger de l'application
-     */
     public AppMainView(Logger logger) {
         this.logger = logger;
-
         this.logger.info("Initialisation de AppMainView");
 
         this.mainFrame = new JFrame("MessageApp");
         this.mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.mainFrame.setSize(800, 600);
+        // Empêcher qu'un revalidation/repaint ne réduise la fenêtre : définir une taille minimale
+        this.mainFrame.setMinimumSize(new Dimension(800, 600));
         Image iconImage = this.loadIcon("/images/logo_20.png");
         this.mainFrame.setIconImage(iconImage);
 
@@ -46,31 +38,140 @@ public class AppMainView extends JComponent implements IAppMainView {
         this.mainFrame.getContentPane().add(this.contentPanel, BorderLayout.CENTER);
 
         this.createMenuBar();
-
         this.logger.info("AppMainView initialisée");
     }
 
+    // -------------------------------------------------------------------------
+    // API publique
+    // -------------------------------------------------------------------------
+
+    @Override
+    public void setMainContent(View view) {
+        this.addView(DEFAULT_VIEW_ID, view);
+        this.showView(DEFAULT_VIEW_ID);
+    }
+
+    @Override
+    public void addView(String id, View view) {
+        if (view == null || id == null) return;
+
+        // Exécuter sur l'EDT, mais de façon synchrone si on y est déjà
+        // pour éviter que addView et showView soient séparés par d'autres events
+        Runnable task = () -> {
+            JComponent component = (JComponent) view;
+
+            // Retirer l'ancienne vue avec ce même id si elle existe
+            // Note : le nom est posé sur le wrapper AVANT l'ajout
+            Component[] existing = this.contentPanel.getComponents();
+            for (Component c : existing) {
+                if (id.equals(c.getName())) {
+                    this.contentPanel.remove(c);
+                    break;
+                }
+            }
+
+            // Créer le wrapper et lui donner son nom AVANT de l'ajouter
+            JPanel wrapper = new JPanel(new GridBagLayout());
+            wrapper.setName(id); // <-- DOIT être avant contentPanel.add()
+
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.gridx = 0;
+            gbc.gridy = 0;
+            gbc.weightx = 1.0;
+            gbc.weighty = 1.0;
+            gbc.fill = GridBagConstraints.BOTH;
+            wrapper.add(component, gbc);
+
+            this.contentPanel.add(wrapper, id);
+            this.contentPanel.revalidate();
+            this.contentPanel.repaint();
+        };
+
+        if (SwingUtilities.isEventDispatchThread()) {
+            task.run();
+        } else {
+            SwingUtilities.invokeLater(task);
+        }
+    }
+
+    @Override
+    public void showView(String id) {
+        if (id == null) return;
+
+        Runnable task = () -> this.contentLayout.show(this.contentPanel, id);
+
+        if (SwingUtilities.isEventDispatchThread()) {
+            task.run();
+        } else {
+            SwingUtilities.invokeLater(task);
+        }
+    }
+
+    @Override
+    public void removeView(String id) {
+        if (id == null) return;
+
+        Runnable task = () -> {
+            Component[] comps = this.contentPanel.getComponents();
+            for (Component c : comps) {
+                if (id.equals(c.getName())) {
+                    this.contentPanel.remove(c);
+                    this.contentPanel.revalidate();
+                    this.contentPanel.repaint();
+                    break;
+                }
+            }
+        };
+
+        if (SwingUtilities.isEventDispatchThread()) {
+            task.run();
+        } else {
+            SwingUtilities.invokeLater(task);
+        }
+    }
+
+    @Override
+    public void setVisibility(boolean visible) {
+        this.logger.debug("Request to show main frame");
+        Runnable task = () -> {
+            this.logger.debug("Showing main frame on EDT");
+            this.mainFrame.setVisible(true);
+        };
+        if (SwingUtilities.isEventDispatchThread()) {
+            task.run();
+        } else {
+            SwingUtilities.invokeLater(task);
+        }
+    }
+
+    @Override
+    public void setOnExchangeDirectorySelected(Consumer<String> onExchangeDirectorySelected) {
+        this.onExchangeDirectorySelected = onExchangeDirectorySelected;
+    }
+
+    // -------------------------------------------------------------------------
+    // Internals
+    // -------------------------------------------------------------------------
 
     private void createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
 
-        // Menu Fichier
         JMenu fileMenu = new JMenu("Fichier");
 
-        // Sélecteur de fichier
-        JMenuItem selectDirItem = new JMenuItem("Sélectionner répertoire", new ImageIcon(Objects.requireNonNull(this.loadIcon("/images/editIcon_20.png"))));
+        JMenuItem selectDirItem = new JMenuItem("Sélectionner répertoire",
+                new ImageIcon(Objects.requireNonNull(this.loadIcon("/images/editIcon_20.png"))));
         selectDirItem.addActionListener(e -> this.showFileChooser());
         fileMenu.add(selectDirItem);
+        fileMenu.addSeparator();
 
-        fileMenu.addSeparator(); // Séparateur
-
-        JMenuItem exitItem = new JMenuItem("Quitter", new ImageIcon(Objects.requireNonNull(this.loadIcon("/images/exitIcon_20.png"))));
+        JMenuItem exitItem = new JMenuItem("Quitter",
+                new ImageIcon(Objects.requireNonNull(this.loadIcon("/images/exitIcon_20.png"))));
         exitItem.addActionListener(e -> System.exit(0));
         fileMenu.add(exitItem);
 
-        // Menu Aide
         JMenu helpMenu = new JMenu("Aide");
-        JMenuItem aboutItem = new JMenuItem("À propos", new ImageIcon(Objects.requireNonNull(this.loadIcon("/images/logo_20.png"))));
+        JMenuItem aboutItem = new JMenuItem("À propos",
+                new ImageIcon(Objects.requireNonNull(this.loadIcon("/images/logo_20.png"))));
         aboutItem.addActionListener(e -> this.showAboutDialog());
         helpMenu.add(aboutItem);
 
@@ -81,9 +182,6 @@ public class AppMainView extends JComponent implements IAppMainView {
         this.logger.debug("MenuBar créé");
     }
 
-    /**
-     * Affiche la boîte de dialogue À propos.
-     */
     private void showAboutDialog() {
         this.logger.debug("Afficher le dialogue À propos");
         JDialog aboutDialog = new JDialog(this.mainFrame, "À propos", true);
@@ -93,16 +191,12 @@ public class AppMainView extends JComponent implements IAppMainView {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Logo
         Image logoImage = this.loadIcon("/images/logo_50.png");
         JLabel logoLabel = new JLabel(new ImageIcon(Objects.requireNonNull(logoImage)));
         panel.add(logoLabel, BorderLayout.WEST);
 
-        // Texte À propos
-        JPanel textPanel = getTextPanel();
-        panel.add(textPanel, BorderLayout.CENTER);
+        panel.add(getTextPanel(), BorderLayout.CENTER);
 
-        // Bouton OK
         JButton okButton = new JButton("OK");
         okButton.addActionListener(e -> aboutDialog.dispose());
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -138,108 +232,24 @@ public class AppMainView extends JComponent implements IAppMainView {
         return textPanel;
     }
 
-    /**
-     * Affiche un sélecteur de fichier pour choisir un répertoire d'échange.
-     */
     private void showFileChooser() {
         this.logger.debug("Afficher FileChooser");
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooser.setDialogTitle("Sélectionner le répertoire d'échange");
         fileChooser.setApproveButtonText("Sélectionner");
-
-        // Définir le répertoire par défaut (home de l'utilisateur)
         fileChooser.setCurrentDirectory(new java.io.File(System.getProperty("user.home")));
 
         int result = fileChooser.showOpenDialog(this.mainFrame);
-
         if (result == JFileChooser.APPROVE_OPTION) {
             java.io.File selectedDirectory = fileChooser.getSelectedFile();
             this.logger.info("Répertoire sélectionné : " + selectedDirectory.getAbsolutePath());
-
-            // notifier le contrôleur / callback
             if (this.onExchangeDirectorySelected != null) {
                 this.onExchangeDirectorySelected.accept(selectedDirectory.getAbsolutePath());
             }
-
         } else {
             this.logger.debug("Sélection annulée");
         }
-    }
-
-    @Override
-    public void setVisibility(boolean visible) {
-        this.logger.debug("Request to show main frame");
-        SwingUtilities.invokeLater(() -> {
-            this.logger.debug("Showing main frame on EDT");
-            this.mainFrame.setVisible(true);
-        });
-    }
-
-    @Override
-    public void setOnExchangeDirectorySelected(Consumer<String> onExchangeDirectorySelected) {
-        this.onExchangeDirectorySelected = onExchangeDirectorySelected;
-    }
-
-    @Override
-    public void setMainContent(View view) {
-        this.addView(DEFAULT_VIEW_ID, view);
-        this.showView(DEFAULT_VIEW_ID);
-    }
-
-    @Override
-    public void addView(String id, View view) {
-        JComponent component = (JComponent) view;
-        if (component == null || id == null) return;
-        SwingUtilities.invokeLater(() -> {
-            // Si une vue avec le même id existe déjà, la supprimer pour éviter les doublons
-            Component[] existing = this.contentPanel.getComponents();
-            for (Component c : existing) {
-                if (id.equals(c.getName())) {
-                    this.contentPanel.remove(c);
-                    break;
-                }
-            }
-
-            JPanel wrapper = new JPanel(new GridBagLayout());
-            GridBagConstraints gbc = new GridBagConstraints();
-            gbc.gridx = 0;
-            gbc.gridy = 0;
-            gbc.weightx = 1.0;
-            gbc.weighty = 1.0;
-            gbc.fill = GridBagConstraints.BOTH;
-            wrapper.add(component, gbc);
-
-            wrapper.setName(id);
-
-            this.contentPanel.add(wrapper, id);
-            this.contentPanel.revalidate();
-            this.contentPanel.repaint();
-        });
-    }
-
-    @Override
-    public void showView(String id) {
-        if (id == null) return;
-        SwingUtilities.invokeLater(() -> {
-            this.contentLayout.show(this.contentPanel, id);
-        });
-    }
-
-    @Override
-    public void removeView(String id) {
-        if (id == null) return;
-        SwingUtilities.invokeLater(() -> {
-            Component[] comps = this.contentPanel.getComponents();
-            for (Component c : comps) {
-                if (id.equals(c.getName())) {
-                    this.contentPanel.remove(c);
-                    this.contentPanel.revalidate();
-                    this.contentPanel.repaint();
-                    break;
-                }
-            }
-        });
     }
 
     private Image loadIcon(String path) {
@@ -255,6 +265,4 @@ public class AppMainView extends JComponent implements IAppMainView {
             return null;
         }
     }
-
-
 }

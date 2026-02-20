@@ -6,12 +6,7 @@ import com.ubo.tp.message.core.IDataManager;
 import com.ubo.tp.message.core.database.observer.IMessageDatabaseObserver;
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.ihm.service.IListMessageView;
-import com.ubo.tp.message.ihm.service.IMessageView;
-import com.ubo.tp.message.ihm.view.MessageView;
 import com.ubo.tp.message.logger.Logger;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class ListMessageController implements IListMessageController, IMessageDatabaseObserver {
 
@@ -25,25 +20,7 @@ public class ListMessageController implements IListMessageController, IMessageDa
         this.dataManager = dataManager;
         this.view = view;
 
-        this.view.setOnRefreshRequested(this::refreshMessages);
-        //this.dataManager.addObserver(this);
-    }
-
-    private List<IMessageView> refreshListMessagesView() {
-        return dataManager.getMessages().stream()
-                .map(m -> new MessageView(LOGGER, m))
-                .collect(Collectors.toList());
-    }
-
-    public void refreshMessages() {
-        LOGGER.debug("ListMessageController: rafraîchissement des messages");
-        this.view.setMessages(refreshListMessagesView());
-    }
-
-    public void addMessage(Message message) {
-        LOGGER.debug("ListMessageController: ajout d'un message");
-        dataManager.sendMessage(message);
-        refreshMessages();
+        this.dataManager.addObserver(this);
     }
 
     @Override
@@ -53,16 +30,19 @@ public class ListMessageController implements IListMessageController, IMessageDa
 
     @Override
     public void notifyMessageAdded(Message addedMessage) {
-        this.refreshMessages();
+        if (LOGGER != null) LOGGER.debug("Message ajouté : " + addedMessage);
+        this.view.addMessage(addedMessage);
     }
 
     @Override
     public void notifyMessageDeleted(Message deletedMessage) {
-        this.refreshMessages();
+        if (LOGGER != null) LOGGER.debug("Message suppression : " + deletedMessage);
+        this.view.removeMessage(deletedMessage);
     }
 
     @Override
     public void notifyMessageModified(Message modifiedMessage) {
-        this.refreshMessages();
+        if (LOGGER != null) LOGGER.debug("Message update : " + modifiedMessage);
+        this.view.updateMessage(modifiedMessage);
     }
 }

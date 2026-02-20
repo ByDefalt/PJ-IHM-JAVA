@@ -1,12 +1,12 @@
 package com.ubo.tp.message.ihm.service;
 
-import java.util.List;
+import com.ubo.tp.message.datamodel.Channel;
 
 public interface IListCanalView extends View {
-    void setCanals(List<ICanalView> newCanals);
+    void addCanal(Channel canal);
 
-    void addCanal(ICanalView canal);
+    void removeCanal(Channel canal);
 
-    void clearCanals();
+    void updateCanal(Channel canal);
 }
 

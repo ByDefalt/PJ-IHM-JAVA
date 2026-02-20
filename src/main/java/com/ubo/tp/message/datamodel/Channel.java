@@ -108,13 +108,25 @@ public class Channel extends AbstractMessageAppObject implements IMessageRecipie
     @Override
     public String toString() {
 
-        return "[" +
-                this.getClass().getName() +
-                "] : " +
-                this.getUuid() +
-                " {" +
-                this.getName() +
-                "}";
+        return "Channel{" +
+                "creator=" + mCreator +
+                ", name='" + mName + '\'' +
+                ", users=" + mUsers +
+                ", private=" + mPrivate +
+                '}';
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Channel channel = (Channel) o;
+        return getUuid().equals(channel.getUuid());
+    }
+
+    @Override
+    public int hashCode() {
+        // Utilise uniquement l'UUID pour rester cohérent avec equals()
+        return super.hashCode();
+    }
 }

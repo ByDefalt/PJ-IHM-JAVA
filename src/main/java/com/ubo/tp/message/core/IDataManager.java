@@ -4,6 +4,7 @@ import com.ubo.tp.message.core.database.observer.IChannelDatabaseObserver;
 import com.ubo.tp.message.core.database.observer.IDatabaseObserver;
 import com.ubo.tp.message.core.database.observer.IMessageDatabaseObserver;
 import com.ubo.tp.message.core.database.observer.IUserDatabaseObserver;
+import com.ubo.tp.message.datamodel.Channel;
 import com.ubo.tp.message.datamodel.IMessageRecipient;
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.datamodel.User;
@@ -155,4 +156,28 @@ public interface IDataManager {
      * @param directoryPath chemin du répertoire
      */
     void setExchangeDirectory(String directoryPath);
+
+    /**
+     * Supprime l'entité utilisateur via le mécanisme d'échange (fichier) si possible.
+     *
+     * @param user utilisateur à supprimer
+     * @return true si la suppression via fichier a été effectuée ou si l'entité a bien été supprimée en base, false sinon
+     */
+    boolean deleteUserFile(User user);
+
+    /**
+     * Supprime l'entité message via le mécanisme d'échange (fichier) si possible.
+     *
+     * @param message message à supprimer
+     * @return true si la suppression via fichier a été effectuée ou si l'entité a bien été supprimée en base, false sinon
+     */
+    boolean deleteMessageFile(Message message);
+
+    /**
+     * Supprime l'entité canal via le mécanisme d'échange (fichier) si possible.
+     *
+     * @param channel canal à supprimer
+     * @return true si la suppression via fichier a été effectuée ou si l'entité a bien été supprimée en base, false sinon
+     */
+    boolean deleteChannelFile(Channel channel);
 }

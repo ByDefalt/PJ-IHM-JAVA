@@ -1,12 +1,13 @@
 package com.ubo.tp.message.ihm.service;
 
-import java.util.List;
+import com.ubo.tp.message.datamodel.User;
 
 public interface IListUserView extends View {
-    void setUsers(List<IUserView> newUsers);
 
-    void addUser(IUserView user);
+    void addUser(User user);
 
-    void clearUsers();
+    void removeUser(User user);
+
+    void updateUser(User user);
 }
 

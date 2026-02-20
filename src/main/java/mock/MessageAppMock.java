@@ -52,20 +52,17 @@ public class MessageAppMock {
         }
 
         // Affichage dans l'EDT
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                // Custom de l'affichage
-                JFrame frame = MessageAppMock.this.mFrame;
-                Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-                frame.setLocation((screenSize.width - frame.getWidth()) / 6,
-                        (screenSize.height - frame.getHeight()) / 4);
+        SwingUtilities.invokeLater(() -> {
+            // Custom de l'affichage
+            JFrame frame = MessageAppMock.this.mFrame;
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            frame.setLocation((screenSize.width - frame.getWidth()) / 6,
+                    (screenSize.height - frame.getHeight()) / 4);
 
-                // Affichage
-                MessageAppMock.this.mFrame.setVisible(true);
+            // Affichage
+            MessageAppMock.this.mFrame.setVisible(true);
 
-                MessageAppMock.this.mFrame.pack();
-            }
+            MessageAppMock.this.mFrame.pack();
         });
     }
 
@@ -112,6 +109,93 @@ public class MessageAppMock {
             }
         });
 
+        // Remove buttons
+        Button removeUserButton = new Button("Remove User");
+        removeUserButton.setPreferredSize(new Dimension(100, 50));
+        removeUserButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Prend un utilisateur au hasard dans la DB et le supprime
+                java.util.Set<User> users = MessageAppMock.this.mDataManager.getUsers();
+                if (users.isEmpty()) return;
+                ArrayList<User> list = new ArrayList<>(users);
+                User chosen = list.get(new Random().nextInt(list.size()));
+                MessageAppMock.this.mDataManager.deleteUserFile(chosen);
+            }
+        });
+
+        Button removeMessageButton = new Button("Remove Message");
+        removeMessageButton.setPreferredSize(new Dimension(100, 50));
+        removeMessageButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                java.util.Set<Message> messages = MessageAppMock.this.mDataManager.getMessages();
+                if (messages.isEmpty()) return;
+                ArrayList<Message> list = new ArrayList<>(messages);
+                Message chosen = list.get(new Random().nextInt(list.size()));
+                MessageAppMock.this.mDataManager.deleteMessageFile(chosen);
+            }
+        });
+
+        Button removeChannelButton = new Button("Remove Channel");
+        removeChannelButton.setPreferredSize(new Dimension(100, 50));
+        removeChannelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                java.util.Set<Channel> channels = MessageAppMock.this.mDataManager.getChannels();
+                if (channels.isEmpty()) return;
+                ArrayList<Channel> list = new ArrayList<>(channels);
+                Channel chosen = list.get(new Random().nextInt(list.size()));
+                MessageAppMock.this.mDataManager.deleteChannelFile(chosen);
+            }
+        });
+
+        // Update buttons
+        Button updateUserButton = new Button("Update User");
+        updateUserButton.setPreferredSize(new Dimension(100, 50));
+        updateUserButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                java.util.Set<User> users = MessageAppMock.this.mDataManager.getUsers();
+                if (users.isEmpty()) return;
+                ArrayList<User> list = new ArrayList<>(users);
+                User chosen = list.get(new Random().nextInt(list.size()));
+                // Modifie le nom et notifie la DB via fichiers
+                chosen.setName(chosen.getName() + "_upd");
+                MessageAppMock.this.mDataManager.sendUser(chosen);
+            }
+        });
+
+        Button updateMessageButton = new Button("Update Message");
+        updateMessageButton.setPreferredSize(new Dimension(100, 50));
+        updateMessageButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                java.util.Set<Message> messages = MessageAppMock.this.mDataManager.getMessages();
+                if (messages.isEmpty()) return;
+                ArrayList<Message> list = new ArrayList<>(messages);
+                Message chosen = list.get(new Random().nextInt(list.size()));
+                // Crée un nouveau message avec le même UUID mais texte modifié et écrit en fichier
+                Message updated = new Message(chosen.getUuid(), chosen.getSender(), chosen.getRecipient(), chosen.getEmissionDate(), chosen.getText() + "_upd");
+                MessageAppMock.this.mDataManager.sendMessage(updated);
+            }
+        });
+
+        Button updateChannelButton = new Button("Update Channel");
+        updateChannelButton.setPreferredSize(new Dimension(100, 50));
+        updateChannelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                java.util.Set<Channel> channels = MessageAppMock.this.mDataManager.getChannels();
+                if (channels.isEmpty()) return;
+                ArrayList<Channel> list = new ArrayList<>(channels);
+                Channel chosen = list.get(new Random().nextInt(list.size()));
+                // Crée un nouveau canal avec le même UUID mais nom modifié et écrit en fichier
+                Channel updated = new Channel(chosen.getUuid(), chosen.getCreator(), chosen.getName() + "_upd");
+                MessageAppMock.this.mDataManager.sendChannel(updated);
+            }
+        });
+
         //
         // Gestion des fichiers
 
@@ -129,13 +213,7 @@ public class MessageAppMock {
 
         Button sendMessageButton = new Button("Write Message");
         sendMessageButton.setPreferredSize(new Dimension(100, 50));
-        sendMessageButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                MessageAppMock.this.writeMessage();
-            }
-        });
+        sendMessageButton.addActionListener(_ -> MessageAppMock.this.writeMessage());
 
         Button sendChannelButton = new Button("Write Channel");
         sendChannelButton.setPreferredSize(new Dimension(100, 50));
@@ -157,13 +235,30 @@ public class MessageAppMock {
                 GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
         this.mFrame.add(addChannelButton, new GridBagConstraints(2, 1, 1, 1, 1, 1, GridBagConstraints.EAST,
                 GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
-        this.mFrame.add(fileLabel, new GridBagConstraints(0, 3, 3, 1, 1, 1, GridBagConstraints.CENTER,
+
+        this.mFrame.add(fileLabel, new GridBagConstraints(0, 2, 3, 1, 1, 1, GridBagConstraints.CENTER,
                 GridBagConstraints.NONE, new Insets(15, 5, 0, 5), 0, 0));
-        this.mFrame.add(sendUserButton, new GridBagConstraints(0, 4, 1, 1, 1, 1, GridBagConstraints.WEST,
+        this.mFrame.add(sendUserButton, new GridBagConstraints(0, 3, 1, 1, 1, 1, GridBagConstraints.WEST,
                 GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
-        this.mFrame.add(sendMessageButton, new GridBagConstraints(1, 4, 1, 1, 1, 1, GridBagConstraints.EAST,
+        this.mFrame.add(sendMessageButton, new GridBagConstraints(1, 3, 1, 1, 1, 1, GridBagConstraints.EAST,
                 GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
-        this.mFrame.add(sendChannelButton, new GridBagConstraints(2, 4, 1, 1, 1, 1, GridBagConstraints.WEST,
+        this.mFrame.add(sendChannelButton, new GridBagConstraints(2, 3, 1, 1, 1, 1, GridBagConstraints.WEST,
+                GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+
+        // remove row
+        this.mFrame.add(removeUserButton, new GridBagConstraints(0, 5, 1, 1, 1, 1, GridBagConstraints.WEST,
+                GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+        this.mFrame.add(removeMessageButton, new GridBagConstraints(1, 5, 1, 1, 1, 1, GridBagConstraints.CENTER,
+                GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+        this.mFrame.add(removeChannelButton, new GridBagConstraints(2, 5, 1, 1, 1, 1, GridBagConstraints.EAST,
+                GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+
+        // update row
+        this.mFrame.add(updateUserButton, new GridBagConstraints(0, 6, 1, 1, 1, 1, GridBagConstraints.WEST,
+                GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+        this.mFrame.add(updateMessageButton, new GridBagConstraints(1, 6, 1, 1, 1, 1, GridBagConstraints.CENTER,
+                GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+        this.mFrame.add(updateChannelButton, new GridBagConstraints(2, 6, 1, 1, 1, 1, GridBagConstraints.EAST,
                 GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
     }
 
@@ -248,7 +343,7 @@ public class MessageAppMock {
      */
     protected Message generateMessage() {
         // Si la base n'a pas d'utilisateur
-        if (this.mDataManager.getUsers().size() == 0) {
+        if (this.mDataManager.getUsers().isEmpty()) {
             // Création d'un utilisateur
             this.addUserInDatabase();
         }
@@ -268,7 +363,7 @@ public class MessageAppMock {
      */
     protected Channel generateChannel() {
         // Si la base n'a pas d'utilisateur
-        if (this.mDataManager.getUsers().size() == 0) {
+        if (this.mDataManager.getUsers().isEmpty()) {
             // Création d'un utilisateur
             this.addUserInDatabase();
         }

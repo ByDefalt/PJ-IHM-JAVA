@@ -1,4 +1,4 @@
-package com.ubo.tp.message.ihm.view;
+package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.controller.service.IEmptyController;
 import com.ubo.tp.message.ihm.service.IEmptyView;

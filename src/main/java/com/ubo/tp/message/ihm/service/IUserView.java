@@ -1,15 +1,10 @@
 package com.ubo.tp.message.ihm.service;
 
-import javax.swing.*;
+
+import com.ubo.tp.message.datamodel.User;
 
 public interface IUserView extends View {
-    String getUserName();
+    User getUser();
 
-    void setUserName(String name);
-
-    String getStatus();
-
-    void setStatus(String status);
-
-    JLabel getUserNameLabel();
+    void updateUser(User user);
 }

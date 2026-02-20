@@ -1,4 +1,4 @@
-package com.ubo.tp.message.ihm.view;
+package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.controller.service.IInputMessageController;
 import com.ubo.tp.message.ihm.service.IInputMessageView;
@@ -22,7 +22,7 @@ public class InputMessageView extends JComponent implements IInputMessageView {
         this.controller = controller;
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
-        this.setOpaque(false);
+        this.setOpaque(true);
 
         init();
 
@@ -93,15 +93,6 @@ public class InputMessageView extends JComponent implements IInputMessageView {
         });
     }
 
-    // API publique pour que le controller manipule la vue
-    public JTextField getInputField() {
-        return inputField;
-    }
-
-    public JButton getSendButton() {
-        return sendButton;
-    }
-
     public String getMessageText() {
         return inputField.getText();
     }
@@ -124,4 +115,8 @@ public class InputMessageView extends JComponent implements IInputMessageView {
         this.onSendRequested = handler;
     }
 
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+    }
 }

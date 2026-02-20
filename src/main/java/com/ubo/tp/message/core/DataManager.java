@@ -247,4 +247,34 @@ public class DataManager implements IDataManager {
         mWatchableDirectory.addObserver(mEntityManager);
         mWatchableDirectory.initWatching();
     }
+
+    /**
+     * Supprime un utilisateur via le mécanisme de fichier (délégué à l'EntityManager).
+     *
+     * @param user utilisateur à supprimer
+     * @return true si la suppression a été effectuée (fichier supprimé ou suppression en base effectuée), false sinon
+     */
+    public boolean deleteUserFile(User user) {
+        return this.mEntityManager.deleteUserFile(user);
+    }
+
+    /**
+     * Supprime un message via le mécanisme de fichier (délégué à l'EntityManager).
+     *
+     * @param message message à supprimer
+     * @return true si la suppression a été effectuée (fichier supprimé ou suppression en base effectuée), false sinon
+     */
+    public boolean deleteMessageFile(Message message) {
+        return this.mEntityManager.deleteMessageFile(message);
+    }
+
+    /**
+     * Supprime un canal via le mécanisme de fichier (délégué à l'EntityManager).
+     *
+     * @param channel canal à supprimer
+     * @return true si la suppression a été effectuée (fichier supprimé ou suppression en base effectuée), false sinon
+     */
+    public boolean deleteChannelFile(Channel channel) {
+        return this.mEntityManager.deleteChannelFile(channel);
+    }
 }

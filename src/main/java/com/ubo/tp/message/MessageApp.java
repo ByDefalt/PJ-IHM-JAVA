@@ -4,8 +4,9 @@ import com.ubo.tp.message.controller.service.IAppMainController;
 import com.ubo.tp.message.core.IDataManager;
 import com.ubo.tp.message.factory.ComposantFactory;
 import com.ubo.tp.message.logger.Logger;
+import com.ubo.tp.message.theme.AbstractTheme;
+import com.ubo.tp.message.theme.DiscordTheme;
 
-import javax.swing.*;
 import java.io.File;
 
 /**
@@ -53,8 +54,10 @@ public class MessageApp {
      */
     protected void initLookAndFeel() {
         try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            this.logger.debug("LookAndFeel défini sur le système");
+            // Appliquer le thème Discord (installe FlatDarkLaf et personnalise les UI defaults)
+            DiscordTheme theme = new DiscordTheme();
+            theme.apply();
+            this.logger.debug("Thème Discord appliqué");
         } catch (Exception e) {
             this.logger.warn("Impossible de définir le Look and Feel natif: " + e.getMessage());
         }
