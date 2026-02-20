@@ -1,16 +1,16 @@
 package com.ubo.tp.message.controller.impl;
 
-import com.ubo.tp.message.controller.service.IInputMessageController;
+import com.ubo.tp.message.controller.service.IChatMainController;
 import com.ubo.tp.message.core.IDataManager;
 import com.ubo.tp.message.logger.Logger;
 
-public class InputMessageController implements IInputMessageController {
+public class ChatMainController implements IChatMainController {
 
     private final Logger LOGGER;
     private final IDataManager dataManager;
 
-    public InputMessageController(Logger logger, IDataManager dataManager) {
-        LOGGER = logger;
+    public ChatMainController(Logger logger, IDataManager dataManager) {
+        this.LOGGER = logger;
         this.dataManager = dataManager;
     }
 }

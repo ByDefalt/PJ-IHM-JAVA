@@ -2,7 +2,6 @@ package com.ubo.tp.message.ihm.view;
 
 import com.ubo.tp.message.controller.service.ILoginController;
 import com.ubo.tp.message.controller.service.INavigationController;
-import com.ubo.tp.message.ihm.service.View;
 import com.ubo.tp.message.ihm.service.ILoginView;
 import com.ubo.tp.message.logger.Logger;
 
@@ -13,16 +12,13 @@ public class LoginView extends JComponent implements ILoginView {
 
 
     private final Logger LOGGER;
-
+    private final ILoginController controller;
+    private final INavigationController navigationController;
     private JTextField tagField;
     private JTextField nameField;
     private JPasswordField passwordField;
     private JButton loginButton;
     private JButton registerButton;
-
-    private final ILoginController controller;
-    private final INavigationController navigationController;
-
     private Runnable onLoginRequested;
     private Runnable onRegisterRequested;
 
@@ -194,7 +190,7 @@ public class LoginView extends JComponent implements ILoginView {
     }
 
 
-    public void createConnector(){
+    public void createConnector() {
         this.getRegisterButton().addActionListener(e -> {
             if (LOGGER != null) LOGGER.debug("Bouton d'inscription cliqué");
             if (onRegisterRequested != null) onRegisterRequested.run();
@@ -210,26 +206,50 @@ public class LoginView extends JComponent implements ILoginView {
         });
     }
 
-    public JTextField getTagField() { return tagField; }
-    public JTextField getNameField() { return nameField; }
-    public JPasswordField getPasswordField() { return passwordField; }
-    public JButton getLoginButton() { return loginButton; }
-    public JButton getRegisterButton() { return registerButton; }
+    public JTextField getTagField() {
+        return tagField;
+    }
+
+    public JTextField getNameField() {
+        return nameField;
+    }
+
+    public JPasswordField getPasswordField() {
+        return passwordField;
+    }
+
+    public JButton getLoginButton() {
+        return loginButton;
+    }
+
+    public JButton getRegisterButton() {
+        return registerButton;
+    }
 
     // ILoginView impl
     @Override
-    public String getTag() { return getTagField().getText(); }
+    public String getTag() {
+        return getTagField().getText();
+    }
 
     @Override
-    public String getName() { return getNameField().getText(); }
+    public String getName() {
+        return getNameField().getText();
+    }
 
     @Override
-    public String getPassword() { return new String(getPasswordField().getPassword()); }
+    public String getPassword() {
+        return new String(getPasswordField().getPassword());
+    }
 
     @Override
-    public void setOnLoginRequested(Runnable handler) { this.onLoginRequested = handler; }
+    public void setOnLoginRequested(Runnable handler) {
+        this.onLoginRequested = handler;
+    }
 
     @Override
-    public void setOnRegisterRequested(Runnable handler) { this.onRegisterRequested = handler; }
+    public void setOnRegisterRequested(Runnable handler) {
+        this.onRegisterRequested = handler;
+    }
 
 }

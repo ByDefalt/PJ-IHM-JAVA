@@ -12,23 +12,31 @@ public class NullLogger implements Logger {
     }
 
     @Override
-    public void trace(String message) { }
+    public void trace(String message) {
+    }
 
     @Override
-    public void debug(String message) { }
+    public void debug(String message) {
+    }
 
     @Override
-    public void info(String message) { }
+    public void info(String message) {
+    }
 
     @Override
-    public void warn(String message) { }
+    public void warn(String message) {
+    }
 
     @Override
-    public void error(String message) { }
+    public void error(String message) {
+    }
 
     @Override
-    public void error(String message, Throwable t) { }
+    public void error(String message, Throwable t) {
+    }
 
     @Override
-    public boolean isLevelEnabled(LogLevel level) { return false; }
+    public boolean isLevelEnabled(LogLevel level) {
+        return false;
+    }
 }

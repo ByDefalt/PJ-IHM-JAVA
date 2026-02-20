@@ -2,7 +2,6 @@ package com.ubo.tp.message.ihm.view;
 
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.ihm.service.IMessageView;
-import com.ubo.tp.message.ihm.service.View;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
@@ -107,9 +106,17 @@ public class MessageView extends JComponent implements IMessageView {
         repaint();
     }
 
-    public String getAuthor() { return authorLabel.getText(); }
-    public String getContent() { return contentArea.getText(); }
-    public String getTime() { return timeLabel.getText(); }
+    public String getAuthor() {
+        return authorLabel.getText();
+    }
+
+    public String getContent() {
+        return contentArea.getText();
+    }
+
+    public String getTime() {
+        return timeLabel.getText();
+    }
 
 
 }

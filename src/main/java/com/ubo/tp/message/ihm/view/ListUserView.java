@@ -1,6 +1,5 @@
 package com.ubo.tp.message.ihm.view;
 
-import com.ubo.tp.message.ihm.service.View;
 import com.ubo.tp.message.ihm.service.IListUserView;
 import com.ubo.tp.message.ihm.service.IUserView;
 import com.ubo.tp.message.logger.Logger;
@@ -77,17 +76,6 @@ public class ListUserView extends JComponent implements IListUserView {
     }
 
     /**
-     * Remplace la liste entière d'utilisateurs par `newUsers`.
-     */
-    public void setUsers(List<IUserView> newUsers) {
-        clearUsers();
-        if (newUsers == null) return;
-        for (IUserView uv : newUsers) addUser(uv);
-        revalidate();
-        repaint();
-    }
-
-    /**
      * Ajoute un UserView à la fin de la liste et fait défiler vers le bas.
      */
     public void addUser(IUserView userView) {
@@ -141,6 +129,19 @@ public class ListUserView extends JComponent implements IListUserView {
         repaint();
     }
 
-    public List<IUserView> getUsers() { return new ArrayList<>(userViews); }
+    public List<IUserView> getUsers() {
+        return new ArrayList<>(userViews);
+    }
+
+    /**
+     * Remplace la liste entière d'utilisateurs par `newUsers`.
+     */
+    public void setUsers(List<IUserView> newUsers) {
+        clearUsers();
+        if (newUsers == null) return;
+        for (IUserView uv : newUsers) addUser(uv);
+        revalidate();
+        repaint();
+    }
 
 }

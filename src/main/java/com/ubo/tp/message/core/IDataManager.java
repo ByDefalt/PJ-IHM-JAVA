@@ -1,11 +1,14 @@
 package com.ubo.tp.message.core;
 
-import java.util.Set;
-
-import com.ubo.tp.message.core.database.IDatabaseObserver;
+import com.ubo.tp.message.core.database.observer.IChannelDatabaseObserver;
+import com.ubo.tp.message.core.database.observer.IDatabaseObserver;
+import com.ubo.tp.message.core.database.observer.IMessageDatabaseObserver;
+import com.ubo.tp.message.core.database.observer.IUserDatabaseObserver;
 import com.ubo.tp.message.datamodel.IMessageRecipient;
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.datamodel.User;
+
+import java.util.Set;
 
 /**
  * Service d'accès aux données de l'application (abstraction).
@@ -36,6 +39,48 @@ public interface IDataManager {
      * @param observer observateur à retirer
      */
     void removeObserver(IDatabaseObserver observer);
+
+    /**
+     * Ajoute un observateur spécialisé pour les messages.
+     *
+     * @param observer observateur de messages
+     */
+    void addObserver(IMessageDatabaseObserver observer);
+
+    /**
+     * Retire un observateur spécialisé pour les messages.
+     *
+     * @param observer observateur de messages
+     */
+    void removeObserver(IMessageDatabaseObserver observer);
+
+    /**
+     * Ajoute un observateur spécialisé pour les utilisateurs.
+     *
+     * @param observer observateur d'utilisateurs
+     */
+    void addObserver(IUserDatabaseObserver observer);
+
+    /**
+     * Retire un observateur spécialisé pour les utilisateurs.
+     *
+     * @param observer observateur d'utilisateurs
+     */
+    void removeObserver(IUserDatabaseObserver observer);
+
+    /**
+     * Ajoute un observateur spécialisé pour les canaux.
+     *
+     * @param observer observateur de canaux
+     */
+    void addObserver(IChannelDatabaseObserver observer);
+
+    /**
+     * Retire un observateur spécialisé pour les canaux.
+     *
+     * @param observer observateur de canaux
+     */
+    void removeObserver(IChannelDatabaseObserver observer);
 
     /**
      * Retourne l'ensemble des utilisateurs connus.

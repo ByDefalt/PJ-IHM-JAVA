@@ -1,8 +1,7 @@
 package com.ubo.tp.message.ihm.view;
 
-import com.ubo.tp.message.ihm.service.View;
-import com.ubo.tp.message.ihm.service.IListCanalView;
 import com.ubo.tp.message.ihm.service.ICanalView;
+import com.ubo.tp.message.ihm.service.IListCanalView;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
@@ -77,17 +76,6 @@ public class ListCanalView extends JComponent implements IListCanalView {
     }
 
     /**
-     * Remplace la liste entière de canaux par `newCanals`.
-     */
-    public void setCanals(List<ICanalView> newCanals) {
-        clearCanals();
-        if (newCanals == null) return;
-        for (ICanalView cv : newCanals) addCanal(cv);
-        revalidate();
-        repaint();
-    }
-
-    /**
      * Ajoute un CanalView à la fin de la liste et fait défiler vers le bas.
      */
     public void addCanal(ICanalView canalView) {
@@ -141,6 +129,19 @@ public class ListCanalView extends JComponent implements IListCanalView {
         repaint();
     }
 
-    public List<ICanalView> getCanals() { return new ArrayList<>(canalViews); }
+    public List<ICanalView> getCanals() {
+        return new ArrayList<>(canalViews);
+    }
+
+    /**
+     * Remplace la liste entière de canaux par `newCanals`.
+     */
+    public void setCanals(List<ICanalView> newCanals) {
+        clearCanals();
+        if (newCanals == null) return;
+        for (ICanalView cv : newCanals) addCanal(cv);
+        revalidate();
+        repaint();
+    }
 
 }

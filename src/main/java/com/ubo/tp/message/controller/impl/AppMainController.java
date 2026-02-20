@@ -1,14 +1,10 @@
 package com.ubo.tp.message.controller.impl;
 
-import com.ubo.tp.message.controller.service.Controller;
+import com.ubo.tp.message.controller.service.IAppMainController;
 import com.ubo.tp.message.core.IDataManager;
 import com.ubo.tp.message.factory.ComposantFactory;
 import com.ubo.tp.message.ihm.service.IAppMainView;
-import com.ubo.tp.message.ihm.view.*;
 import com.ubo.tp.message.logger.Logger;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Contrôleur pour la vue principale de l'application.
@@ -17,7 +13,7 @@ import java.util.List;
  * actions nécessaires à l'IHM (ex : sélection du répertoire d'échange).
  * </p>
  */
-public class AppMainController implements Controller {
+public class AppMainController implements IAppMainController {
 
     private final Logger logger;
 
@@ -28,8 +24,8 @@ public class AppMainController implements Controller {
      * Constructeur permettant l'injection d'une vue (utile pour tests).
      *
      * @param dataManager service d'accès aux données
-     * @param logger logger de l'application
-     * @param view vue principale injectée
+     * @param logger      logger de l'application
+     * @param view        vue principale injectée
      */
     public AppMainController(IDataManager dataManager, Logger logger, IAppMainView view) {
         this.dataManager = dataManager;
@@ -39,12 +35,16 @@ public class AppMainController implements Controller {
         // Connecter le callback de la vue à la logique du contrôleur
         this.view.setOnExchangeDirectorySelected(this::onExchangeDirectorySelected);
 
+        //this.view.setMainContent(
+        //        ComposantFactory.createLoginView(
+        //                logger,
+        //                dataManager,
+        //                new NavigationController(logger, dataManager, this.view)
+        //        )
+        //);
+
         this.view.setMainContent(
-                ComposantFactory.createLoginView(
-                        logger,
-                        dataManager,
-                        new NavigationController(logger, dataManager, this.view)
-                )
+                ComposantFactory.createChatMainView(logger, dataManager)
         );
     }
 

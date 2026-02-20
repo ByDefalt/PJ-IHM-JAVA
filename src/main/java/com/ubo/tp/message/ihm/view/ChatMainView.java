@@ -1,11 +1,7 @@
 package com.ubo.tp.message.ihm.view;
 
-import com.ubo.tp.message.ihm.service.View;
-import com.ubo.tp.message.ihm.service.IChatMainView;
-import com.ubo.tp.message.ihm.service.IListCanalView;
-import com.ubo.tp.message.ihm.service.IListUserView;
-import com.ubo.tp.message.ihm.service.IListMessageView;
-import com.ubo.tp.message.ihm.service.IInputMessageView;
+import com.ubo.tp.message.controller.service.IChatMainController;
+import com.ubo.tp.message.ihm.service.*;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
@@ -24,12 +20,15 @@ public class ChatMainView extends JComponent implements IChatMainView {
     private final IListMessageView listMessageView;
     private final IInputMessageView inputMessageView;
 
-    public ChatMainView(Logger logger, IListCanalView listCanalView, IListUserView listUserView, IListMessageView listMessageView, IInputMessageView inputMessageView) {
+    private final IChatMainController chatMainController;
+
+    public ChatMainView(Logger logger, IListCanalView listCanalView, IListUserView listUserView, IListMessageView listMessageView, IInputMessageView inputMessageView, IChatMainController chatMainController) {
         this.logger = logger;
         this.listCanalView = listCanalView;
         this.listUserView = listUserView;
         this.listMessageView = listMessageView;
         this.inputMessageView = inputMessageView;
+        this.chatMainController = chatMainController;
 
         // Racine en GridBagLayout
         this.setLayout(new GridBagLayout());
@@ -127,9 +126,25 @@ public class ChatMainView extends JComponent implements IChatMainView {
     }
 
     // Getters pour que le contrôleur puisse attacher des listeners / rafraîchir
-    public IListCanalView getListCanalView() { return listCanalView; }
-    public IListUserView getListUserView() { return listUserView; }
-    public IListMessageView getListMessageView() { return listMessageView; }
-    public IInputMessageView getInputMessageView() { return inputMessageView; }
+    public IListCanalView getListCanalView() {
+        return listCanalView;
+    }
+
+    public IListUserView getListUserView() {
+        return listUserView;
+    }
+
+    public IListMessageView getListMessageView() {
+        return listMessageView;
+    }
+
+    public IInputMessageView getInputMessageView() {
+        return inputMessageView;
+    }
+
+    @Override
+    public IChatMainController getController() {
+        return chatMainController;
+    }
 
 }

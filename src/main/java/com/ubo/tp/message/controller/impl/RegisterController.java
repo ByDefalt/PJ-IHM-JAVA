@@ -42,7 +42,7 @@ public class RegisterController implements IRegisterController {
             logger.info("User data is valid");
         } else {
             logger.warn("User data is invalid");
-             return false;
+            return false;
         }
         return createUserIfNotExist(tag, name, password, confirmPassword);
     }

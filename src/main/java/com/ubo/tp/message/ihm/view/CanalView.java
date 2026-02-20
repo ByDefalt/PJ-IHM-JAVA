@@ -1,7 +1,6 @@
 package com.ubo.tp.message.ihm.view;
 
 import com.ubo.tp.message.ihm.service.ICanalView;
-import com.ubo.tp.message.ihm.service.View;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
@@ -55,10 +54,17 @@ public class CanalView extends JComponent implements ICanalView {
     }
 
     // API publique
-    public String getCanalName() { return canalNameLabel.getText(); }
-    public void setCanalName(String name) { this.canalNameLabel.setText(name); }
+    public String getCanalName() {
+        return canalNameLabel.getText();
+    }
+
+    public void setCanalName(String name) {
+        this.canalNameLabel.setText(name);
+    }
 
     @Override
-    public JLabel getCanalLabel() { return canalNameLabel; }
+    public JLabel getCanalLabel() {
+        return canalNameLabel;
+    }
 
 }

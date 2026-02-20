@@ -1,4 +1,4 @@
 package com.ubo.tp.message.ihm.service;
 
-public interface View  {
+public interface View {
 }

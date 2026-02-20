@@ -1,17 +1,13 @@
 package com.ubo.tp.message.ihm.view;
 
-import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.ihm.service.IListMessageView;
 import com.ubo.tp.message.ihm.service.IMessageView;
-import com.ubo.tp.message.ihm.service.View;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * Vue affichant une liste de MessageView empilés verticalement dans une zone défilante.
@@ -23,10 +19,8 @@ public class ListMessageView extends JComponent implements IListMessageView {
 
     private final JPanel messagesPanel;
     private final JScrollPane scrollPane;
-    private Runnable onRefreshRequested;
-
-
     private final List<IMessageView> messages = new ArrayList<>();
+    private Runnable onRefreshRequested;
 
     public ListMessageView(Logger logger) {
         this.logger = logger;
@@ -40,7 +34,6 @@ public class ListMessageView extends JComponent implements IListMessageView {
         scrollPane = createScrollPane(messagesPanel);
 
         addScrollPaneToThis();
-
 
 
         if (this.logger != null) this.logger.debug("ListMessageView initialisée");
@@ -77,23 +70,20 @@ public class ListMessageView extends JComponent implements IListMessageView {
         this.onRefreshRequested = onRefreshRequested;
     }
 
-
-    /**
-     * Remplace la liste entière de messages par `newMessages`.
-     */
-    public void setMessages(List<IMessageView> newMessages) {
-        clearMessages();
-        if (newMessages == null) return;
-        for (IMessageView mv : newMessages) addMessage(mv);
-        revalidate();
-        repaint();
-    }
-
     /**
      * Ajoute un message à la fin de la liste et fait défiler vers le bas.
      */
     public void addMessage(IMessageView messageView) {
         if (messageView == null) return;
+
+        // Eviter d'ajouter la même instance deux fois
+        if (messages.contains(messageView)) return;
+
+        // Exécuter la modification de l'UI sur l'EDT
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> addMessage(messageView));
+            return;
+        }
 
         int row = messages.size();
         GridBagConstraints gbc = new GridBagConstraints(
@@ -139,6 +129,12 @@ public class ListMessageView extends JComponent implements IListMessageView {
      * Vide la liste de messages.
      */
     public void clearMessages() {
+        // Exécuter la modification de l'UI sur l'EDT
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(this::clearMessages);
+            return;
+        }
+
         messagesPanel.removeAll();
         messages.clear();
         // ensure panel retains its background by re-adding an invisible glue so top alignment works
@@ -152,6 +148,73 @@ public class ListMessageView extends JComponent implements IListMessageView {
         repaint();
     }
 
-    public List<IMessageView> getMessages() { return new ArrayList<>(messages); }
+    public List<IMessageView> getMessages() {
+        return new ArrayList<>(messages);
+    }
 
+    /**
+     * Remplace la liste entière de messages par `newMessages`.
+     */
+    public void setMessages(List<IMessageView> newMessages) {
+        Runnable uiUpdate = () -> {
+            // Reconstruction complète de la vue pour éviter les effets de bord
+            messagesPanel.removeAll();
+            messages.clear();
+
+            // Add messages sequentially without using addMessage to avoid nested invokeLater
+            if (newMessages != null && !newMessages.isEmpty()) {
+                // Utiliser un set pour dédupliquer par contenu (auteur|texte|time)
+                java.util.Set<String> seen = new java.util.HashSet<>();
+                int row = 0;
+                for (IMessageView mv : newMessages) {
+                    if (mv == null) continue;
+                    String key = mv.getAuthor() + "|" + mv.getContent() + "|" + mv.getTime();
+                    if (seen.contains(key)) continue;
+                    seen.add(key);
+
+                    GridBagConstraints gbc = new GridBagConstraints(
+                            0, row, 1, 1, 1.0, 0.0,
+                            GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
+                            new Insets(6, 6, 6, 6), 0, 0
+                    );
+                    gbc.fill = GridBagConstraints.HORIZONTAL;
+
+                    messagesPanel.add((Component) mv, gbc);
+                    messages.add(mv);
+                    row++;
+                }
+
+                // add glue at end
+                GridBagConstraints gbcGlue = new GridBagConstraints(
+                        0, row, 1, 1, 1.0, 1.0,
+                        GridBagConstraints.NORTH, GridBagConstraints.BOTH,
+                        new Insets(0, 0, 0, 0), 0, 0
+                );
+                messagesPanel.add(Box.createVerticalGlue(), gbcGlue);
+            } else {
+                // no messages -> just add glue
+                GridBagConstraints gbcGlue = new GridBagConstraints(
+                        0, 0, 1, 1, 1.0, 1.0,
+                        GridBagConstraints.NORTH, GridBagConstraints.BOTH,
+                        new Insets(0, 0, 0, 0), 0, 0
+                );
+                messagesPanel.add(Box.createVerticalGlue(), gbcGlue);
+            }
+
+            revalidate();
+            repaint();
+
+            // Scroll to bottom
+            SwingUtilities.invokeLater(() -> {
+                JScrollBar bar = scrollPane.getVerticalScrollBar();
+                bar.setValue(bar.getMaximum());
+            });
+        };
+
+        if (SwingUtilities.isEventDispatchThread()) {
+            uiUpdate.run();
+        } else {
+            SwingUtilities.invokeLater(uiUpdate);
+        }
+    }
 }

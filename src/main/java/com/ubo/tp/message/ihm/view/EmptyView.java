@@ -1,7 +1,6 @@
 package com.ubo.tp.message.ihm.view;
 
 import com.ubo.tp.message.controller.service.IEmptyController;
-import com.ubo.tp.message.ihm.service.View;
 import com.ubo.tp.message.ihm.service.IEmptyView;
 import com.ubo.tp.message.logger.Logger;
 

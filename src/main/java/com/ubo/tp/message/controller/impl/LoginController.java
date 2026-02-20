@@ -3,7 +3,6 @@ package com.ubo.tp.message.controller.impl;
 import com.ubo.tp.message.controller.service.ILoginController;
 import com.ubo.tp.message.core.IDataManager;
 import com.ubo.tp.message.datamodel.User;
-import com.ubo.tp.message.ihm.view.RegisterView;
 import com.ubo.tp.message.logger.Logger;
 
 import java.util.Optional;
@@ -36,10 +35,10 @@ public class LoginController implements ILoginController {
         login(tag, name, password);
     }
 
-    public void login(String tag, String name, String password){
+    public void login(String tag, String name, String password) {
         logger.debug("LoginController: onLoginButtonClicked called");
         Optional<User> userOpt = validateLogin(tag, name, password);
-        if(userOpt.isPresent()) {
+        if (userOpt.isPresent()) {
             User user = userOpt.get();
             logger.info("LoginController: User logged in - " + tag);
             user.setOnline(true);

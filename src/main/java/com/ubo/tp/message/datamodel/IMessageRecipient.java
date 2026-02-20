@@ -8,10 +8,10 @@ import java.util.UUID;
  */
 public interface IMessageRecipient {
 
-	/**
-	 * Retourne l'identifiant de la destination.
-	 *
-	 * @return UUID de la destination
-	 */
-	UUID getUuid();
+    /**
+     * Retourne l'identifiant de la destination.
+     *
+     * @return UUID de la destination
+     */
+    UUID getUuid();
 }

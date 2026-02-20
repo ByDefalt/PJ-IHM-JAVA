@@ -1,11 +1,9 @@
 package com.ubo.tp.message.ihm.view;
 
 import com.ubo.tp.message.ihm.service.IUserView;
-import com.ubo.tp.message.ihm.service.View;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class UserView extends JComponent implements IUserView {
@@ -17,7 +15,8 @@ public class UserView extends JComponent implements IUserView {
 
     /**
      * Crée un composant UserView simple (nom + statut).
-     * @param logger logger optionnel (peut être null)
+     *
+     * @param logger   logger optionnel (peut être null)
      * @param userName nom à afficher
      */
     public UserView(Logger logger, String userName) {
@@ -77,11 +76,24 @@ public class UserView extends JComponent implements IUserView {
     }
 
     // API publique
-    public JLabel getUserNameLabel() { return userNameLabel; }
-    public String getUserName() { return userNameLabel.getText(); }
-    public void setUserName(String name) { this.userNameLabel.setText(name); }
+    public JLabel getUserNameLabel() {
+        return userNameLabel;
+    }
 
-    public void setStatus(String status) { this.statusLabel.setText(status); }
-    public String getStatus() { return this.statusLabel.getText(); }
+    public String getUserName() {
+        return userNameLabel.getText();
+    }
+
+    public void setUserName(String name) {
+        this.userNameLabel.setText(name);
+    }
+
+    public String getStatus() {
+        return this.statusLabel.getText();
+    }
+
+    public void setStatus(String status) {
+        this.statusLabel.setText(status);
+    }
 
 }

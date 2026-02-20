@@ -18,15 +18,12 @@ import java.util.function.Consumer;
  */
 public class AppMainView extends JComponent implements IAppMainView {
 
+    public static final String DEFAULT_VIEW_ID = "default";
     private final JFrame mainFrame;
     private final Logger logger;
-
     private final JPanel contentPanel;
     private final CardLayout contentLayout;
-
     private Consumer<String> onExchangeDirectorySelected;
-
-    public static final String DEFAULT_VIEW_ID = "default";
 
     /**
      * Crée et configure la fenêtre principale.
@@ -195,6 +192,15 @@ public class AppMainView extends JComponent implements IAppMainView {
         JComponent component = (JComponent) view;
         if (component == null || id == null) return;
         SwingUtilities.invokeLater(() -> {
+            // Si une vue avec le même id existe déjà, la supprimer pour éviter les doublons
+            Component[] existing = this.contentPanel.getComponents();
+            for (Component c : existing) {
+                if (id.equals(c.getName())) {
+                    this.contentPanel.remove(c);
+                    break;
+                }
+            }
+
             JPanel wrapper = new JPanel(new GridBagLayout());
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.gridx = 0;

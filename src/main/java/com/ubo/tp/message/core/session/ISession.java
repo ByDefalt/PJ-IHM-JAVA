@@ -9,35 +9,35 @@ import com.ubo.tp.message.datamodel.User;
  */
 public interface ISession {
 
-	/**
-	 * Ajoute un observateur à la session.
-	 *
-	 * @param observer
-	 */
-	void addObserver(ISessionObserver observer);
+    /**
+     * Ajoute un observateur à la session.
+     *
+     * @param observer
+     */
+    void addObserver(ISessionObserver observer);
 
-	/**
-	 * Retire un observateur à la session.
-	 *
-	 * @param observer
-	 */
-	void removeObserver(ISessionObserver observer);
+    /**
+     * Retire un observateur à la session.
+     *
+     * @param observer
+     */
+    void removeObserver(ISessionObserver observer);
 
-	/**
-	 * Connecte un utilisateur à la session.
-	 *
-	 * @param connectedUser
-	 */
-	void connect(User connectedUser);
+    /**
+     * Connecte un utilisateur à la session.
+     *
+     * @param connectedUser
+     */
+    void connect(User connectedUser);
 
-	/**
-	 * Deconnecte l'utilisateur actif.
-	 */
-	void disconnect();
+    /**
+     * Deconnecte l'utilisateur actif.
+     */
+    void disconnect();
 
-	/**
-	 * @return l'utilisateur connecté.
-	 */
-	User getConnectedUser();
+    /**
+     * @return l'utilisateur connecté.
+     */
+    User getConnectedUser();
 
 }

@@ -1,8 +1,7 @@
 package com.ubo.tp.message.ihm.view;
 
-import com.ubo.tp.message.controller.service.IRegisterController;
 import com.ubo.tp.message.controller.service.INavigationController;
-import com.ubo.tp.message.ihm.service.View;
+import com.ubo.tp.message.controller.service.IRegisterController;
 import com.ubo.tp.message.ihm.service.IRegisterView;
 import com.ubo.tp.message.logger.Logger;
 
@@ -12,17 +11,14 @@ import java.awt.*;
 public class RegisterView extends JComponent implements IRegisterView {
 
     private final Logger LOGGER;
-
+    private final IRegisterController controller;
+    private final INavigationController navigationController;
     private JTextField tagField;
     private JTextField nameField;
     private JPasswordField passwordField;
     private JPasswordField confirmPasswordField;
     private JButton registerButton;
     private JButton loginButton;
-
-    private final IRegisterController controller;
-    private final INavigationController navigationController;
-
     private Runnable onRegisterRequested;
     private Runnable onBackToLoginRequested;
 
@@ -222,7 +218,7 @@ public class RegisterView extends JComponent implements IRegisterView {
         this.add(loginButton, gbc);
     }
 
-    public void createConnector(){
+    public void createConnector() {
         this.getRegisterButton().addActionListener(e -> {
             if (LOGGER != null) LOGGER.debug("Register button clicked");
             if (onRegisterRequested != null) {
@@ -235,7 +231,7 @@ public class RegisterView extends JComponent implements IRegisterView {
                         this.getConfirmPassword());
                 if (userIsCreated) {
                     if (LOGGER != null) LOGGER.info("User registered successfully, navigating to login view");
-                }else{
+                } else {
                     if (LOGGER != null) LOGGER.warn("User registration failed, user already exists");
                 }
             }
@@ -268,26 +264,40 @@ public class RegisterView extends JComponent implements IRegisterView {
         return registerButton;
     }
 
-    public JButton getLoginButton() { return loginButton; }
+    public JButton getLoginButton() {
+        return loginButton;
+    }
 
     // IRegisterView impl
     @Override
-    public String getTag() { return getTagField().getText(); }
+    public String getTag() {
+        return getTagField().getText();
+    }
 
     @Override
-    public String getName() { return getNameField().getText(); }
+    public String getName() {
+        return getNameField().getText();
+    }
 
     @Override
-    public String getPassword() { return new String(getPasswordField().getPassword()); }
+    public String getPassword() {
+        return new String(getPasswordField().getPassword());
+    }
 
     @Override
-    public String getConfirmPassword() { return new String(getConfirmPasswordField().getPassword()); }
+    public String getConfirmPassword() {
+        return new String(getConfirmPasswordField().getPassword());
+    }
 
     @Override
-    public void setOnRegisterRequested(Runnable handler) { this.onRegisterRequested = handler; }
+    public void setOnRegisterRequested(Runnable handler) {
+        this.onRegisterRequested = handler;
+    }
 
     @Override
-    public void setOnBackToLoginRequested(Runnable handler) { this.onBackToLoginRequested = handler; }
+    public void setOnBackToLoginRequested(Runnable handler) {
+        this.onBackToLoginRequested = handler;
+    }
 
     @Override
     public void clearFields() {

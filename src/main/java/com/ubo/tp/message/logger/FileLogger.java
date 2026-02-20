@@ -34,7 +34,7 @@ public class FileLogger implements Logger, AutoCloseable {
     /**
      * Crée un FileLogger pointant vers le fichier donné.
      *
-     * @param level niveau minimal de log
+     * @param level    niveau minimal de log
      * @param filePath chemin du fichier de log (créé si nécessaire)
      * @throws IOException si le fichier ne peut pas être ouvert
      */
@@ -89,19 +89,29 @@ public class FileLogger implements Logger, AutoCloseable {
     }
 
     @Override
-    public void trace(String message) { write(LogLevel.TRACE, message); }
+    public void trace(String message) {
+        write(LogLevel.TRACE, message);
+    }
 
     @Override
-    public void debug(String message) { write(LogLevel.DEBUG, message); }
+    public void debug(String message) {
+        write(LogLevel.DEBUG, message);
+    }
 
     @Override
-    public void info(String message) { write(LogLevel.INFO, message); }
+    public void info(String message) {
+        write(LogLevel.INFO, message);
+    }
 
     @Override
-    public void warn(String message) { write(LogLevel.WARN, message); }
+    public void warn(String message) {
+        write(LogLevel.WARN, message);
+    }
 
     @Override
-    public void error(String message) { write(LogLevel.ERROR, message); }
+    public void error(String message) {
+        write(LogLevel.ERROR, message);
+    }
 
     @Override
     public void error(String message, Throwable t) {
@@ -109,12 +119,14 @@ public class FileLogger implements Logger, AutoCloseable {
         // capture stack trace into string and enqueue as a single message
         StringWriter sw = new StringWriter();
         t.printStackTrace(new java.io.PrintWriter(sw));
-        String combined = format(LogLevel.ERROR, message + "\n" + sw.toString());
+        String combined = format(LogLevel.ERROR, message + "\n" + sw);
         enqueue(combined);
     }
 
     @Override
-    public boolean isLevelEnabled(LogLevel level) { return enabled(level); }
+    public boolean isLevelEnabled(LogLevel level) {
+        return enabled(level);
+    }
 
     /**
      * Arrête le worker, attend la vidange de la file et ferme le writer.

@@ -9,7 +9,8 @@ package com.ubo.tp.message.logger;
  */
 public final class LoggerFactory {
 
-    private LoggerFactory() {}
+    private LoggerFactory() {
+    }
 
     /**
      * Retourne un logger console configuré au niveau donné.
@@ -33,7 +34,7 @@ public final class LoggerFactory {
     /**
      * Retourne un logger fichier configuré au niveau donné.
      *
-     * @param level niveau minimal
+     * @param level    niveau minimal
      * @param filePath chemin du fichier de log
      * @return instance de {@link FileLogger}
      * @throws java.io.IOException si le fichier ne peut pas être ouvert

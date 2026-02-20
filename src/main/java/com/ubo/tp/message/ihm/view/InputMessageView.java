@@ -1,7 +1,6 @@
 package com.ubo.tp.message.ihm.view;
 
-import com.ubo.tp.message.controller.service.IListMessageController;
-import com.ubo.tp.message.ihm.service.View;
+import com.ubo.tp.message.controller.service.IInputMessageController;
 import com.ubo.tp.message.ihm.service.IInputMessageView;
 import com.ubo.tp.message.logger.Logger;
 
@@ -13,16 +12,14 @@ import java.awt.event.KeyEvent;
 public class InputMessageView extends JComponent implements IInputMessageView {
 
     private final Logger LOGGER;
-
+    private final IInputMessageController controller;
     private JTextField inputField;
     private JButton sendButton;
-
-    private IListMessageController controller;
-
     private Runnable onSendRequested;
 
-    public InputMessageView(Logger logger) {
+    public InputMessageView(Logger logger, IInputMessageController controller) {
         this.LOGGER = logger;
+        this.controller = controller;
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
         this.setOpaque(false);
@@ -32,8 +29,8 @@ public class InputMessageView extends JComponent implements IInputMessageView {
         if (this.LOGGER != null) this.LOGGER.debug("InputMessageView initialisée");
     }
 
-    public InputMessageView() {
-        this(null);
+    public InputMessageView(Logger logger) {
+        this(logger, null);
     }
 
     private void init() {
@@ -97,12 +94,21 @@ public class InputMessageView extends JComponent implements IInputMessageView {
     }
 
     // API publique pour que le controller manipule la vue
-    public JTextField getInputField() { return inputField; }
-    public JButton getSendButton() { return sendButton; }
+    public JTextField getInputField() {
+        return inputField;
+    }
 
-    public String getMessageText() { return inputField.getText(); }
+    public JButton getSendButton() {
+        return sendButton;
+    }
 
-    public void clearInput() { inputField.setText(""); }
+    public String getMessageText() {
+        return inputField.getText();
+    }
+
+    public void clearInput() {
+        inputField.setText("");
+    }
 
     /**
      * Récupère le texte courant et le vide (utile pour le controller lors d'un envoi).

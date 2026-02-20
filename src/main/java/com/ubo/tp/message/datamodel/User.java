@@ -10,116 +10,116 @@ import java.util.UUID;
  */
 public class User extends AbstractMessageAppObject implements IMessageRecipient {
 
-	/**
-	 * Tag non modifiable correspondant à l'utilisateur. <br/>
-	 * <i>Doit être unique dans le système</i>
-	 */
-	protected final String mUserTag;
+    /**
+     * Tag non modifiable correspondant à l'utilisateur. <br/>
+     * <i>Doit être unique dans le système</i>
+     */
+    protected final String mUserTag;
 
-	/**
-	 * Mot de passe de l'utilisateur.
-	 */
-	protected String mUserPassword;
+    /**
+     * Mot de passe de l'utilisateur.
+     */
+    protected String mUserPassword;
 
-	/**
-	 * Nom de l'utilisateur.
-	 */
-	protected String mName;
+    /**
+     * Nom de l'utilisateur.
+     */
+    protected String mName;
 
-	/**
-	 * Booléen indiquant si l'utilisateur est connecté.
-	 */
-	protected boolean mOnline = false;
+    /**
+     * Booléen indiquant si l'utilisateur est connecté.
+     */
+    protected boolean mOnline = false;
 
-	/**
-	 * Constructeur convenience : génère un UUID aléatoire.
-	 *
-	 * @param userTag      tag unique de l'utilisateur
-	 * @param userPassword mot de passe
-	 * @param name         nom affiché
-	 */
-	public User(String userTag, String userPassword, String name) {
-		this(UUID.randomUUID(), userTag, userPassword, name);
-	}
+    /**
+     * Constructeur convenience : génère un UUID aléatoire.
+     *
+     * @param userTag      tag unique de l'utilisateur
+     * @param userPassword mot de passe
+     * @param name         nom affiché
+     */
+    public User(String userTag, String userPassword, String name) {
+        this(UUID.randomUUID(), userTag, userPassword, name);
+    }
 
-	/**
-	 * Constructeur complet.
-	 *
-	 * @param uuid         identifiant unique
-	 * @param userTag      tag unique
-	 * @param userPassword mot de passe
-	 * @param name         nom affiché
-	 */
-	public User(UUID uuid, String userTag, String userPassword, String name) {
-		super(uuid);
-		mUserTag = userTag;
-		mUserPassword = userPassword;
-		mName = name;
-	}
+    /**
+     * Constructeur complet.
+     *
+     * @param uuid         identifiant unique
+     * @param userTag      tag unique
+     * @param userPassword mot de passe
+     * @param name         nom affiché
+     */
+    public User(UUID uuid, String userTag, String userPassword, String name) {
+        super(uuid);
+        mUserTag = userTag;
+        mUserPassword = userPassword;
+        mName = name;
+    }
 
-	/**
-	 * Retourne le nom de l'utilisateur.
-	 *
-	 * @return nom affiché
-	 */
-	public String getName() {
-		return mName;
-	}
+    /**
+     * Retourne le nom de l'utilisateur.
+     *
+     * @return nom affiché
+     */
+    public String getName() {
+        return mName;
+    }
 
-	/**
-	 * Modifie le nom affiché de l'utilisateur.
-	 *
-	 * @param name nouveau nom
-	 */
-	public void setName(String name) {
-		this.mName = name;
-	}
+    /**
+     * Modifie le nom affiché de l'utilisateur.
+     *
+     * @param name nouveau nom
+     */
+    public void setName(String name) {
+        this.mName = name;
+    }
 
-	/**
-	 * Retourne le tag unique de l'utilisateur.
-	 *
-	 * @return tag unique
-	 */
-	public String getUserTag() {
-		return this.mUserTag;
-	}
+    /**
+     * Retourne le tag unique de l'utilisateur.
+     *
+     * @return tag unique
+     */
+    public String getUserTag() {
+        return this.mUserTag;
+    }
 
-	/**
-	 * Retourne le mot de passe (brut). Utiliser uniquement pour sérialisation/échange.
-	 *
-	 * @return mot de passe
-	 */
-	public String getUserPassword() {
-		return this.mUserPassword;
-	}
+    /**
+     * Retourne le mot de passe (brut). Utiliser uniquement pour sérialisation/échange.
+     *
+     * @return mot de passe
+     */
+    public String getUserPassword() {
+        return this.mUserPassword;
+    }
 
-	/**
-	 * Modifie le mot de passe de l'utilisateur.
-	 *
-	 * @param userPassword nouveau mot de passe
-	 */
-	public void setUserPassword(String userPassword) {
-		this.mUserPassword = userPassword;
-	}
+    /**
+     * Modifie le mot de passe de l'utilisateur.
+     *
+     * @param userPassword nouveau mot de passe
+     */
+    public void setUserPassword(String userPassword) {
+        this.mUserPassword = userPassword;
+    }
 
-	/**
-	 * @return true si l'utilisateur est connecté
-	 */
-	public boolean isOnline() {
-		return this.mOnline;
-	}
+    /**
+     * @return true si l'utilisateur est connecté
+     */
+    public boolean isOnline() {
+        return this.mOnline;
+    }
 
-	/**
-	 * Définit le statut en ligne de l'utilisateur.
-	 *
-	 * @param online flag en ligne
-	 */
-	public void setOnline(boolean online) {
-		this.mOnline = online;
-	}
+    /**
+     * Définit le statut en ligne de l'utilisateur.
+     *
+     * @param online flag en ligne
+     */
+    public void setOnline(boolean online) {
+        this.mOnline = online;
+    }
 
-	@Override
-	public String toString() {
+    @Override
+    public String toString() {
 
         return "[" +
                 this.getClass().getName() +
@@ -130,5 +130,5 @@ public class User extends AbstractMessageAppObject implements IMessageRecipient 
                 " / " +
                 this.getName() +
                 "}";
-	}
+    }
 }

@@ -10,48 +10,48 @@ import java.util.UUID;
  * </p>
  */
 public abstract class AbstractMessageAppObject extends Observable {
-	/**
-	 * Identifiant unique de l'objet.
-	 */
-	protected final UUID mUuid;
+    /**
+     * Identifiant unique de l'objet.
+     */
+    protected final UUID mUuid;
 
-	/**
-	 * Constructeur.
-	 *
-	 * @param uuid Identifiant unique de l'objet (non-null).
-	 */
-	public AbstractMessageAppObject(UUID uuid) {
-		mUuid = uuid;
-	}
+    /**
+     * Constructeur.
+     *
+     * @param uuid Identifiant unique de l'objet (non-null).
+     */
+    public AbstractMessageAppObject(UUID uuid) {
+        mUuid = uuid;
+    }
 
-	/**
-	 * Retourne l'identifiant unique de l'objet.
-	 *
-	 * @return UUID de l'objet
-	 */
-	public UUID getUuid() {
-		return this.mUuid;
-	}
+    /**
+     * Retourne l'identifiant unique de l'objet.
+     *
+     * @return UUID de l'objet
+     */
+    public UUID getUuid() {
+        return this.mUuid;
+    }
 
-	@Override
-	public int hashCode() {
-		int hashCode = 0;
+    @Override
+    public int hashCode() {
+        int hashCode = 0;
 
-		if (this.mUuid != null) {
-			hashCode = this.mUuid.hashCode();
-		}
+        if (this.mUuid != null) {
+            hashCode = this.mUuid.hashCode();
+        }
 
-		return hashCode;
-	}
+        return hashCode;
+    }
 
-	@Override
-	public boolean equals(Object other) {
-		boolean equals = false;
+    @Override
+    public boolean equals(Object other) {
+        boolean equals = false;
 
-		if (other != null && other instanceof AbstractMessageAppObject) {
-			equals = (this.getUuid().equals(((AbstractMessageAppObject) other).getUuid()));
-		}
+        if (other != null && other instanceof AbstractMessageAppObject) {
+            equals = (this.getUuid().equals(((AbstractMessageAppObject) other).getUuid()));
+        }
 
-		return equals;
-	}
+        return equals;
+    }
 }

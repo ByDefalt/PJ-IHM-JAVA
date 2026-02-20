@@ -9,15 +9,15 @@ import com.ubo.tp.message.datamodel.User;
  */
 public interface ISessionObserver {
 
-	/**
-	 * Notification de connexion d'un utilisateur.
-	 *
-	 * @param connectedUser, utilisateur nouvellement connecté.
-	 */
-	void notifyLogin(User connectedUser);
+    /**
+     * Notification de connexion d'un utilisateur.
+     *
+     * @param connectedUser, utilisateur nouvellement connecté.
+     */
+    void notifyLogin(User connectedUser);
 
-	/**
-	 * Notification de déconnexion.
-	 */
-	void notifyLogout();
+    /**
+     * Notification de déconnexion.
+     */
+    void notifyLogout();
 }

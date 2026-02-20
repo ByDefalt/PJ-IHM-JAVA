@@ -1,4 +1,4 @@
 package com.ubo.tp.message.controller.service;
 
-public interface IInputMessageController extends Controller{
+public interface IInputMessageController extends Controller {
 }

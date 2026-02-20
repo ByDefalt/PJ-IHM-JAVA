@@ -55,7 +55,7 @@ public interface Logger {
      * Log an error message with an associated Throwable (exception/stacktrace).
      *
      * @param message text to log
-     * @param t throwable to log
+     * @param t       throwable to log
      */
     void error(String message, Throwable t);
 

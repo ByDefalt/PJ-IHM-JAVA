@@ -1,10 +1,10 @@
-package com.ubo.tp.message.core.database;
+package com.ubo.tp.message.core.database.observer;
 
 import com.ubo.tp.message.datamodel.Channel;
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.datamodel.User;
 
-public class DataBaseObserverImpl implements IDatabaseObserver{
+public class DataBaseObserverImpl implements IDatabaseObserver {
     @Override
     public void notifyMessageAdded(Message addedMessage) {
         System.out.println("[MESSAGE AJOUTÉ] " + addedMessage);

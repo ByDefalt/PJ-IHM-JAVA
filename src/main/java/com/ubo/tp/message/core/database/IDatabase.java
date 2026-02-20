@@ -1,10 +1,14 @@
 package com.ubo.tp.message.core.database;
 
-import java.util.Set;
-
+import com.ubo.tp.message.core.database.observer.IChannelDatabaseObserver;
+import com.ubo.tp.message.core.database.observer.IDatabaseObserver;
+import com.ubo.tp.message.core.database.observer.IMessageDatabaseObserver;
+import com.ubo.tp.message.core.database.observer.IUserDatabaseObserver;
 import com.ubo.tp.message.datamodel.Channel;
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.datamodel.User;
+
+import java.util.Set;
 
 /**
  * Abstraction de la base de données utilisée par l'application.
@@ -33,6 +37,51 @@ public interface IDatabase {
      * @param observer observateur à supprimer
      */
     void removeObserver(IDatabaseObserver observer);
+
+    /**
+     * Ajoute un observateur spécialisé pour les messages.
+     * <p>
+     * Méthode ajoutée pour permettre l'enregistrement granulaire d'observeurs.
+     * </p>
+     *
+     * @param observer observateur de messages
+     */
+    void addObserver(IMessageDatabaseObserver observer);
+
+    /**
+     * Retire un observateur spécialisé pour les messages.
+     *
+     * @param observer observateur de messages
+     */
+    void removeObserver(IMessageDatabaseObserver observer);
+
+    /**
+     * Ajoute un observateur spécialisé pour les utilisateurs.
+     *
+     * @param observer observateur d'utilisateurs
+     */
+    void addObserver(IUserDatabaseObserver observer);
+
+    /**
+     * Retire un observateur spécialisé pour les utilisateurs.
+     *
+     * @param observer observateur d'utilisateurs
+     */
+    void removeObserver(IUserDatabaseObserver observer);
+
+    /**
+     * Ajoute un observateur spécialisé pour les canaux.
+     *
+     * @param observer observateur de canaux
+     */
+    void addObserver(IChannelDatabaseObserver observer);
+
+    /**
+     * Retire un observateur spécialisé pour les canaux.
+     *
+     * @param observer observateur de canaux
+     */
+    void removeObserver(IChannelDatabaseObserver observer);
 
     /**
      * Retourne la liste des utilisateurs actuellement connus.

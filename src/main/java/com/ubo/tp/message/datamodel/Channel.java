@@ -1,10 +1,6 @@
 package com.ubo.tp.message.datamodel;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Modèle représentant un canal de discussion.
@@ -17,102 +13,100 @@ import java.util.UUID;
  */
 public class Channel extends AbstractMessageAppObject implements IMessageRecipient {
 
-	/**
-	 * Créateur du canal.
-	 */
-	protected final User mCreator;
+    /**
+     * Créateur du canal.
+     */
+    protected final User mCreator;
 
-	/**
-	 * Nom du canal.
-	 */
-	protected final String mName;
+    /**
+     * Nom du canal.
+     */
+    protected final String mName;
+    /**
+     * Liste des Utilisateurs du canal.
+     */
+    protected final Set<User> mUsers = new HashSet<User>();
+    /**
+     * Statut privé ou public du canal.
+     */
+    protected boolean mPrivate;
 
-	/**
-	 * Statut privé ou public du canal.
-	 */
-	protected boolean mPrivate;
+    /**
+     * Constructeur public : crée un canal avec un UUID aléatoire.
+     *
+     * @param creator utilisateur créateur du canal
+     * @param name    nom du canal
+     */
+    public Channel(User creator, String name) {
+        this(UUID.randomUUID(), creator, name);
+    }
 
-	/**
-	 * Liste des Utilisateurs du canal.
-	 */
-	protected final Set<User> mUsers = new HashSet<User>();
+    /**
+     * Constructeur complet avec UUID explicite.
+     *
+     * @param channelUuid identifiant du canal
+     * @param creator     utilisateur créateur
+     * @param name        nom du canal
+     */
+    public Channel(UUID channelUuid, User creator, String name) {
+        super(channelUuid);
+        mCreator = creator;
+        mName = name;
+    }
 
-	/**
-	 * Constructeur public : crée un canal avec un UUID aléatoire.
-	 *
-	 * @param creator utilisateur créateur du canal
-	 * @param name    nom du canal
-	 */
-	public Channel(User creator, String name) {
-		this(UUID.randomUUID(), creator, name);
-	}
+    /**
+     * Constructeur pour canal privé avec liste d'utilisateurs.
+     *
+     * @param creator utilisateur créateur
+     * @param name    nom du canal
+     * @param users   liste d'utilisateurs autorisés
+     */
+    public Channel(User creator, String name, List<User> users) {
+        this(UUID.randomUUID(), creator, name, users);
+    }
 
-	/**
-	 * Constructeur complet avec UUID explicite.
-	 *
-	 * @param channelUuid identifiant du canal
-	 * @param creator     utilisateur créateur
-	 * @param name        nom du canal
-	 */
-	public Channel(UUID channelUuid, User creator, String name) {
-		super(channelUuid);
-		mCreator = creator;
-		mName = name;
-	}
+    /**
+     * Constructeur complet pour canal privé.
+     *
+     * @param messageUuid identifiant du canal
+     * @param creator     utilisateur créateur
+     * @param name        nom du canal
+     * @param users       liste des utilisateurs autorisés
+     */
+    public Channel(UUID messageUuid, User creator, String name, List<User> users) {
+        this(messageUuid, creator, name);
+        if (!users.isEmpty()) {
+            mPrivate = true;
+            mUsers.addAll(users);
+        }
+    }
 
-	/**
-	 * Constructeur pour canal privé avec liste d'utilisateurs.
-	 *
-	 * @param creator utilisateur créateur
-	 * @param name    nom du canal
-	 * @param users   liste d'utilisateurs autorisés
-	 */
-	public Channel(User creator, String name, List<User> users) {
-		this(UUID.randomUUID(), creator, name, users);
-	}
+    /**
+     * @return l'utilisateur source du canal.
+     */
+    public User getCreator() {
+        return mCreator;
+    }
 
-	/**
-	 * Constructeur complet pour canal privé.
-	 *
-	 * @param messageUuid identifiant du canal
-	 * @param creator     utilisateur créateur
-	 * @param name        nom du canal
-	 * @param users       liste des utilisateurs autorisés
-	 */
-	public Channel(UUID messageUuid, User creator, String name, List<User> users) {
-		this(messageUuid, creator, name);
-		if (!users.isEmpty()) {
-			mPrivate = true;
-			mUsers.addAll(users);
-		}
-	}
+    /**
+     * @return le nom du canal.
+     */
+    public String getName() {
+        return mName;
+    }
 
-	/**
-	 * @return l'utilisateur source du canal.
-	 */
-	public User getCreator() {
-		return mCreator;
-	}
+    /**
+     * @return la liste des utilisateurs de ce canal (copie).
+     */
+    public List<User> getUsers() {
+        return new ArrayList<User>(mUsers);
+    }
 
-	/**
-	 * @return le nom du canal.
-	 */
-	public String getName() {
-		return mName;
-	}
-
-	/**
-	 * @return la liste des utilisateurs de ce canal (copie).
-	 */
-	public List<User> getUsers() {
-		return new ArrayList<User>(mUsers);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String toString() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
 
         return "[" +
                 this.getClass().getName() +
@@ -121,6 +115,6 @@ public class Channel extends AbstractMessageAppObject implements IMessageRecipie
                 " {" +
                 this.getName() +
                 "}";
-	}
+    }
 
 }
