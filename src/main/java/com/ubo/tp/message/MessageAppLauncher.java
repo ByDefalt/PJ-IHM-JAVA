@@ -41,8 +41,6 @@ public class MessageAppLauncher {
         Database database = new Database();
         EntityManager entityManager = new EntityManager(database);
         IDataManager dataManager = new DataManager(database, entityManager, logger);
-        DataBaseObserverImpl dataBaseObserver = new DataBaseObserverImpl();
-        dataManager.addObserver(dataBaseObserver);
         dataManager.setExchangeDirectory(EXCHANGE_DIRECTORY_PATH);
 
         createTestData(dataManager, entityManager);
