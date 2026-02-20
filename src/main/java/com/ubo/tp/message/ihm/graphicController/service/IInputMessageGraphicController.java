@@ -1,6 +1,6 @@
-package com.ubo.tp.message.ihm.service;
+package com.ubo.tp.message.ihm.graphicController.service;
 
-public interface IInputMessageView extends View {
+public interface IInputMessageGraphicController extends GraphicController {
     String getMessageText();
 
     String consumeMessage();

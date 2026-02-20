@@ -1,36 +1,28 @@
 package com.ubo.tp.message.ihm.view.swing;
 
-import com.ubo.tp.message.controller.service.ILoginController;
-import com.ubo.tp.message.controller.service.INavigationController;
-import com.ubo.tp.message.ihm.service.ILoginView;
+import com.ubo.tp.message.ihm.view.service.View;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class LoginView extends JComponent implements ILoginView {
+public class LoginView extends JComponent implements View {
 
 
     private final Logger LOGGER;
-    private final ILoginController controller;
-    private final INavigationController navigationController;
     private JTextField tagField;
     private JTextField nameField;
     private JPasswordField passwordField;
     private JButton loginButton;
     private JButton registerButton;
-    private Runnable onLoginRequested;
-    private Runnable onRegisterRequested;
 
     /**
      * Crée et initialise le composant de login.
      *
      * @param logger logger optionnel pour consigner les actions
      */
-    public LoginView(Logger logger, ILoginController controller, INavigationController navigationController) {
+    public LoginView(Logger logger) {
         this.LOGGER = logger;
-        this.controller = controller;
-        this.navigationController = navigationController;
         this.init();
     }
 
@@ -191,19 +183,7 @@ public class LoginView extends JComponent implements ILoginView {
 
 
     public void createConnector() {
-        this.getRegisterButton().addActionListener(e -> {
-            if (LOGGER != null) LOGGER.debug("Bouton d'inscription cliqué");
-            if (onRegisterRequested != null) onRegisterRequested.run();
-            navigationController.navigateToRegister();
-        });
 
-        this.getLoginButton().addActionListener(e -> {
-            if (LOGGER != null) LOGGER.debug("Bouton de connexion cliqué");
-            if (onLoginRequested != null) onLoginRequested.run();
-            if (controller != null) controller.onLoginButtonClicked(this.getTag(),
-                    this.getName(),
-                    this.getPassword());
-        });
     }
 
     public JTextField getTagField() {
@@ -226,30 +206,5 @@ public class LoginView extends JComponent implements ILoginView {
         return registerButton;
     }
 
-    // ILoginView impl
-    @Override
-    public String getTag() {
-        return getTagField().getText();
-    }
-
-    @Override
-    public String getName() {
-        return getNameField().getText();
-    }
-
-    @Override
-    public String getPassword() {
-        return new String(getPasswordField().getPassword());
-    }
-
-    @Override
-    public void setOnLoginRequested(Runnable handler) {
-        this.onLoginRequested = handler;
-    }
-
-    @Override
-    public void setOnRegisterRequested(Runnable handler) {
-        this.onRegisterRequested = handler;
-    }
 
 }

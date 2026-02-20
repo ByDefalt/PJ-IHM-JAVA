@@ -1,7 +1,7 @@
 package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.datamodel.User;
-import com.ubo.tp.message.ihm.service.IUserView;
+import com.ubo.tp.message.ihm.view.service.View;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
@@ -9,7 +9,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class UserView extends JComponent implements IUserView {
+public class UserView extends JComponent implements View {
 
     private final Logger LOGGER;
 
@@ -83,7 +83,6 @@ public class UserView extends JComponent implements IUserView {
         super.paintComponent(g);
     }
 
-    @Override
     public User getUser() {
         return user;
     }
@@ -94,7 +93,6 @@ public class UserView extends JComponent implements IUserView {
         // TODO : mettre à jour le statut aussi
     }
 
-    @Override
     public void updateUser(User user) {
         this.setUser(user);
     }

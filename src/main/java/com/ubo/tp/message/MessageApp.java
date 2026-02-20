@@ -2,9 +2,8 @@ package com.ubo.tp.message;
 
 import com.ubo.tp.message.controller.service.IAppMainController;
 import com.ubo.tp.message.core.IDataManager;
-import com.ubo.tp.message.factory.ComposantFactory;
+import com.ubo.tp.message.factory.ComposantSwingFactory;
 import com.ubo.tp.message.logger.Logger;
-import com.ubo.tp.message.theme.AbstractTheme;
 import com.ubo.tp.message.theme.DiscordTheme;
 
 import java.io.File;
@@ -54,7 +53,6 @@ public class MessageApp {
      */
     protected void initLookAndFeel() {
         try {
-            // Appliquer le thème Discord (installe FlatDarkLaf et personnalise les UI defaults)
             DiscordTheme theme = new DiscordTheme();
             theme.apply();
             this.logger.debug("Thème Discord appliqué");
@@ -67,10 +65,7 @@ public class MessageApp {
      * Initialisation de l'interface graphique.
      */
     protected void initGui() {
-        // this.mMainController...
-        mMainController = ComposantFactory.createAppMainController(mDataManager, logger);
-
-
+        mMainController = ComposantSwingFactory.createAppMainController(mDataManager, logger);
     }
 
     /**
@@ -103,7 +98,7 @@ public class MessageApp {
     }
 
     public void show() {
-        mMainController.getView().setVisibility(true);
+        mMainController.getGraphicController().setVisibility(true);
     }
 
 }

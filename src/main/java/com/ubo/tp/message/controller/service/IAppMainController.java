@@ -1,7 +1,7 @@
 package com.ubo.tp.message.controller.service;
 
-import com.ubo.tp.message.ihm.service.IAppMainView;
+import com.ubo.tp.message.ihm.graphicController.service.IAppMainGraphicController;
 
 public interface IAppMainController extends Controller {
-    IAppMainView getView();
+    IAppMainGraphicController getGraphicController();
 }

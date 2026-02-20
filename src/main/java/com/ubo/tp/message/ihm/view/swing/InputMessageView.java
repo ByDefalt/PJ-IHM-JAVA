@@ -1,7 +1,7 @@
 package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.controller.service.IInputMessageController;
-import com.ubo.tp.message.ihm.service.IInputMessageView;
+import com.ubo.tp.message.ihm.view.service.View;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
@@ -9,7 +9,7 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-public class InputMessageView extends JComponent implements IInputMessageView {
+public class InputMessageView extends JComponent implements View {
 
     private final Logger LOGGER;
     private final IInputMessageController controller;
@@ -110,7 +110,6 @@ public class InputMessageView extends JComponent implements IInputMessageView {
         return t;
     }
 
-    @Override
     public void setOnSendRequested(Runnable handler) {
         this.onSendRequested = handler;
     }

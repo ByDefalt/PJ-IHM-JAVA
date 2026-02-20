@@ -1,8 +1,7 @@
 package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.datamodel.Message;
-import com.ubo.tp.message.ihm.service.IListMessageView;
-import com.ubo.tp.message.ihm.service.IMessageView;
+import com.ubo.tp.message.ihm.view.service.View;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
@@ -16,18 +15,17 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-public class ListMessageView extends JComponent implements IListMessageView {
-
-    private final Logger logger;
-    private final JPanel messagesPanel;
-    private final List<IMessageView> messages = new ArrayList<>();
-    private Component verticalGlue;
-    private final JScrollPane scrollPane;
+public class ListMessageView extends JComponent implements View {
 
     // Formatteur pour l'entête de journée (ex: 12/12/2024)
     private static final DateTimeFormatter DATE_ONLY_FORMATTER = DateTimeFormatter
             .ofPattern("dd/MM/yyyy")
             .withLocale(Locale.FRANCE);
+    private final Logger logger;
+    private final JPanel messagesPanel;
+    private final List<MessageView> messages = new ArrayList<>();
+    private final JScrollPane scrollPane;
+    private Component verticalGlue;
 
     public ListMessageView(Logger logger) {
         this.logger = logger;
@@ -62,7 +60,7 @@ public class ListMessageView extends JComponent implements IListMessageView {
      * Insère l'élément dans la liste `messages` en respectant l'ordre chronologique
      * (ancien -> récent) défini par message.getEmissionDate().
      */
-    public void addMessage(IMessageView messageView) {
+    public void addMessage(MessageView messageView) {
         if (messageView == null) {
             return;
         }
@@ -76,7 +74,7 @@ public class ListMessageView extends JComponent implements IListMessageView {
 
         int insertIndex = 0;
         while (insertIndex < messages.size()) {
-            IMessageView existing = messages.get(insertIndex);
+            MessageView existing = messages.get(insertIndex);
             Message em = existing.getMessage();
             long existingEmission = (em != null) ? em.getEmissionDate() : Long.MAX_VALUE;
             if (existingEmission > emission) {
@@ -98,7 +96,6 @@ public class ListMessageView extends JComponent implements IListMessageView {
         }
     }
 
-    @Override
     public void addMessage(Message message) {
         boolean isPresent = messages.stream().anyMatch(mv -> mv.getMessage().equals(message));
         if (isPresent) {
@@ -109,11 +106,10 @@ public class ListMessageView extends JComponent implements IListMessageView {
         }
     }
 
-    @Override
     public void removeMessage(Message message) {
-        Optional<IMessageView> opt = messages.stream().filter(mv -> mv.getMessage().equals(message)).findFirst();
+        Optional<MessageView> opt = messages.stream().filter(mv -> mv.getMessage().equals(message)).findFirst();
         if (opt.isPresent()) {
-            IMessageView found = opt.get();
+            MessageView found = opt.get();
             // remove from internal list
             this.messages.remove(found);
             // update UI
@@ -124,22 +120,21 @@ public class ListMessageView extends JComponent implements IListMessageView {
         }
     }
 
-    @Override
     public void updateMessage(Message message) {
-        Optional<IMessageView> opt = messages.stream().filter(mv -> mv.getMessage().equals(message)).findFirst();
+        Optional<MessageView> opt = messages.stream().filter(mv -> mv.getMessage().equals(message)).findFirst();
         if (opt.isPresent()) {
-            IMessageView iMessageView = opt.get();
+            MessageView MessageView = opt.get();
             // remove from internal list so we can reinsert sorted if date changed
-            this.messages.remove(iMessageView);
+            this.messages.remove(MessageView);
 
             // update model inside the view and refresh UI
-            updateMessageUI(iMessageView, message);
+            updateMessageUI(MessageView, message);
 
             // Reposition according to the (potentially new) emission date
             long emission = message.getEmissionDate();
             int insertIndex = 0;
             while (insertIndex < messages.size()) {
-                IMessageView existing = messages.get(insertIndex);
+                MessageView existing = messages.get(insertIndex);
                 Message em = existing.getMessage();
                 long existingEmission = (em != null) ? em.getEmissionDate() : Long.MAX_VALUE;
                 if (existingEmission > emission) {
@@ -148,7 +143,7 @@ public class ListMessageView extends JComponent implements IListMessageView {
                 insertIndex++;
             }
 
-            messages.add(insertIndex, iMessageView);
+            messages.add(insertIndex, MessageView);
             rebuildMessagesPanel();
 
             if (logger != null) logger.debug("Message mis à jour dans la vue : " + message);
@@ -165,7 +160,7 @@ public class ListMessageView extends JComponent implements IListMessageView {
         // re-add all message components in order
         int row = 0;
         LocalDate prevDate = null;
-        for (IMessageView mv : messages) {
+        for (MessageView mv : messages) {
             Message msg = mv.getMessage();
             LocalDate msgDate = null;
             if (msg != null) {
@@ -190,7 +185,7 @@ public class ListMessageView extends JComponent implements IListMessageView {
                     new Insets(6, 6, 6, 6), 0, 0
             );
             gbc.fill = GridBagConstraints.HORIZONTAL;
-            messagesPanel.add((Component) mv, gbc);
+            messagesPanel.add(mv, gbc);
         }
         // add glue at the end
         verticalGlue = Box.createVerticalGlue();
@@ -240,7 +235,7 @@ public class ListMessageView extends JComponent implements IListMessageView {
         rebuildMessagesPanel();
     }
 
-    private void updateMessageUI(IMessageView view, Message message) {
+    private void updateMessageUI(MessageView view, Message message) {
         if (!SwingUtilities.isEventDispatchThread()) {
             SwingUtilities.invokeLater(() -> updateMessageUI(view, message));
             return;

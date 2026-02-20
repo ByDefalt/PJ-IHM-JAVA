@@ -1,8 +1,7 @@
 package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.datamodel.User;
-import com.ubo.tp.message.ihm.service.IListUserView;
-import com.ubo.tp.message.ihm.service.IUserView;
+import com.ubo.tp.message.ihm.view.service.View;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
@@ -14,13 +13,13 @@ import java.util.Optional;
 /**
  * Vue affichant une liste d'UserView empilés verticalement dans une zone défilante.
  */
-public class ListUserView extends JComponent implements IListUserView {
+public class ListUserView extends JComponent implements View {
 
     private final Logger logger;
 
     private final JPanel usersPanel;
     private final JScrollPane scrollPane;
-    private final List<IUserView> userViews = new ArrayList<>();
+    private final List<UserView> userViews = new ArrayList<>();
 
     private Component glue;
 
@@ -68,7 +67,7 @@ public class ListUserView extends JComponent implements IListUserView {
         this.add(scrollPane, gbc);
     }
 
-    public void addUser(IUserView userView) {
+    public void addUser(UserView userView) {
         if (userView == null) return;
 
         if (!SwingUtilities.isEventDispatchThread()) {
@@ -83,7 +82,7 @@ public class ListUserView extends JComponent implements IListUserView {
         usersPanel.remove(glue);
 
         // Ajouter l'utilisateur au bon gridy
-        usersPanel.add((Component) userView, userConstraints(row));
+        usersPanel.add(userView, userConstraints(row));
 
         // Remettre le glue après le dernier élément
         glue = Box.createVerticalGlue();
@@ -133,7 +132,6 @@ public class ListUserView extends JComponent implements IListUserView {
         super.paintComponent(g);
     }
 
-    @Override
     public void addUser(User user) {
         boolean isPresent = userViews.stream().anyMatch(uv -> uv.getUser().equals(user));
         if (isPresent) {
@@ -144,11 +142,10 @@ public class ListUserView extends JComponent implements IListUserView {
         }
     }
 
-    @Override
     public void removeUser(User user) {
-        Optional<IUserView> opt = userViews.stream().filter(uv -> uv.getUser().equals(user)).findFirst();
+        Optional<UserView> opt = userViews.stream().filter(uv -> uv.getUser().equals(user)).findFirst();
         if (opt.isPresent()) {
-            IUserView found = opt.get();
+            UserView found = opt.get();
             this.userViews.remove(found);
             // update UI
             removeUserUI();
@@ -158,11 +155,10 @@ public class ListUserView extends JComponent implements IListUserView {
         }
     }
 
-    @Override
     public void updateUser(User user) {
-        Optional<IUserView> opt = userViews.stream().filter(uv -> uv.getUser().equals(user)).findFirst();
+        Optional<UserView> opt = userViews.stream().filter(uv -> uv.getUser().equals(user)).findFirst();
         if (opt.isPresent()) {
-            IUserView iUserView = opt.get();
+            UserView iUserView = opt.get();
             // update model inside the view and refresh UI
             updateUserUI(iUserView, user);
             if (logger != null) logger.debug("User mis à jour dans la vue: " + user.getName());
@@ -176,7 +172,7 @@ public class ListUserView extends JComponent implements IListUserView {
     private void rebuildUsersPanel() {
         usersPanel.removeAll();
         int row = 0;
-        for (IUserView uv : userViews) {
+        for (UserView uv : userViews) {
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.gridx = 0;
             gbc.gridy = row++;
@@ -187,7 +183,7 @@ public class ListUserView extends JComponent implements IListUserView {
             gbc.fill = GridBagConstraints.HORIZONTAL;
             gbc.anchor = GridBagConstraints.WEST;
             gbc.insets = new Insets(4, 4, 4, 4);
-            usersPanel.add((Component) uv, gbc);
+            usersPanel.add(uv, gbc);
         }
         // add glue
         glue = Box.createVerticalGlue();
@@ -204,7 +200,7 @@ public class ListUserView extends JComponent implements IListUserView {
         rebuildUsersPanel();
     }
 
-    private void updateUserUI(IUserView view, User user) {
+    private void updateUserUI(UserView view, User user) {
         if (!SwingUtilities.isEventDispatchThread()) {
             SwingUtilities.invokeLater(() -> updateUserUI(view, user));
             return;

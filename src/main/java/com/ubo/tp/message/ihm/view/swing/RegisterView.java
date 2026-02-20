@@ -2,13 +2,13 @@ package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.controller.service.INavigationController;
 import com.ubo.tp.message.controller.service.IRegisterController;
-import com.ubo.tp.message.ihm.service.IRegisterView;
+import com.ubo.tp.message.ihm.view.service.View;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class RegisterView extends JComponent implements IRegisterView {
+public class RegisterView extends JComponent implements View {
 
     private final Logger LOGGER;
     private final IRegisterController controller;
@@ -268,38 +268,30 @@ public class RegisterView extends JComponent implements IRegisterView {
         return loginButton;
     }
 
-    // IRegisterView impl
-    @Override
     public String getTag() {
         return getTagField().getText();
     }
 
-    @Override
     public String getName() {
         return getNameField().getText();
     }
 
-    @Override
     public String getPassword() {
         return new String(getPasswordField().getPassword());
     }
 
-    @Override
     public String getConfirmPassword() {
         return new String(getConfirmPasswordField().getPassword());
     }
 
-    @Override
     public void setOnRegisterRequested(Runnable handler) {
         this.onRegisterRequested = handler;
     }
 
-    @Override
     public void setOnBackToLoginRequested(Runnable handler) {
         this.onBackToLoginRequested = handler;
     }
 
-    @Override
     public void clearFields() {
         getTagField().setText("");
         getNameField().setText("");

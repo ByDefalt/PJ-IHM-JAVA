@@ -6,7 +6,6 @@ import com.ubo.tp.message.core.IDataManager;
 import com.ubo.tp.message.core.database.Database;
 import com.ubo.tp.message.core.database.DbConnector;
 import com.ubo.tp.message.core.database.EntityManager;
-import com.ubo.tp.message.core.database.observer.DataBaseObserverImpl;
 import com.ubo.tp.message.datamodel.Channel;
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.datamodel.User;
@@ -72,9 +71,9 @@ public class MessageAppLauncher {
         dataManager.sendChannel(channel1);
         dataManager.sendChannel(channel2);
 
-        Message m1 = new Message(UUID.randomUUID(),user1, channel1.getUuid(), 0, "Bonjour de " + user1.getName());
-        Message m2 = new Message(UUID.randomUUID(),user2, channel1.getUuid(), 124, "Bonjour de " + user2.getName());
-        Message m3 = new Message(UUID.randomUUID(),user3, channel1.getUuid(), 1708425600, "Bonjour de " + user3.getName());
+        Message m1 = new Message(UUID.randomUUID(), user1, channel1.getUuid(), 0, "Bonjour de " + user1.getName());
+        Message m2 = new Message(UUID.randomUUID(), user2, channel1.getUuid(), 124, "Bonjour de " + user2.getName());
+        Message m3 = new Message(UUID.randomUUID(), user3, channel1.getUuid(), 1708425600, "Bonjour de " + user3.getName());
 
         dataManager.sendMessage(m1);
         dataManager.sendMessage(m2);

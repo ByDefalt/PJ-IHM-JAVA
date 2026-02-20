@@ -1,7 +1,6 @@
 package com.ubo.tp.message.ihm.view.swing;
 
-import com.ubo.tp.message.ihm.service.IAppMainView;
-import com.ubo.tp.message.ihm.service.View;
+import com.ubo.tp.message.ihm.view.service.View;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
@@ -12,7 +11,7 @@ import java.util.function.Consumer;
 /**
  * Vue principale de l'application (fenêtre principale).
  */
-public class AppMainView extends JComponent implements IAppMainView {
+public class AppMainView extends JComponent implements View {
 
     public static final String DEFAULT_VIEW_ID = "default";
     private final JFrame mainFrame;
@@ -41,17 +40,11 @@ public class AppMainView extends JComponent implements IAppMainView {
         this.logger.info("AppMainView initialisée");
     }
 
-    // -------------------------------------------------------------------------
-    // API publique
-    // -------------------------------------------------------------------------
-
-    @Override
     public void setMainContent(View view) {
         this.addView(DEFAULT_VIEW_ID, view);
         this.showView(DEFAULT_VIEW_ID);
     }
 
-    @Override
     public void addView(String id, View view) {
         if (view == null || id == null) return;
 
@@ -94,7 +87,6 @@ public class AppMainView extends JComponent implements IAppMainView {
         }
     }
 
-    @Override
     public void showView(String id) {
         if (id == null) return;
 
@@ -107,7 +99,6 @@ public class AppMainView extends JComponent implements IAppMainView {
         }
     }
 
-    @Override
     public void removeView(String id) {
         if (id == null) return;
 
@@ -130,7 +121,6 @@ public class AppMainView extends JComponent implements IAppMainView {
         }
     }
 
-    @Override
     public void setVisibility(boolean visible) {
         this.logger.debug("Request to show main frame");
         Runnable task = () -> {
@@ -143,15 +133,6 @@ public class AppMainView extends JComponent implements IAppMainView {
             SwingUtilities.invokeLater(task);
         }
     }
-
-    @Override
-    public void setOnExchangeDirectorySelected(Consumer<String> onExchangeDirectorySelected) {
-        this.onExchangeDirectorySelected = onExchangeDirectorySelected;
-    }
-
-    // -------------------------------------------------------------------------
-    // Internals
-    // -------------------------------------------------------------------------
 
     private void createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
@@ -264,5 +245,29 @@ public class AppMainView extends JComponent implements IAppMainView {
             this.logger.error("Erreur lors du chargement de l'icone: " + path, e);
             return null;
         }
+    }
+
+    public JFrame getMainFrame() {
+        return mainFrame;
+    }
+
+    public Logger getLogger() {
+        return logger;
+    }
+
+    public JPanel getContentPanel() {
+        return contentPanel;
+    }
+
+    public CardLayout getContentLayout() {
+        return contentLayout;
+    }
+
+    public Consumer<String> getOnExchangeDirectorySelected() {
+        return onExchangeDirectorySelected;
+    }
+
+    public void setOnExchangeDirectorySelected(Consumer<String> onExchangeDirectorySelected) {
+        this.onExchangeDirectorySelected = onExchangeDirectorySelected;
     }
 }

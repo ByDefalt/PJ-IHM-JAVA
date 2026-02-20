@@ -1,7 +1,7 @@
 package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.datamodel.Message;
-import com.ubo.tp.message.ihm.service.IMessageView;
+import com.ubo.tp.message.ihm.view.service.View;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
@@ -17,19 +17,17 @@ import java.util.Locale;
  * Utilise GridBagLayout et sépare la construction en méthodes.
  * La vue est autonome et n'a pas de référence au controller.
  */
-public class MessageView extends JComponent implements IMessageView {
-
-    private final Logger logger;
-
-    private JLabel authorLabel;
-    private JTextArea contentArea;
-    private JLabel timeLabel;
-    private final Message message;
+public class MessageView extends JComponent implements View {
 
     // Formatteur pour afficher la date en jj/MM/aaaa HH'h'mm
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter
             .ofPattern("dd/MM/yyyy HH'h'mm")
             .withLocale(Locale.FRANCE);
+    private final Logger logger;
+    private final Message message;
+    private JLabel authorLabel;
+    private JTextArea contentArea;
+    private JLabel timeLabel;
 
     public MessageView(Logger logger, Message message) {
         this.logger = logger;
@@ -138,7 +136,6 @@ public class MessageView extends JComponent implements IMessageView {
         repaint();
     }
 
-    @Override
     public void updateMessage(Message message) {
         this.setMessage(message);
     }

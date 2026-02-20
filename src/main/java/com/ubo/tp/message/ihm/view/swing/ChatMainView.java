@@ -1,7 +1,6 @@
 package com.ubo.tp.message.ihm.view.swing;
 
-import com.ubo.tp.message.controller.service.IChatMainController;
-import com.ubo.tp.message.ihm.service.*;
+import com.ubo.tp.message.ihm.view.service.View;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
@@ -10,31 +9,27 @@ import java.awt.*;
 /**
  * Vue principale type Discord : sidebar fixe + panel messages à droite.
  */
-public class ChatMainView extends JComponent implements IChatMainView {
+public class ChatMainView extends JComponent implements View {
 
     private final Logger logger;
 
-    private final IListCanalView listCanalView;
-    private final IListUserView listUserView;
-    private final IListMessageView listMessageView;
-    private final IInputMessageView inputMessageView;
-
-    private final IChatMainController chatMainController;
+    private final ListCanalView listCanalView;
+    private final ListUserView listUserView;
+    private final ListMessageView listMessageView;
+    private final InputMessageView inputMessageView;
 
     public ChatMainView(
             Logger logger,
-            IListCanalView listCanalView,
-            IListUserView listUserView,
-            IListMessageView listMessageView,
-            IInputMessageView inputMessageView,
-            IChatMainController chatMainController
+            ListCanalView listCanalView,
+            ListUserView listUserView,
+            ListMessageView listMessageView,
+            InputMessageView inputMessageView
     ) {
         this.logger = logger;
         this.listCanalView = listCanalView;
         this.listUserView = listUserView;
         this.listMessageView = listMessageView;
         this.inputMessageView = inputMessageView;
-        this.chatMainController = chatMainController;
 
         SwingUtilities.invokeLater(() -> {
             initView();
@@ -113,7 +108,7 @@ public class ChatMainView extends JComponent implements IChatMainView {
         JPanel canalWrapper = new JPanel(new BorderLayout());
         canalWrapper.setOpaque(false);
         // listCanalView fournit déjà son propre JScrollPane si nécessaire — éviter d'imbriquer
-        canalWrapper.add((Component) listCanalView, BorderLayout.CENTER);
+        canalWrapper.add(listCanalView, BorderLayout.CENTER);
         // Fixer une taille cohérente pour éviter les variations dues au contenu
         canalWrapper.setPreferredSize(cardsPreferred);
         canalWrapper.setMinimumSize(new Dimension(220, 0));
@@ -122,7 +117,7 @@ public class ChatMainView extends JComponent implements IChatMainView {
         JPanel userWrapper = new JPanel(new BorderLayout());
         userWrapper.setOpaque(false);
         // listUserView contient un JScrollPane interne — ajouter directement pour garder la taille stable
-        userWrapper.add((Component) listUserView, BorderLayout.CENTER);
+        userWrapper.add(listUserView, BorderLayout.CENTER);
         userWrapper.setPreferredSize(cardsPreferred);
         userWrapper.setMinimumSize(new Dimension(220, 0));
         userWrapper.setMaximumSize(new Dimension(cardsPreferred.width, Integer.MAX_VALUE));
@@ -169,14 +164,14 @@ public class ChatMainView extends JComponent implements IChatMainView {
         rightPanel.setBackground(new Color(54, 57, 63));
 
         // Header
-        JLabel header = new JLabel("# général");
-        header.setFont(new Font("Arial", Font.BOLD, 16));
-        header.setForeground(Color.WHITE);
-        header.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-        addToGrid(rightPanel, header, 0, 0, 1.0, 0.0, GridBagConstraints.HORIZONTAL);
+        //JLabel header = new JLabel("# général");
+        //header.setFont(new Font("Arial", Font.BOLD, 16));
+        //header.setForeground(Color.WHITE);
+        //header.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        //addToGrid(rightPanel, header, 0, 0, 1.0, 0.0, GridBagConstraints.HORIZONTAL);
 
         // Messages scrollables
-        JScrollPane scrollPane = new JScrollPane((Component) listMessageView);
+        JScrollPane scrollPane = new JScrollPane(listMessageView);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
         scrollPane.getViewport().setBackground(new Color(54, 57, 63));
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -184,7 +179,7 @@ public class ChatMainView extends JComponent implements IChatMainView {
         addToGrid(rightPanel, scrollPane, 0, 1, 1.0, 1.0, GridBagConstraints.BOTH);
 
         // Input en bas
-        addToGrid(rightPanel, (Component) inputMessageView, 0, 2, 1.0, 0.0, GridBagConstraints.HORIZONTAL);
+        addToGrid(rightPanel, inputMessageView, 0, 2, 1.0, 0.0, GridBagConstraints.HORIZONTAL);
 
         return rightPanel;
     }
@@ -205,24 +200,19 @@ public class ChatMainView extends JComponent implements IChatMainView {
 
     // --- Getters ---
 
-    public IListCanalView getListCanalView() {
+    public ListCanalView getListCanalView() {
         return listCanalView;
     }
 
-    public IListUserView getListUserView() {
+    public ListUserView getListUserView() {
         return listUserView;
     }
 
-    public IListMessageView getListMessageView() {
+    public ListMessageView getListMessageView() {
         return listMessageView;
     }
 
-    public IInputMessageView getInputMessageView() {
+    public InputMessageView getInputMessageView() {
         return inputMessageView;
-    }
-
-    @Override
-    public IChatMainController getController() {
-        return chatMainController;
     }
 }

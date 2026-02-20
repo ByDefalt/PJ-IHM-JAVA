@@ -1,13 +1,13 @@
 package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.datamodel.Channel;
-import com.ubo.tp.message.ihm.service.ICanalView;
+import com.ubo.tp.message.ihm.view.service.View;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class CanalView extends JComponent implements ICanalView {
+public class CanalView extends JComponent implements View {
 
     private final Logger LOGGER;
 
@@ -60,7 +60,6 @@ public class CanalView extends JComponent implements ICanalView {
         super.paintComponent(g);
     }
 
-    @Override
     public Channel getChannel() {
         return channel;
     }
@@ -76,7 +75,6 @@ public class CanalView extends JComponent implements ICanalView {
         this.repaint();
     }
 
-    @Override
     public void updateChannel(Channel channel) {
         this.setChannel(channel);
     }

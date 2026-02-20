@@ -2,8 +2,8 @@ package com.ubo.tp.message.controller.impl;
 
 import com.ubo.tp.message.controller.service.IAppMainController;
 import com.ubo.tp.message.core.IDataManager;
-import com.ubo.tp.message.factory.ComposantFactory;
-import com.ubo.tp.message.ihm.service.IAppMainView;
+import com.ubo.tp.message.factory.ComposantSwingFactory;
+import com.ubo.tp.message.ihm.graphicController.service.IAppMainGraphicController;
 import com.ubo.tp.message.logger.Logger;
 
 /**
@@ -18,34 +18,36 @@ public class AppMainController implements IAppMainController {
     private final Logger logger;
 
     private final IDataManager dataManager;
-    private final IAppMainView view;
+    private final IAppMainGraphicController graphicController;
 
     /**
      * Constructeur permettant l'injection d'une vue (utile pour tests).
      *
-     * @param dataManager service d'accès aux données
-     * @param logger      logger de l'application
-     * @param view        vue principale injectée
+     * @param dataManager       service d'accès aux données
+     * @param logger            logger de l'application
+     * @param graphicController vue principale injectée
      */
-    public AppMainController(IDataManager dataManager, Logger logger, IAppMainView view) {
+    public AppMainController(IDataManager dataManager, Logger logger, IAppMainGraphicController graphicController) {
         this.dataManager = dataManager;
         this.logger = logger;
-        this.view = view;
+        this.graphicController = graphicController;
 
         // Connecter le callback de la vue à la logique du contrôleur
-        this.view.setOnExchangeDirectorySelected(this::onExchangeDirectorySelected);
+        this.graphicController.setOnExchangeDirectorySelected(this::onExchangeDirectorySelected);
 
         //this.view.setMainContent(
-        //        ComposantFactory.createLoginView(
+        //        ComposantSwingFactory.createLoginView(
         //                logger,
         //                dataManager,
         //                new NavigationController(logger, dataManager, this.view)
         //        )
         //);
 
-        this.view.setMainContent(
-                ComposantFactory.createChatMainView(logger, dataManager)
+        this.graphicController.setMainContent(
+                ComposantSwingFactory.createChatMainView(logger, dataManager)
         );
+
+        this.graphicController.setVisibility(true);
     }
 
     /**
@@ -58,12 +60,7 @@ public class AppMainController implements IAppMainController {
         dataManager.setExchangeDirectory(directoryPath);
     }
 
-    /**
-     * Retourne la vue principale associée à ce contrôleur.
-     *
-     * @return instance de {@link IAppMainView}
-     */
-    public IAppMainView getView() {
-        return this.view;
+    public IAppMainGraphicController getGraphicController() {
+        return this.graphicController;
     }
 }

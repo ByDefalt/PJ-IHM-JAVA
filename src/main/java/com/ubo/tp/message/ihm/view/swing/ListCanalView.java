@@ -1,8 +1,7 @@
 package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.datamodel.Channel;
-import com.ubo.tp.message.ihm.service.ICanalView;
-import com.ubo.tp.message.ihm.service.IListCanalView;
+import com.ubo.tp.message.ihm.view.service.View;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
@@ -14,13 +13,13 @@ import java.util.Optional;
 /**
  * Vue affichant une liste de CanalView empilés verticalement dans une zone défilante.
  */
-public class ListCanalView extends JComponent implements IListCanalView {
+public class ListCanalView extends JComponent implements View {
 
     private final Logger logger;
 
     private final JPanel canalsPanel;
     private final JScrollPane scrollPane;
-    private final List<ICanalView> canalViews = new ArrayList<>();
+    private final List<CanalView> canalViews = new ArrayList<>();
 
     /**
      * Référence au glue pour le déplacer sans itérer pendant modification
@@ -69,7 +68,7 @@ public class ListCanalView extends JComponent implements IListCanalView {
         this.add(scrollPane, gbc);
     }
 
-    public void addCanal(ICanalView canalView) {
+    public void addCanal(CanalView canalView) {
         if (canalView == null) return;
 
         if (!SwingUtilities.isEventDispatchThread()) {
@@ -84,7 +83,7 @@ public class ListCanalView extends JComponent implements IListCanalView {
         canalsPanel.remove(glue);
 
         // Ajouter le canal au bon gridy
-        canalsPanel.add((Component) canalView, canalConstraints(row));
+        canalsPanel.add(canalView, canalConstraints(row));
 
         // Remettre le glue après le dernier élément
         glue = Box.createVerticalGlue();
@@ -134,7 +133,6 @@ public class ListCanalView extends JComponent implements IListCanalView {
         super.paintComponent(g);
     }
 
-    @Override
     public void addCanal(Channel canal) {
         boolean isPresent = canalViews.stream().anyMatch(cv -> cv.getChannel().equals(canal));
         if (isPresent) {
@@ -145,11 +143,10 @@ public class ListCanalView extends JComponent implements IListCanalView {
         }
     }
 
-    @Override
     public void removeCanal(Channel canal) {
-        Optional<ICanalView> opt = canalViews.stream().filter(cv -> cv.getChannel().equals(canal)).findFirst();
+        Optional<CanalView> opt = canalViews.stream().filter(cv -> cv.getChannel().equals(canal)).findFirst();
         if (opt.isPresent()) {
-            ICanalView found = opt.get();
+            CanalView found = opt.get();
             this.canalViews.remove(found);
             if (logger != null) logger.debug("Canal supprimé de la vue: " + canal);
             // update UI
@@ -159,11 +156,10 @@ public class ListCanalView extends JComponent implements IListCanalView {
         }
     }
 
-    @Override
     public void updateCanal(Channel canal) {
-        Optional<ICanalView> opt = canalViews.stream().filter(cv -> cv.getChannel().equals(canal)).findFirst();
+        Optional<CanalView> opt = canalViews.stream().filter(cv -> cv.getChannel().equals(canal)).findFirst();
         if (opt.isPresent()) {
-            ICanalView iCanalView = opt.get();
+            CanalView iCanalView = opt.get();
             // update model inside the view and refresh UI
             updateCanalUI(iCanalView, canal);
             if (logger != null) logger.debug("Canal mis à jour dans la vue: " + canal);
@@ -177,7 +173,7 @@ public class ListCanalView extends JComponent implements IListCanalView {
     private void rebuildCanalsPanel() {
         canalsPanel.removeAll();
         int row = 0;
-        for (ICanalView cv : canalViews) {
+        for (CanalView cv : canalViews) {
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.gridx = 0;
             gbc.gridy = row++;
@@ -188,7 +184,7 @@ public class ListCanalView extends JComponent implements IListCanalView {
             gbc.fill = GridBagConstraints.HORIZONTAL;
             gbc.anchor = GridBagConstraints.WEST;
             gbc.insets = new Insets(4, 4, 4, 4);
-            canalsPanel.add((Component) cv, gbc);
+            canalsPanel.add(cv, gbc);
         }
         // add glue
         glue = Box.createVerticalGlue();
@@ -205,7 +201,7 @@ public class ListCanalView extends JComponent implements IListCanalView {
         rebuildCanalsPanel();
     }
 
-    private void updateCanalUI(ICanalView view, Channel channel) {
+    private void updateCanalUI(CanalView view, Channel channel) {
         if (!SwingUtilities.isEventDispatchThread()) {
             SwingUtilities.invokeLater(() -> updateCanalUI(view, channel));
             return;

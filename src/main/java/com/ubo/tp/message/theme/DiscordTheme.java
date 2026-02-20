@@ -1,8 +1,6 @@
 package com.ubo.tp.message.theme;
 
 import com.formdev.flatlaf.FlatDarkLaf;
-import com.formdev.flatlaf.util.ColorFunctions;
-import com.ubo.tp.message.common.Constants;
 
 import javax.swing.*;
 import javax.swing.plaf.ColorUIResource;
@@ -10,7 +8,7 @@ import java.awt.*;
 
 /**
  * Thème "Discord-like" basé sur FlatLaf Dark.
- *
+ * <p>
  * Définit des UI defaults cohérents avec les vues du projet (ListUserView, ListCanalView,
  * ListMessageView, InputMessageView, UserView, MessageView, etc.).
  */

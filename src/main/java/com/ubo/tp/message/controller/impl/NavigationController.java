@@ -2,18 +2,18 @@ package com.ubo.tp.message.controller.impl;
 
 import com.ubo.tp.message.controller.service.INavigationController;
 import com.ubo.tp.message.core.IDataManager;
-import com.ubo.tp.message.factory.ComposantFactory;
-import com.ubo.tp.message.ihm.service.IAppMainView;
-import com.ubo.tp.message.ihm.service.View;
+import com.ubo.tp.message.factory.ComposantSwingFactory;
+import com.ubo.tp.message.ihm.view.service.View;
+import com.ubo.tp.message.ihm.view.swing.AppMainView;
 import com.ubo.tp.message.logger.Logger;
 
 public class NavigationController implements INavigationController {
 
     private final Logger LOGGER;
     private final IDataManager dataManager;
-    private final IAppMainView appMainView;
+    private final AppMainView appMainView;
 
-    public NavigationController(Logger logger, IDataManager dataManager, IAppMainView appMainView) {
+    public NavigationController(Logger logger, IDataManager dataManager, AppMainView appMainView) {
         LOGGER = logger;
         this.dataManager = dataManager;
         this.appMainView = appMainView;
@@ -27,13 +27,13 @@ public class NavigationController implements INavigationController {
     @Override
     public void navigateToLogin() {
         LOGGER.info("navigateToLogin");
-        this.setMainContent(ComposantFactory.createLoginView(LOGGER, dataManager, this));
+        this.setMainContent(ComposantSwingFactory.createLoginView(LOGGER, dataManager, this));
     }
 
     @Override
     public void navigateToRegister() {
         LOGGER.info("navigateToRegister");
-        this.setMainContent(ComposantFactory.createRegisterView(LOGGER, dataManager, this));
+        this.setMainContent(ComposantSwingFactory.createRegisterView(LOGGER, dataManager, this));
     }
 
 }

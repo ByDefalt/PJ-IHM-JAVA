@@ -5,7 +5,7 @@ import com.ubo.tp.message.controller.service.IListMessageController;
 import com.ubo.tp.message.core.IDataManager;
 import com.ubo.tp.message.core.database.observer.IMessageDatabaseObserver;
 import com.ubo.tp.message.datamodel.Message;
-import com.ubo.tp.message.ihm.service.IListMessageView;
+import com.ubo.tp.message.ihm.graphicController.service.IListMessageGraphicController;
 import com.ubo.tp.message.logger.Logger;
 
 public class ListMessageController implements IListMessageController, IMessageDatabaseObserver {
@@ -13,36 +13,36 @@ public class ListMessageController implements IListMessageController, IMessageDa
     private final Logger LOGGER;
 
     private final IDataManager dataManager;
-    private final IListMessageView view;
+    private final IListMessageGraphicController graphicController;
 
-    public ListMessageController(Logger logger, IDataManager dataManager, IListMessageView view) {
+    public ListMessageController(Logger logger, IDataManager dataManager, IListMessageGraphicController graphicController) {
         LOGGER = logger;
         this.dataManager = dataManager;
-        this.view = view;
+        this.graphicController = graphicController;
 
         this.dataManager.addObserver(this);
     }
 
     @Override
-    public IListMessageView getView() {
-        return view;
+    public IListMessageGraphicController getGraphicController() {
+        return graphicController;
     }
 
     @Override
     public void notifyMessageAdded(Message addedMessage) {
         if (LOGGER != null) LOGGER.debug("Message ajouté : " + addedMessage);
-        this.view.addMessage(addedMessage);
+        this.graphicController.addMessage(addedMessage);
     }
 
     @Override
     public void notifyMessageDeleted(Message deletedMessage) {
         if (LOGGER != null) LOGGER.debug("Message suppression : " + deletedMessage);
-        this.view.removeMessage(deletedMessage);
+        this.graphicController.removeMessage(deletedMessage);
     }
 
     @Override
     public void notifyMessageModified(Message modifiedMessage) {
         if (LOGGER != null) LOGGER.debug("Message update : " + modifiedMessage);
-        this.view.updateMessage(modifiedMessage);
+        this.graphicController.updateMessage(modifiedMessage);
     }
 }

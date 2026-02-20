@@ -213,7 +213,7 @@ public class MessageAppMock {
 
         Button sendMessageButton = new Button("Write Message");
         sendMessageButton.setPreferredSize(new Dimension(100, 50));
-        sendMessageButton.addActionListener(_ -> MessageAppMock.this.writeMessage());
+        sendMessageButton.addActionListener(a -> MessageAppMock.this.writeMessage());
 
         Button sendChannelButton = new Button("Write Channel");
         sendChannelButton.setPreferredSize(new Dimension(100, 50));
