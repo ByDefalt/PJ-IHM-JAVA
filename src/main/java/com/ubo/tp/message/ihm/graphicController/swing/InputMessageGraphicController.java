@@ -1,9 +1,9 @@
 package com.ubo.tp.message.ihm.graphicController.swing;
 
 import com.ubo.tp.message.controller.service.IInputMessageController;
+import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.graphicController.service.GraphicController;
 import com.ubo.tp.message.ihm.view.swing.InputMessageView;
-import com.ubo.tp.message.ihm.contexte.ViewContext;
 
 public class InputMessageGraphicController implements GraphicController {
 

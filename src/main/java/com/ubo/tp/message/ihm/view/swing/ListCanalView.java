@@ -1,8 +1,8 @@
 package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.datamodel.Channel;
-import com.ubo.tp.message.ihm.view.service.View;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
+import com.ubo.tp.message.ihm.view.service.View;
 
 import javax.swing.*;
 import java.awt.*;
@@ -86,7 +86,8 @@ public class ListCanalView extends JComponent implements View {
         view.updateChannel(channel);
         canalsPanel.revalidate();
         canalsPanel.repaint();
-        if (this.viewContext.logger() != null) this.viewContext.logger().debug("CanalView mise à jour pour: " + channel);
+        if (this.viewContext.logger() != null)
+            this.viewContext.logger().debug("CanalView mise à jour pour: " + channel);
     }
 
     private JPanel createCanalsPanel() {
