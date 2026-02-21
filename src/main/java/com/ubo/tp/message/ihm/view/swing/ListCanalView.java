@@ -2,7 +2,7 @@ package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.datamodel.Channel;
 import com.ubo.tp.message.ihm.view.service.View;
-import com.ubo.tp.message.logger.Logger;
+import com.ubo.tp.message.ihm.view.contexte.ViewContext;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,15 +13,15 @@ import java.util.List;
  */
 public class ListCanalView extends JComponent implements View {
 
-    private final Logger logger;
+    private final ViewContext viewContext;
 
     private final JPanel canalsPanel;
     private final JScrollPane scrollPane;
 
     private Component glue;
 
-    public ListCanalView(Logger logger) {
-        this.logger = logger;
+    public ListCanalView(ViewContext viewContext) {
+        this.viewContext = viewContext;
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         this.setBackground(new Color(54, 57, 63));
@@ -34,7 +34,7 @@ public class ListCanalView extends JComponent implements View {
         glue = Box.createVerticalGlue();
         canalsPanel.add(glue, glueConstraints(0));
 
-        if (this.logger != null) this.logger.debug("ListCanalView initialisée");
+        if (this.viewContext.logger() != null) this.viewContext.logger().debug("ListCanalView initialisée");
     }
 
     public void addCanalUI(CanalView canalView, int row) {
@@ -59,7 +59,7 @@ public class ListCanalView extends JComponent implements View {
             if (bar != null) bar.setValue(bar.getMaximum());
         });
 
-        if (this.logger != null) this.logger.debug("CanalView ajoutée (row=" + row + ")");
+        if (this.viewContext.logger() != null) this.viewContext.logger().debug("CanalView ajoutée (row=" + row + ")");
     }
 
     public void rebuildUI(List<CanalView> ordered) {
@@ -86,7 +86,7 @@ public class ListCanalView extends JComponent implements View {
         view.updateChannel(channel);
         canalsPanel.revalidate();
         canalsPanel.repaint();
-        if (this.logger != null) this.logger.debug("CanalView mise à jour pour: " + channel);
+        if (this.viewContext.logger() != null) this.viewContext.logger().debug("CanalView mise à jour pour: " + channel);
     }
 
     private JPanel createCanalsPanel() {

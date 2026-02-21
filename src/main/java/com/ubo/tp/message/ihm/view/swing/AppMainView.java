@@ -1,7 +1,7 @@
 package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.ihm.view.service.View;
-import com.ubo.tp.message.logger.Logger;
+import com.ubo.tp.message.ihm.view.contexte.ViewContext;
 import com.ubo.tp.message.utils.LoadIcon;
 
 import javax.swing.*;
@@ -16,14 +16,14 @@ import java.util.function.Consumer;
 public class AppMainView extends JComponent implements View {
 
     private final JFrame mainFrame;
-    private final Logger logger;
+    private final ViewContext viewContext;
     private final JPanel contentPanel;
     private final CardLayout contentLayout;
     private Consumer<String> onExchangeDirectorySelected;
 
-    public AppMainView(Logger logger) {
-        this.logger = logger;
-        this.logger.info("Initialisation de AppMainView");
+    public AppMainView(ViewContext viewContext) {
+        this.viewContext = viewContext;
+        this.viewContext.logger().info("Initialisation de AppMainView");
 
         this.mainFrame = new JFrame("MessageApp");
         this.mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -37,7 +37,7 @@ public class AppMainView extends JComponent implements View {
         this.mainFrame.getContentPane().add(this.contentPanel, BorderLayout.CENTER);
 
         this.createMenuBar();
-        this.logger.info("AppMainView initialisée");
+        this.viewContext.logger().info("AppMainView initialisée");
     }
 
     /**
@@ -52,7 +52,7 @@ public class AppMainView extends JComponent implements View {
             return;
         }
 
-        logger.debug("Setting main view");
+        viewContext.logger().debug("Setting main view");
         contentPanel.removeAll();
 
         JPanel wrapper = new JPanel(new GridBagLayout());
@@ -67,7 +67,7 @@ public class AppMainView extends JComponent implements View {
         contentPanel.add(wrapper);
         contentPanel.revalidate();
         contentPanel.repaint();
-        logger.debug("Main view set");
+        viewContext.logger().debug("Main view set");
     }
 
     private void createMenuBar() {
@@ -96,11 +96,11 @@ public class AppMainView extends JComponent implements View {
         menuBar.add(helpMenu);
 
         this.mainFrame.setJMenuBar(menuBar);
-        this.logger.debug("MenuBar créé");
+        this.viewContext.logger().debug("MenuBar créé");
     }
 
     private void showAboutDialog() {
-        this.logger.debug("Afficher le dialogue À propos");
+        this.viewContext.logger().debug("Afficher le dialogue À propos");
         JDialog aboutDialog = new JDialog(this.mainFrame, "À propos", true);
         aboutDialog.setSize(400, 250);
         aboutDialog.setLocationRelativeTo(this.mainFrame);
@@ -122,11 +122,11 @@ public class AppMainView extends JComponent implements View {
 
         aboutDialog.add(panel);
         aboutDialog.setVisible(true);
-        this.logger.debug("Dialogue À propos affiché");
+        this.viewContext.logger().debug("Dialogue À propos affiché");
     }
 
     private void showFileChooser() {
-        this.logger.debug("Afficher FileChooser");
+        this.viewContext.logger().debug("Afficher FileChooser");
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooser.setDialogTitle("Sélectionner le répertoire d'échange");
@@ -136,12 +136,12 @@ public class AppMainView extends JComponent implements View {
         int result = fileChooser.showOpenDialog(this.mainFrame);
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedDirectory = fileChooser.getSelectedFile();
-            this.logger.info("Répertoire sélectionné : " + selectedDirectory.getAbsolutePath());
+            this.viewContext.logger().info("Répertoire sélectionné : " + selectedDirectory.getAbsolutePath());
             if (this.onExchangeDirectorySelected != null) {
                 this.onExchangeDirectorySelected.accept(selectedDirectory.getAbsolutePath());
             }
         } else {
-            this.logger.debug("Sélection annulée");
+            this.viewContext.logger().debug("Sélection annulée");
         }
     }
 
@@ -173,8 +173,8 @@ public class AppMainView extends JComponent implements View {
         return mainFrame;
     }
 
-    public Logger getLogger() {
-        return logger;
+    public ViewContext getViewContext() {
+        return viewContext;
     }
 
     public Consumer<String> getOnExchangeDirectorySelected() {

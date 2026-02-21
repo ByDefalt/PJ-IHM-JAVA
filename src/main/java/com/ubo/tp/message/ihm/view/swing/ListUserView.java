@@ -2,7 +2,7 @@ package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.view.service.View;
-import com.ubo.tp.message.logger.Logger;
+import com.ubo.tp.message.ihm.view.contexte.ViewContext;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,14 +13,14 @@ import java.util.List;
  */
 public class ListUserView extends JComponent implements View {
 
-    private final Logger logger;
+    private final ViewContext viewContext;
 
     private final JPanel usersPanel;
     private final JScrollPane scrollPane;
     private Component glue;
 
-    public ListUserView(Logger logger) {
-        this.logger = logger;
+    public ListUserView(ViewContext viewContext) {
+        this.viewContext = viewContext;
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         this.setBackground(new Color(54, 57, 63));
@@ -33,7 +33,7 @@ public class ListUserView extends JComponent implements View {
         glue = Box.createVerticalGlue();
         usersPanel.add(glue, glueConstraints(0));
 
-        if (this.logger != null) this.logger.debug("ListUserView initialisée");
+        if (this.viewContext.logger() != null) this.viewContext.logger().debug("ListUserView initialisée");
     }
 
     // -------------------------------------------------------------------------
@@ -65,7 +65,7 @@ public class ListUserView extends JComponent implements View {
             if (bar != null) bar.setValue(bar.getMaximum());
         });
 
-        if (this.logger != null) this.logger.debug("UserView ajoutée (row=" + row + ")");
+        if (this.viewContext.logger() != null) this.viewContext.logger().debug("UserView ajoutée (row=" + row + ")");
     }
 
     /**

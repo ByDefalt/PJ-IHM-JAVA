@@ -4,7 +4,7 @@ import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.ihm.graphicController.service.IListMessageGraphicController;
 import com.ubo.tp.message.ihm.view.swing.ListMessageView;
 import com.ubo.tp.message.ihm.view.swing.MessageView;
-import com.ubo.tp.message.logger.Logger;
+import com.ubo.tp.message.ihm.view.contexte.ViewContext;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -13,7 +13,7 @@ import java.util.TreeSet;
 
 public class ListMessageGraphicController implements IListMessageGraphicController {
 
-    private final Logger LOGGER;
+    private final ViewContext viewContext;
     private final ListMessageView listMessageView;
 
     /**
@@ -26,8 +26,8 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
                     .thenComparing(mv -> mv.getMessage().getUuid().toString())
     );
 
-    public ListMessageGraphicController(Logger logger, ListMessageView listMessageView) {
-        LOGGER = logger;
+    public ListMessageGraphicController(ViewContext viewContext, ListMessageView listMessageView) {
+        this.viewContext = viewContext;
         this.listMessageView = listMessageView;
     }
 
@@ -39,11 +39,11 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
                 .anyMatch(mv -> mv.getMessage().equals(message));
 
         if (alreadyPresent) {
-            if (LOGGER != null) LOGGER.debug("Message déjà présent, ignoré : " + message);
+            if (viewContext.logger() != null) viewContext.logger().debug("Message déjà présent, ignoré : " + message);
             return;
         }
 
-        MessageView messageView = new MessageView(LOGGER, message);
+        MessageView messageView = new MessageView(viewContext, message);
         messages.add(messageView);
 
         listMessageView.rebuildUI(new ArrayList<>(messages));
@@ -52,7 +52,7 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
             listMessageView.scrollToBottom();
         }
 
-        if (LOGGER != null) LOGGER.debug("Message ajouté : " + message);
+        if (viewContext.logger() != null) viewContext.logger().debug("Message ajouté : " + message);
     }
 
     @Override
@@ -66,9 +66,9 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
         if (opt.isPresent()) {
             messages.remove(opt.get());
             listMessageView.rebuildUI(new ArrayList<>(messages));
-            if (LOGGER != null) LOGGER.debug("Message supprimé : " + message);
+            if (viewContext.logger() != null) viewContext.logger().debug("Message supprimé : " + message);
         } else {
-            if (LOGGER != null) LOGGER.warn("Message non trouvé, pas supprimé : " + message);
+            if (viewContext.logger() != null) viewContext.logger().warn("Message non trouvé, pas supprimé : " + message);
         }
     }
 
@@ -88,9 +88,9 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
             messages.add(mv);
 
             listMessageView.rebuildUI(new ArrayList<>(messages));
-            if (LOGGER != null) LOGGER.debug("Message mis à jour : " + message);
+            if (viewContext.logger() != null) viewContext.logger().debug("Message mis à jour : " + message);
         } else {
-            if (LOGGER != null) LOGGER.warn("Message non trouvé pour mise à jour : " + message);
+            if (viewContext.logger() != null) viewContext.logger().warn("Message non trouvé pour mise à jour : " + message);
         }
     }
 }

@@ -1,7 +1,7 @@
 package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.ihm.view.service.View;
-import com.ubo.tp.message.logger.Logger;
+import com.ubo.tp.message.ihm.view.contexte.ViewContext;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,7 +11,7 @@ import java.awt.*;
  */
 public class ChatMainView extends JComponent implements View {
 
-    private final Logger logger;
+    private final ViewContext viewContext;
 
     private final ListCanalView listCanalView;
     private final ListUserView listUserView;
@@ -19,13 +19,13 @@ public class ChatMainView extends JComponent implements View {
     private final InputMessageView inputMessageView;
 
     public ChatMainView(
-            Logger logger,
+            ViewContext viewContext,
             ListCanalView listCanalView,
             ListUserView listUserView,
             ListMessageView listMessageView,
             InputMessageView inputMessageView
     ) {
-        this.logger = logger;
+        this.viewContext = viewContext;
         this.listCanalView = listCanalView;
         this.listUserView = listUserView;
         this.listMessageView = listMessageView;
@@ -33,8 +33,8 @@ public class ChatMainView extends JComponent implements View {
 
         SwingUtilities.invokeLater(() -> {
             initView();
-            if (this.logger != null) {
-                this.logger.debug("ChatMainView initialisée (Discord style)");
+            if (this.viewContext.logger() != null) {
+                this.viewContext.logger().debug("ChatMainView initialisée (Discord style)");
             }
         });
     }

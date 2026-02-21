@@ -4,34 +4,34 @@ import com.ubo.tp.message.controller.service.INavigationController;
 import com.ubo.tp.message.controller.service.IRegisterController;
 import com.ubo.tp.message.ihm.graphicController.service.GraphicController;
 import com.ubo.tp.message.ihm.view.swing.RegisterView;
-import com.ubo.tp.message.logger.Logger;
+import com.ubo.tp.message.ihm.view.contexte.ViewContext;
 
 public class RegisterGraphicController implements GraphicController {
 
-    private final Logger LOGGER;
+    private final ViewContext viewContext;
     private final RegisterView registerView;
     private final IRegisterController registerController;
     private final INavigationController navigationController;
 
-    public RegisterGraphicController(Logger logger, RegisterView registerView, IRegisterController registerController, INavigationController navigationController) {
-        LOGGER = logger;
+    public RegisterGraphicController(ViewContext viewContext, RegisterView registerView, IRegisterController registerController, INavigationController navigationController) {
+        this.viewContext = viewContext;
         this.registerView = registerView;
         this.registerController = registerController;
         this.navigationController = navigationController;
 
         registerView.setOnRegisterRequested((tag, name, password, confirmPassword) -> {
-            if (LOGGER != null) LOGGER.debug("Inscription demandée pour : " + tag);
+            if (viewContext.logger() != null) viewContext.logger().debug("Inscription demandée pour : " + tag);
             boolean created = registerController.onRegisterButtonClicked(tag, name, password, confirmPassword);
             if (created) {
-                if (LOGGER != null) LOGGER.info("Inscription réussie, navigation vers login");
+                if (viewContext.logger() != null) viewContext.logger().info("Inscription réussie, navigation vers login");
                 navigationController.navigateToLogin();
             } else {
-                if (LOGGER != null) LOGGER.warn("Inscription échouée pour : " + tag);
+                if (viewContext.logger() != null) viewContext.logger().warn("Inscription échouée pour : " + tag);
             }
         });
 
         registerView.setOnBackToLoginRequested(() -> {
-            if (LOGGER != null) LOGGER.debug("Retour vers la connexion");
+            if (viewContext.logger() != null) viewContext.logger().debug("Retour vers la connexion");
             navigationController.navigateToLogin();
         });
     }

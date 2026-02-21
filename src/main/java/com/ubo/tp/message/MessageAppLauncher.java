@@ -1,16 +1,20 @@
 package com.ubo.tp.message;
 
 import com.ubo.tp.message.common.Constants;
+import com.ubo.tp.message.controller.contexte.ControllerContext;
 import com.ubo.tp.message.core.DataManager;
 import com.ubo.tp.message.core.IDataManager;
 import com.ubo.tp.message.core.database.Database;
 import com.ubo.tp.message.core.database.DbConnector;
 import com.ubo.tp.message.core.database.EntityManager;
+import com.ubo.tp.message.core.selected.ISelected;
+import com.ubo.tp.message.core.selected.Selected;
 import com.ubo.tp.message.core.session.ISession;
 import com.ubo.tp.message.core.session.Session;
 import com.ubo.tp.message.datamodel.Channel;
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.datamodel.User;
+import com.ubo.tp.message.ihm.view.contexte.ViewContext;
 import com.ubo.tp.message.logger.LogLevel;
 import com.ubo.tp.message.logger.Logger;
 import com.ubo.tp.message.logger.LoggerFactory;
@@ -25,16 +29,15 @@ import java.util.UUID;
  */
 public class MessageAppLauncher {
 
-    protected static boolean IS_MOCK_ENABLED = false;
-    protected static String EXCHANGE_DIRECTORY_PATH = "E:\\ihm";
+    // Peut être surchargé via la propriété système "exchange.dir"
+    private static final boolean IS_MOCK_ENABLED = false;
+    private static final String EXCHANGE_DIRECTORY_PATH = System.getProperty("exchange.dir", "E:\\ihm");
 
-    static void main(String[] args) {
+    public static void main(String[] args) {
         try {
-            java.io.File exchangeDir = new java.io.File(EXCHANGE_DIRECTORY_PATH);
-            if (!exchangeDir.exists()) exchangeDir.mkdirs();
-            clearExchangeDirectoryFiles();
+            prepareExchangeDirectory(EXCHANGE_DIRECTORY_PATH);
         } catch (Exception e) {
-            System.err.println("Impossible de nettoyer le répertoire d'échange : " + e.getMessage());
+            System.err.println("Impossible de préparer le répertoire d'échange : " + e.getMessage());
         }
 
         Logger logger = LoggerFactory.consoleLogger(LogLevel.DEBUG);
@@ -44,20 +47,34 @@ public class MessageAppLauncher {
         dataManager.setExchangeDirectory(EXCHANGE_DIRECTORY_PATH);
 
         ISession session = new Session();
-
         createTestData(dataManager, entityManager);
 
         DbConnector dbConnector = new DbConnector(database);
         MessageAppMock mock = new MessageAppMock(dbConnector, dataManager);
+        ISelected selected = new Selected();
+        ControllerContext controllerContext = new ControllerContext(logger, dataManager, session, selected);
+        ViewContext viewContext = new ViewContext(logger);
 
         SwingUtilities.invokeLater(() -> {
-            MessageApp messageApp = new MessageApp(dataManager, logger, session);
+            MessageApp messageApp = new MessageApp(controllerContext, viewContext);
             messageApp.init();
             messageApp.show();
             if (IS_MOCK_ENABLED) {
                 mock.showGUI();
             }
         });
+    }
+
+    private static void prepareExchangeDirectory(String path) {
+        if (path == null || path.trim().isEmpty()) return;
+        File exchangeDir = new File(path);
+        if (!exchangeDir.exists()) {
+            boolean ok = exchangeDir.mkdirs();
+            if (!ok) {
+                System.err.println("Impossible de créer le répertoire d'échange : " + path);
+            }
+        }
+        clearExchangeDirectoryFiles(path);
     }
 
     public static void createTestData(IDataManager dataManager, EntityManager entityManager) {
@@ -86,9 +103,9 @@ public class MessageAppLauncher {
         dataManager.sendMessage(m3);
     }
 
-    public static void clearExchangeDirectoryFiles() {
-        if (EXCHANGE_DIRECTORY_PATH == null) return;
-        File dir = new File(EXCHANGE_DIRECTORY_PATH);
+    public static void clearExchangeDirectoryFiles(String path) {
+        if (path == null) return;
+        File dir = new File(path);
         if (!dir.exists() || !dir.isDirectory()) return;
 
         File[] files = dir.listFiles((d, name) ->
@@ -99,7 +116,10 @@ public class MessageAppLauncher {
         if (files == null) return;
         for (File f : files) {
             try {
-                f.delete();
+                if (!f.delete()) {
+                    // Ne pas arrêter l'exécution si un fichier n'a pas pu être supprimé
+                    System.err.println("Impossible de supprimer le fichier : " + f.getAbsolutePath());
+                }
             } catch (Exception ignored) {
             }
         }

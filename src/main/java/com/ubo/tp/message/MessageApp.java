@@ -1,10 +1,9 @@
 package com.ubo.tp.message;
 
+import com.ubo.tp.message.controller.contexte.ControllerContext;
 import com.ubo.tp.message.controller.service.IAppMainController;
-import com.ubo.tp.message.core.IDataManager;
-import com.ubo.tp.message.core.session.ISession;
 import com.ubo.tp.message.factory.ComposantSwingFactory;
-import com.ubo.tp.message.logger.Logger;
+import com.ubo.tp.message.ihm.view.contexte.ViewContext;
 import com.ubo.tp.message.theme.DiscordTheme;
 
 import java.io.File;
@@ -15,27 +14,14 @@ import java.io.File;
  * @author S.Lucas
  */
 public class MessageApp {
-    private final Logger logger;
-    /**
-     * Base de données.
-     */
-    protected IDataManager mDataManager;
-    /**
-     * Contrôleur de la vue principale de l'application.
-     */
     protected IAppMainController mMainController;
 
-    protected ISession mSession;
+    private final ControllerContext controllerContext;
+    private final ViewContext viewContext;
 
-    /**
-     * Constructeur.
-     *
-     * @param dataManager
-     */
-    public MessageApp(IDataManager dataManager, Logger logger, ISession session) {
-        this.mDataManager = dataManager;
-        this.logger = logger;
-        this.mSession = session;
+    public MessageApp(ControllerContext controllerContext, ViewContext viewContext) {
+        this.controllerContext = controllerContext;
+        this.viewContext = viewContext;
     }
 
     /**
@@ -59,9 +45,9 @@ public class MessageApp {
         try {
             DiscordTheme theme = new DiscordTheme();
             theme.apply();
-            this.logger.debug("Thème Discord appliqué");
+            this.controllerContext.logger().debug("Thème Discord appliqué");
         } catch (Exception e) {
-            this.logger.warn("Impossible de définir le Look and Feel natif: " + e.getMessage());
+            this.controllerContext.logger().warn("Impossible de définir le Look and Feel natif: " + e.getMessage());
         }
     }
 
@@ -69,7 +55,7 @@ public class MessageApp {
      * Initialisation de l'interface graphique.
      */
     protected void initGui() {
-        mMainController = ComposantSwingFactory.createAppMainController(mDataManager, logger, mSession);
+        mMainController = ComposantSwingFactory.createAppMainController(this.controllerContext, this.viewContext);
     }
 
     /**
@@ -98,7 +84,7 @@ public class MessageApp {
      * @param directoryPath
      */
     protected void initDirectory(String directoryPath) {
-        mDataManager.setExchangeDirectory(directoryPath);
+        this.controllerContext.dataManager().setExchangeDirectory(directoryPath);
     }
 
     public void show() {

@@ -1,23 +1,22 @@
 package com.ubo.tp.message.controller.impl;
 
+import com.ubo.tp.message.controller.contexte.ControllerContext;
 import com.ubo.tp.message.controller.service.IListUserController;
-import com.ubo.tp.message.core.IDataManager;
 import com.ubo.tp.message.core.database.observer.IUserDatabaseObserver;
 import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.graphicController.service.IListUserGraphicController;
-import com.ubo.tp.message.logger.Logger;
+
+import java.util.Objects;
 
 public class ListUserController implements IListUserController, IUserDatabaseObserver {
 
-    private final Logger logger;
-    private final IDataManager dataManager;
+    private final ControllerContext context;
     private final IListUserGraphicController graphicController;
 
-    public ListUserController(Logger logger, IDataManager dataManager, IListUserGraphicController listUserView) {
-        this.logger = logger;
-        this.dataManager = dataManager;
+    public ListUserController(ControllerContext context, IListUserGraphicController listUserView) {
+        this.context = Objects.requireNonNull(context);
         this.graphicController = listUserView;
-        this.dataManager.addObserver(this);
+        this.context.dataManager().addObserver(this);
     }
 
     @Override
@@ -27,19 +26,19 @@ public class ListUserController implements IListUserController, IUserDatabaseObs
 
     @Override
     public void notifyUserAdded(User addedUser) {
-        if (logger != null) logger.debug("Utilisateur ajouté : " + addedUser);
+        if (context.logger() != null) context.logger().debug("Utilisateur ajouté : " + addedUser);
         this.graphicController.addUser(addedUser);
     }
 
     @Override
     public void notifyUserDeleted(User deletedUser) {
-        if (logger != null) logger.debug("Utilisateur supprimé : " + deletedUser);
+        if (context.logger() != null) context.logger().debug("Utilisateur supprimé : " + deletedUser);
         this.graphicController.removeUser(deletedUser);
     }
 
     @Override
     public void notifyUserModified(User modifiedUser) {
-        if (logger != null) logger.debug("Utilisateur modifié : " + modifiedUser);
+        if (context.logger() != null) context.logger().debug("Utilisateur modifié : " + modifiedUser);
         this.graphicController.updateUser(modifiedUser);
     }
 }

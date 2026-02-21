@@ -1,7 +1,7 @@
 package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.ihm.view.service.View;
-import com.ubo.tp.message.logger.Logger;
+import com.ubo.tp.message.ihm.view.contexte.ViewContext;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,26 +9,30 @@ import java.util.function.BiConsumer;
 
 public class LoginView extends JComponent implements View {
 
-    private final Logger LOGGER;
+    private final ViewContext viewContext;
     private JTextField tagField;
     private JTextField nameField;
     private JPasswordField passwordField;
     private JButton loginButton;
     private JButton registerButton;
 
-    /** Callback : (tag, name, password) → déclenché au clic sur "Se connecter" */
+    /**
+     * Callback : (tag, name, password) → déclenché au clic sur "Se connecter"
+     */
     private BiConsumer<String[], Void> onLoginRequested;
 
-    /** Callback : déclenché au clic sur "S'inscrire" */
+    /**
+     * Callback : déclenché au clic sur "S'inscrire"
+     */
     private Runnable onRegisterRequested;
 
-    public LoginView(Logger logger) {
-        this.LOGGER = logger;
+    public LoginView(ViewContext viewContext) {
+        this.viewContext = viewContext;
         this.init();
     }
 
     private void init() {
-        if (LOGGER != null) LOGGER.debug("Initialisation de LoginView");
+        if (viewContext.logger() != null) viewContext.logger().debug("Initialisation de LoginView");
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
@@ -44,7 +48,7 @@ public class LoginView extends JComponent implements View {
         createRegisterButton();
         installListeners();
 
-        if (LOGGER != null) LOGGER.debug("LoginView initialisée");
+        if (viewContext.logger() != null) viewContext.logger().debug("LoginView initialisée");
     }
 
     // -------------------------------------------------------------------------
@@ -66,7 +70,7 @@ public class LoginView extends JComponent implements View {
 
     private void installListeners() {
         loginButton.addActionListener(e -> {
-            if (LOGGER != null) LOGGER.debug("Bouton de connexion cliqué");
+            if (viewContext.logger() != null) viewContext.logger().debug("Bouton de connexion cliqué");
             if (onLoginRequested != null) {
                 onLoginRequested.accept(
                         new String[]{
@@ -78,22 +82,13 @@ public class LoginView extends JComponent implements View {
         });
 
         registerButton.addActionListener(e -> {
-            if (LOGGER != null) LOGGER.debug("Bouton d'inscription cliqué");
+            if (viewContext.logger() != null) viewContext.logger().debug("Bouton d'inscription cliqué");
             if (onRegisterRequested != null) onRegisterRequested.run();
         });
     }
 
     // -------------------------------------------------------------------------
     // Interface fonctionnelle utilitaire
-    // -------------------------------------------------------------------------
-
-    @FunctionalInterface
-    public interface TriConsumer<A, B, C> {
-        void accept(A a, B b, C c);
-    }
-
-    // -------------------------------------------------------------------------
-    // Construction UI
     // -------------------------------------------------------------------------
 
     private void createLogo() {
@@ -106,14 +101,18 @@ public class LoginView extends JComponent implements View {
             java.net.URL url = getClass().getResource("/images/logo_50.png");
             if (url != null) {
                 this.add(new JLabel(new ImageIcon(url)), gbc);
-                if (LOGGER != null) LOGGER.info("Logo chargé depuis /images/logo_50.png");
+                if (viewContext.logger() != null) viewContext.logger().info("Logo chargé depuis /images/logo_50.png");
             } else {
-                if (LOGGER != null) LOGGER.warn("Ressource introuvable : /images/logo_50.png");
+                if (viewContext.logger() != null) viewContext.logger().warn("Ressource introuvable : /images/logo_50.png");
             }
         } catch (Exception e) {
-            if (LOGGER != null) LOGGER.error("Erreur lors du chargement du logo", e);
+            if (viewContext.logger() != null) viewContext.logger().error("Erreur lors du chargement du logo", e);
         }
     }
+
+    // -------------------------------------------------------------------------
+    // Construction UI
+    // -------------------------------------------------------------------------
 
     private void createTitle() {
         JLabel titleLabel = new JLabel("Connexion", SwingConstants.LEFT);
@@ -194,5 +193,10 @@ public class LoginView extends JComponent implements View {
                 1, 4, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.NONE,
                 new Insets(10, 10, 10, 10), 0, 0));
+    }
+
+    @FunctionalInterface
+    public interface TriConsumer<A, B, C> {
+        void accept(A a, B b, C c);
     }
 }

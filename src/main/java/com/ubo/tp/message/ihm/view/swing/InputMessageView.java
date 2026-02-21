@@ -1,7 +1,7 @@
 package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.ihm.view.service.View;
-import com.ubo.tp.message.logger.Logger;
+import com.ubo.tp.message.ihm.view.contexte.ViewContext;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -17,7 +17,7 @@ public class InputMessageView extends JComponent implements View {
 
     private static final int ARC = 20;
 
-    private final Logger LOGGER;
+    private final ViewContext viewContext;
     private final JTextArea inputField;
     private Runnable onSendRequested;
 
@@ -27,8 +27,8 @@ public class InputMessageView extends JComponent implements View {
 
     private JScrollPane inputScrollPane;
 
-    public InputMessageView(Logger logger) {
-        this.LOGGER = logger;
+    public InputMessageView(ViewContext viewContext) {
+        this.viewContext = viewContext;
         inputField = new JTextArea();
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
@@ -40,7 +40,7 @@ public class InputMessageView extends JComponent implements View {
         createInputField();
         installInternalListeners();
 
-        if (this.LOGGER != null) this.LOGGER.debug("InputMessageView initialisée");
+        if (this.viewContext.logger() != null) this.viewContext.logger().debug("InputMessageView initialisée");
     }
 
     // -------------------------------------------------------------------------
@@ -54,12 +54,16 @@ public class InputMessageView extends JComponent implements View {
         this.onSendRequested = onSendRequested;
     }
 
-    /** Retourne le texte saisi. */
+    /**
+     * Retourne le texte saisi.
+     */
     public String getText() {
         return inputField.getText();
     }
 
-    /** Efface le champ de saisie et remet la mise en page à une ligne. */
+    /**
+     * Efface le champ de saisie et remet la mise en page à une ligne.
+     */
     public void clearText() {
         inputField.setText("");
         inputField.requestFocusInWindow();
@@ -108,9 +112,20 @@ public class InputMessageView extends JComponent implements View {
                 });
             }
 
-            @Override public void insertUpdate(DocumentEvent e) { notifyChange(); }
-            @Override public void removeUpdate(DocumentEvent e)  { notifyChange(); }
-            @Override public void changedUpdate(DocumentEvent e) { notifyChange(); }
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                notifyChange();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                notifyChange();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                notifyChange();
+            }
         });
 
         // Mise en évidence de la bordure au focus
@@ -118,13 +133,13 @@ public class InputMessageView extends JComponent implements View {
             @Override
             public void focusGained(FocusEvent e) {
                 setFocused(true);
-                if (LOGGER != null) LOGGER.debug("Input focus: true");
+                if (viewContext.logger() != null) viewContext.logger().debug("Input focus: true");
             }
 
             @Override
             public void focusLost(FocusEvent e) {
                 setFocused(false);
-                if (LOGGER != null) LOGGER.debug("Input focus: false");
+                if (viewContext.logger() != null) viewContext.logger().debug("Input focus: false");
             }
         });
     }

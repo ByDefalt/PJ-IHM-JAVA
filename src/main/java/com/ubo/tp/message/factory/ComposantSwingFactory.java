@@ -1,75 +1,71 @@
 package com.ubo.tp.message.factory;
 
+import com.ubo.tp.message.controller.contexte.ControllerContext;
 import com.ubo.tp.message.controller.impl.*;
 import com.ubo.tp.message.controller.service.IAppMainController;
-import com.ubo.tp.message.controller.service.IListCanalController;
-import com.ubo.tp.message.controller.service.IListMessageController;
-import com.ubo.tp.message.controller.service.IListUserController;
-import com.ubo.tp.message.core.IDataManager;
-import com.ubo.tp.message.core.session.ISession;
-import com.ubo.tp.message.ihm.graphicController.service.*;
+import com.ubo.tp.message.ihm.graphicController.service.IAppMainGraphicController;
 import com.ubo.tp.message.ihm.graphicController.swing.*;
 import com.ubo.tp.message.ihm.view.swing.*;
-import com.ubo.tp.message.logger.Logger;
+import com.ubo.tp.message.ihm.view.contexte.ViewContext;
 
 public class ComposantSwingFactory implements Factory {
 
-    public static IAppMainController createAppMainController(IDataManager dataManager, Logger logger, ISession session) {
-        AppMainView view = new AppMainView(logger);
-        IAppMainGraphicController graphicController = new AppMainGraphicController(logger, view);
-        return new AppMainController(dataManager, logger, session, graphicController);
+    public static IAppMainController createAppMainController(ControllerContext context, ViewContext vc) {
+        AppMainView view = new AppMainView(vc);
+        IAppMainGraphicController graphicController = new AppMainGraphicController(vc, view);
+        return new com.ubo.tp.message.controller.impl.AppMainController(context, graphicController, vc);
     }
 
-    public static LoginView createLoginView(Logger LOGGER, IDataManager dataManager, NavigationController navigationController, ISession session) {
-        LoginController loginController = new LoginController(LOGGER, dataManager, session);
-        LoginView loginView = new LoginView(LOGGER);
-        LoginGraphicController loginGraphicController = new LoginGraphicController(LOGGER, loginView, loginController, navigationController);
+    public static LoginView createLoginView(ControllerContext context, ViewContext vc, NavigationController navigationController) {
+        LoginController loginController = new LoginController(context);
+        LoginView loginView = new LoginView(vc);
+        new LoginGraphicController(vc, loginView, loginController, navigationController);
         return loginView;
     }
 
-    public static RegisterView createRegisterView(Logger LOGGER, IDataManager dataManager, NavigationController navigationController) {
-        RegisterController registerController = new RegisterController(LOGGER, dataManager);
-        RegisterView registerView = new RegisterView(LOGGER);
-        RegisterGraphicController registerGraphicController = new RegisterGraphicController(LOGGER, registerView, registerController, navigationController);
+    public static RegisterView createRegisterView(ControllerContext context, ViewContext vc, NavigationController navigationController) {
+        RegisterController registerController = new RegisterController(context);
+        RegisterView registerView = new RegisterView(vc);
+        new RegisterGraphicController(vc, registerView, registerController, navigationController);
         return registerView;
     }
 
-    public static ListCanalView createListCanalView(Logger LOGGER, IDataManager dataManager) {
-        ListCanalView listCanalView = new ListCanalView(LOGGER);
-        IListCanalGraphicController listCanalGraphicController = new ListCanalGraphicController(LOGGER, listCanalView);
-        IListCanalController canalController = new ListCanalController(LOGGER, dataManager, listCanalGraphicController);
+    public static ListCanalView createListCanalView(ControllerContext context, ViewContext vc) {
+        ListCanalView listCanalView = new ListCanalView(vc);
+        ListCanalGraphicController listCanalGraphicController = new ListCanalGraphicController(vc, listCanalView);
+        new ListCanalController(context, listCanalGraphicController);
         return listCanalView;
     }
 
-    public static ListMessageView createListMessageView(Logger LOGGER, IDataManager dataManager, ISession session) {
-        ListMessageView listMessageView = new ListMessageView(LOGGER);
-        IListMessageGraphicController listMessageGraphicController = new ListMessageGraphicController(LOGGER, listMessageView);
-        IListMessageController listMessageController = new ListMessageController(LOGGER, dataManager, session, listMessageGraphicController);
+    public static ListMessageView createListMessageView(ControllerContext context, ViewContext vc) {
+        ListMessageView listMessageView = new ListMessageView(vc);
+        ListMessageGraphicController listMessageGraphicController = new ListMessageGraphicController(vc, listMessageView);
+        new ListMessageController(context, listMessageGraphicController);
         return listMessageView;
     }
 
-    public static ListUserView createListUserView(Logger LOGGER, IDataManager dataManager) {
-        ListUserView listUserView = new ListUserView(LOGGER);
-        IListUserGraphicController listUserGraphicController = new ListUserGraphicController(LOGGER, listUserView);
-        IListUserController listUserController = new ListUserController(LOGGER, dataManager, listUserGraphicController);
+    public static ListUserView createListUserView(ControllerContext context, ViewContext vc) {
+        ListUserView listUserView = new ListUserView(vc);
+        ListUserGraphicController listUserGraphicController = new ListUserGraphicController(vc, listUserView);
+        new ListUserController(context, listUserGraphicController);
         return listUserView;
     }
 
-    public static InputMessageView createInputMessageView(Logger LOGGER, IDataManager dataManager, ISession session) {
-        InputMessageController inputMessageController = new InputMessageController(LOGGER, dataManager, session);
-        InputMessageView inputMessageView = new InputMessageView(LOGGER);
-        InputMessageGraphicController inputMessageGraphicController = new InputMessageGraphicController(LOGGER, inputMessageView, inputMessageController);
+    public static InputMessageView createInputMessageView(ControllerContext context, ViewContext vc) {
+        InputMessageController inputMessageController = new InputMessageController(context);
+        InputMessageView inputMessageView = new InputMessageView(vc);
+        new InputMessageGraphicController(vc, inputMessageView, inputMessageController);
         return inputMessageView;
     }
 
-    public static ChatMainView createChatMainView(Logger LOGGER, IDataManager dataManager, ISession session) {
-        InputMessageView inputMessageView = createInputMessageView(LOGGER, dataManager, session);
-        ListCanalView listCanalView = createListCanalView(LOGGER, dataManager);
-        ListMessageView listMessageView = createListMessageView(LOGGER, dataManager, session);
-        ListUserView listUserView = createListUserView(LOGGER, dataManager);
+    public static ChatMainView createChatMainView(ControllerContext context, ViewContext vc) {
+        InputMessageView inputMessageView = createInputMessageView(context, vc);
+        ListCanalView listCanalView = createListCanalView(context, vc);
+        ListMessageView listMessageView = createListMessageView(context, vc);
+        ListUserView listUserView = createListUserView(context, vc);
 
         return new ChatMainView(
-                LOGGER,
+                vc,
                 listCanalView,
                 listUserView,
                 listMessageView,

@@ -2,20 +2,20 @@ package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.datamodel.Channel;
 import com.ubo.tp.message.ihm.view.service.View;
-import com.ubo.tp.message.logger.Logger;
+import com.ubo.tp.message.ihm.view.contexte.ViewContext;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class CanalView extends JComponent implements View {
 
-    private final Logger LOGGER;
+    private final ViewContext viewContext;
 
     private JLabel canalNameLabel;
     private Channel channel;
 
-    public CanalView(Logger logger, Channel channel) {
-        this.LOGGER = logger;
+    public CanalView(ViewContext viewContext, Channel channel) {
+        this.viewContext = viewContext;
         this.channel = channel;
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
@@ -23,7 +23,7 @@ public class CanalView extends JComponent implements View {
 
         createNameLabel();
 
-        if (LOGGER != null) LOGGER.debug("CanalView initialisée pour: " + channel.getName());
+        if (viewContext.logger() != null) viewContext.logger().debug("CanalView initialisée pour: " + channel.getName());
     }
 
     private void createNameLabel() {
@@ -59,7 +59,7 @@ public class CanalView extends JComponent implements View {
         String oldName = this.channel != null ? this.channel.getName() : "<null>";
         this.channel = channel;
         canalNameLabel.setText(channel.getName() != null ? channel.getName() : "");
-        if (LOGGER != null) LOGGER.debug("CanalView.updateChannel : '" + oldName + "' -> '" + channel.getName() + "'");
+        if (viewContext.logger() != null) viewContext.logger().debug("CanalView.updateChannel : '" + oldName + "' -> '" + channel.getName() + "'");
         this.revalidate();
         this.repaint();
     }

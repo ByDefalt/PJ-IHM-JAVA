@@ -2,7 +2,7 @@ package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.ihm.view.service.View;
-import com.ubo.tp.message.logger.Logger;
+import com.ubo.tp.message.ihm.view.contexte.ViewContext;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,13 +19,13 @@ public class ListMessageView extends JComponent implements View {
             .ofPattern("dd/MM/yyyy")
             .withLocale(Locale.FRANCE);
 
-    private final Logger logger;
+    private final ViewContext viewContext;
     private final JPanel messagesPanel;
     private final JScrollPane scrollPane;
     private Component verticalGlue;
 
-    public ListMessageView(Logger logger) {
-        this.logger = logger;
+    public ListMessageView(ViewContext viewContext) {
+        this.viewContext = viewContext;
 
         messagesPanel = new JPanel(new GridBagLayout());
         messagesPanel.setOpaque(false);
@@ -154,8 +154,8 @@ public class ListMessageView extends JComponent implements View {
         label.setForeground(textColor);
         label.setFont(labelFont);
 
-        panel.add(left,  new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 6, 0, 6), 0, 0));
-        panel.add(label, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,       new Insets(0, 6, 0, 6), 0, 0));
+        panel.add(left, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 6, 0, 6), 0, 0));
+        panel.add(label, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 6, 0, 6), 0, 0));
         panel.add(right, new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 6, 0, 6), 0, 0));
 
         return panel;

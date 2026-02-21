@@ -1,14 +1,14 @@
 package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.ihm.view.service.View;
-import com.ubo.tp.message.logger.Logger;
+import com.ubo.tp.message.ihm.view.contexte.ViewContext;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class RegisterView extends JComponent implements View {
 
-    private final Logger LOGGER;
+    private final ViewContext viewContext;
     private JTextField tagField;
     private JTextField nameField;
     private JPasswordField passwordField;
@@ -16,19 +16,23 @@ public class RegisterView extends JComponent implements View {
     private JButton registerButton;
     private JButton loginButton;
 
-    /** Callback : (tag, name, password, confirmPassword) → déclenché au clic sur "S'inscrire" */
+    /**
+     * Callback : (tag, name, password, confirmPassword) → déclenché au clic sur "S'inscrire"
+     */
     private QuadConsumer<String, String, String, String> onRegisterRequested;
 
-    /** Callback : déclenché au clic sur "Se Connecter" */
+    /**
+     * Callback : déclenché au clic sur "Se Connecter"
+     */
     private Runnable onBackToLoginRequested;
 
-    public RegisterView(Logger logger) {
-        this.LOGGER = logger;
+    public RegisterView(ViewContext viewContext) {
+        this.viewContext = viewContext;
         this.init();
     }
 
     private void init() {
-        if (LOGGER != null) LOGGER.debug("Initialisation de RegisterView");
+        if (viewContext.logger() != null) viewContext.logger().debug("Initialisation de RegisterView");
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
@@ -46,7 +50,7 @@ public class RegisterView extends JComponent implements View {
         createLoginButton();
         installListeners();
 
-        if (LOGGER != null) LOGGER.debug("RegisterView initialisée");
+        if (viewContext.logger() != null) viewContext.logger().debug("RegisterView initialisée");
     }
 
     // -------------------------------------------------------------------------
@@ -74,7 +78,7 @@ public class RegisterView extends JComponent implements View {
 
     private void installListeners() {
         registerButton.addActionListener(e -> {
-            if (LOGGER != null) LOGGER.debug("Bouton d'inscription cliqué");
+            if (viewContext.logger() != null) viewContext.logger().debug("Bouton d'inscription cliqué");
             if (onRegisterRequested != null) {
                 onRegisterRequested.accept(
                         tagField.getText(),
@@ -86,22 +90,13 @@ public class RegisterView extends JComponent implements View {
         });
 
         loginButton.addActionListener(e -> {
-            if (LOGGER != null) LOGGER.debug("Bouton retour connexion cliqué");
+            if (viewContext.logger() != null) viewContext.logger().debug("Bouton retour connexion cliqué");
             if (onBackToLoginRequested != null) onBackToLoginRequested.run();
         });
     }
 
     // -------------------------------------------------------------------------
     // Interface fonctionnelle utilitaire
-    // -------------------------------------------------------------------------
-
-    @FunctionalInterface
-    public interface QuadConsumer<A, B, C, D> {
-        void accept(A a, B b, C c, D d);
-    }
-
-    // -------------------------------------------------------------------------
-    // Construction UI
     // -------------------------------------------------------------------------
 
     private void createLogo() {
@@ -113,14 +108,18 @@ public class RegisterView extends JComponent implements View {
             java.net.URL url = getClass().getResource("/images/logo_50.png");
             if (url != null) {
                 this.add(new JLabel(new ImageIcon(url)), gbc);
-                if (LOGGER != null) LOGGER.info("Logo chargé depuis /images/logo_50.png");
+                if (viewContext.logger() != null) viewContext.logger().info("Logo chargé depuis /images/logo_50.png");
             } else {
-                if (LOGGER != null) LOGGER.warn("Ressource introuvable : /images/logo_50.png");
+                if (viewContext.logger() != null) viewContext.logger().warn("Ressource introuvable : /images/logo_50.png");
             }
         } catch (Exception e) {
-            if (LOGGER != null) LOGGER.error("Erreur lors du chargement du logo", e);
+            if (viewContext.logger() != null) viewContext.logger().error("Erreur lors du chargement du logo", e);
         }
     }
+
+    // -------------------------------------------------------------------------
+    // Construction UI
+    // -------------------------------------------------------------------------
 
     private void createTitle() {
         JLabel titleLabel = new JLabel("Inscription", SwingConstants.LEFT);
@@ -219,5 +218,10 @@ public class RegisterView extends JComponent implements View {
                 0, 6, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.NONE,
                 new Insets(10, 10, 10, 10), 0, 0));
+    }
+
+    @FunctionalInterface
+    public interface QuadConsumer<A, B, C, D> {
+        void accept(A a, B b, C c, D d);
     }
 }

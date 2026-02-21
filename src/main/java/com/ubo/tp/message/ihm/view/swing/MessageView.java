@@ -2,7 +2,7 @@ package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.ihm.view.service.View;
-import com.ubo.tp.message.logger.Logger;
+import com.ubo.tp.message.ihm.view.contexte.ViewContext;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -14,25 +14,22 @@ import java.util.Locale;
 
 /**
  * Composant représentant un seul message (bulle) — style simple inspiré de Discord.
- * Utilise GridBagLayout et sépare la construction en méthodes.
- * Les couleurs et polices sont lues depuis l'UIManager pour s'intégrer au DiscordTheme.
  */
 public class MessageView extends JComponent implements View {
 
-    // Formatteur pour afficher la date en jj/MM/aaaa HH'h'mm
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter
             .ofPattern("dd/MM/yyyy HH'h'mm")
             .withLocale(Locale.FRANCE);
 
-    private final Logger logger;
+    private final ViewContext viewContext;
     private final Message message;
 
     private JLabel authorLabel;
     private JTextArea contentArea;
     private JLabel timeLabel;
 
-    public MessageView(Logger logger, Message message) {
-        this.logger = logger;
+    public MessageView(ViewContext viewContext, Message message) {
+        this.viewContext = viewContext;
         this.message = message;
         this.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         this.setLayout(new GridBagLayout());
@@ -40,8 +37,8 @@ public class MessageView extends JComponent implements View {
 
         init(message);
 
-        if (this.logger != null)
-            this.logger.debug("MessageView initialisée pour '" + message.getSender() + "'");
+        if (this.viewContext.logger() != null)
+            this.viewContext.logger().debug("MessageView initialisée pour '" + message.getSender() + "'");
     }
 
     private void init(Message message) {
@@ -169,8 +166,8 @@ public class MessageView extends JComponent implements View {
             return DATE_FORMATTER.format(
                     Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()));
         } catch (Exception e) {
-            if (this.logger != null)
-                this.logger.debug("Erreur formatage date: " + e.getMessage());
+            if (this.viewContext.logger() != null)
+                this.viewContext.logger().debug("Erreur formatage date: " + e.getMessage());
             return String.valueOf(millis);
         }
     }

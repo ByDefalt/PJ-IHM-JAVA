@@ -2,7 +2,7 @@ package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.view.service.View;
-import com.ubo.tp.message.logger.Logger;
+import com.ubo.tp.message.ihm.view.contexte.ViewContext;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,7 +11,7 @@ import java.awt.event.MouseEvent;
 
 public class UserView extends JComponent implements View {
 
-    private final Logger LOGGER;
+    private final ViewContext viewContext;
 
     private JLabel userNameLabel;
     private JLabel statusLabel;
@@ -20,18 +20,18 @@ public class UserView extends JComponent implements View {
     /**
      * Crée un composant UserView simple (nom + statut).
      *
-     * @param logger logger optionnel (peut être null)
+     * @param viewContext contexte de la vue (contient le logger)
      * @param user   le User
      */
-    public UserView(Logger logger, User user) {
-        this.LOGGER = logger;
+    public UserView(ViewContext viewContext, User user) {
+        this.viewContext = viewContext;
         this.user = user;
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         this.setOpaque(false);
 
         init();
-        if (LOGGER != null) LOGGER.debug("UserView initialisée pour: " + user.getName());
+        if (viewContext.logger() != null) viewContext.logger().debug("UserView initialisée pour: " + user.getName());
     }
 
     private void init() {
@@ -89,7 +89,7 @@ public class UserView extends JComponent implements View {
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (LOGGER != null) LOGGER.debug("UserView cliqué: " + user.getName());
+                if (viewContext.logger() != null) viewContext.logger().debug("UserView cliqué: " + user.getName());
             }
         });
     }
