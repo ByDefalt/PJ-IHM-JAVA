@@ -14,7 +14,7 @@ import com.ubo.tp.message.core.session.Session;
 import com.ubo.tp.message.datamodel.Channel;
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.datamodel.User;
-import com.ubo.tp.message.ihm.view.contexte.ViewContext;
+import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.logger.LogLevel;
 import com.ubo.tp.message.logger.Logger;
 import com.ubo.tp.message.logger.LoggerFactory;
@@ -47,13 +47,13 @@ public class MessageAppLauncher {
         dataManager.setExchangeDirectory(EXCHANGE_DIRECTORY_PATH);
 
         ISession session = new Session();
-        createTestData(dataManager, entityManager);
+        createTestData(dataManager);
 
         DbConnector dbConnector = new DbConnector(database);
         MessageAppMock mock = new MessageAppMock(dbConnector, dataManager);
         ISelected selected = new Selected();
         ControllerContext controllerContext = new ControllerContext(logger, dataManager, session, selected);
-        ViewContext viewContext = new ViewContext(logger);
+        ViewContext viewContext = new ViewContext(logger, session,selected);
 
         SwingUtilities.invokeLater(() -> {
             MessageApp messageApp = new MessageApp(controllerContext, viewContext);
@@ -77,7 +77,7 @@ public class MessageAppLauncher {
         clearExchangeDirectoryFiles(path);
     }
 
-    public static void createTestData(IDataManager dataManager, EntityManager entityManager) {
+    public static void createTestData(IDataManager dataManager) {
         User user1 = new User("toto", "toto", "Toto");
         User user2 = new User("alice", "alice", "Alice");
         User user3 = new User("bob", "bob", "Bob");
@@ -97,10 +97,14 @@ public class MessageAppLauncher {
         Message m1 = new Message(UUID.randomUUID(), user1, channel1.getUuid(), 0, "Bonjour de " + user1.getName());
         Message m2 = new Message(UUID.randomUUID(), user2, channel1.getUuid(), 124, "Bonjour de " + user2.getName());
         Message m3 = new Message(UUID.randomUUID(), user3, channel1.getUuid(), 1708425600, "Bonjour de " + user3.getName());
+        Message m4 = new Message(UUID.randomUUID(), user4, channel1.getUuid(), 1708425600, "Bonjour de " + user4.getName());
+        Message m5 = new Message(UUID.randomUUID(), user4, user1.getUuid(), 1708425600, "Bonjour de " + user4.getName());
 
         dataManager.sendMessage(m1);
         dataManager.sendMessage(m2);
         dataManager.sendMessage(m3);
+        dataManager.sendMessage(m4);
+        dataManager.sendMessage(m5);
     }
 
     public static void clearExchangeDirectoryFiles(String path) {

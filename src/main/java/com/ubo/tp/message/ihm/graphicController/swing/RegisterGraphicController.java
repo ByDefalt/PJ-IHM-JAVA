@@ -4,7 +4,7 @@ import com.ubo.tp.message.controller.service.INavigationController;
 import com.ubo.tp.message.controller.service.IRegisterController;
 import com.ubo.tp.message.ihm.graphicController.service.GraphicController;
 import com.ubo.tp.message.ihm.view.swing.RegisterView;
-import com.ubo.tp.message.ihm.view.contexte.ViewContext;
+import com.ubo.tp.message.ihm.contexte.ViewContext;
 
 public class RegisterGraphicController implements GraphicController {
 

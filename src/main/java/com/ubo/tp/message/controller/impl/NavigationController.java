@@ -7,7 +7,7 @@ import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.factory.ComposantSwingFactory;
 import com.ubo.tp.message.ihm.graphicController.service.IAppMainGraphicController;
 import com.ubo.tp.message.ihm.view.service.View;
-import com.ubo.tp.message.ihm.view.contexte.ViewContext;
+import com.ubo.tp.message.ihm.contexte.ViewContext;
 
 import java.util.Objects;
 
@@ -51,5 +51,6 @@ public class NavigationController implements INavigationController, ISessionObse
     @Override
     public void notifyLogout() {
         this.navigateToLogin();
+        this.context.selected().clearSelectedChannel();
     }
 }

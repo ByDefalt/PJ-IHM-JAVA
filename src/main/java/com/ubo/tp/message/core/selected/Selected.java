@@ -50,4 +50,10 @@ public class Selected implements ISelected {
             observer.notifySelectedChanged();
         }
     }
+
+    @Override
+    public void clearSelectedChannel() {
+        this.selectedChannel = null;
+        this.selectedUser = null;
+    }
 }

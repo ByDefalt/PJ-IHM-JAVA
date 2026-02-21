@@ -32,4 +32,6 @@ public interface ISelected {
 
     void setSelectedChannel(Channel channel);
 
+    void clearSelectedChannel();
+
 }

@@ -1,25 +1,24 @@
 package com.ubo.tp.message.ihm.graphicController.swing;
 
+import com.ubo.tp.message.core.selected.ISelectedObserver;
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.ihm.graphicController.service.IListMessageGraphicController;
 import com.ubo.tp.message.ihm.view.swing.ListMessageView;
 import com.ubo.tp.message.ihm.view.swing.MessageView;
-import com.ubo.tp.message.ihm.view.contexte.ViewContext;
+import com.ubo.tp.message.ihm.contexte.ViewContext;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.TreeSet;
 
-public class ListMessageGraphicController implements IListMessageGraphicController {
+public class ListMessageGraphicController implements IListMessageGraphicController, ISelectedObserver {
 
     private final ViewContext viewContext;
     private final ListMessageView listMessageView;
 
     /**
-     * Source de vérité : ensemble trié chronologiquement.
-     * Le comparateur secondaire sur l'UUID garantit qu'aucun doublon n'est silencieusement
-     * écrasé en cas de messages avec un timestamp identique.
+     * Source de vérité : ensemble trié chronologiquement
      */
     private final TreeSet<MessageView> messages = new TreeSet<>(
             Comparator.comparingLong((MessageView mv) -> mv.getMessage().getEmissionDate())
@@ -29,6 +28,57 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
     public ListMessageGraphicController(ViewContext viewContext, ListMessageView listMessageView) {
         this.viewContext = viewContext;
         this.listMessageView = listMessageView;
+
+        // S'enregistrer comme observateur de la sélection (Selected garantit user XOR channel)
+        // Protection null : viewContext et selected peuvent être null lors de certains tests
+        if (this.viewContext != null && this.viewContext.selected() != null) {
+            this.viewContext.selected().addObserver(this);
+        }
+    }
+
+    // Retourne la liste de MessageView à afficher en fonction de la sélection courante
+    private ArrayList<MessageView> getFilteredMessageViews() {
+        ArrayList<MessageView> filtered = new ArrayList<>();
+        if (viewContext == null || listMessageView == null) return filtered;
+
+        var sel = viewContext.selected();
+        if (sel == null || (sel.getSelectedUser() == null && sel.getSelectedChannel() == null)) {
+            filtered.addAll(messages);
+            return filtered;
+        }
+
+        if (sel.getSelectedUser() != null) {
+            var selectedUser = sel.getSelectedUser();
+            var connectedUser = (viewContext.session() != null) ? viewContext.session().getConnectedUser() : null;
+            if (connectedUser == null) {
+                // Pas d'utilisateur connecté -> aucun message privé à afficher
+                return filtered;
+            }
+            var selUuid = selectedUser.getUuid();
+            var meUuid = connectedUser.getUuid();
+
+            for (MessageView mv : messages) {
+                Message m = mv.getMessage();
+                if (m == null) continue;
+                boolean fromMeToSel = (m.getSender() != null && m.getSender().getUuid().equals(meUuid))
+                        && (m.getRecipient() != null && m.getRecipient().equals(selUuid));
+                boolean fromSelToMe = (m.getSender() != null && m.getSender().getUuid().equals(selUuid))
+                        && (m.getRecipient() != null && m.getRecipient().equals(meUuid));
+
+                if (fromMeToSel || fromSelToMe) filtered.add(mv);
+            }
+        } else {
+            var channel = sel.getSelectedChannel();
+            if (channel == null) return filtered;
+            var channelUuid = channel.getUuid();
+            for (MessageView mv : messages) {
+                Message m = mv.getMessage();
+                if (m == null) continue;
+                if (m.getRecipient() != null && m.getRecipient().equals(channelUuid)) filtered.add(mv);
+            }
+        }
+
+        return filtered;
     }
 
     @Override
@@ -46,9 +96,11 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
         MessageView messageView = new MessageView(viewContext, message);
         messages.add(messageView);
 
-        listMessageView.rebuildUI(new ArrayList<>(messages));
+        ArrayList<MessageView> filtered = getFilteredMessageViews();
+        listMessageView.rebuildUI(filtered);
 
-        if (messages.last() == messageView) {
+        // Faire défiler si le message ajouté est visible dans la vue filtrée
+        if (filtered.contains(messageView)) {
             listMessageView.scrollToBottom();
         }
 
@@ -65,7 +117,7 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
 
         if (opt.isPresent()) {
             messages.remove(opt.get());
-            listMessageView.rebuildUI(new ArrayList<>(messages));
+            listMessageView.rebuildUI(getFilteredMessageViews());
             if (viewContext.logger() != null) viewContext.logger().debug("Message supprimé : " + message);
         } else {
             if (viewContext.logger() != null) viewContext.logger().warn("Message non trouvé, pas supprimé : " + message);
@@ -87,10 +139,20 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
             listMessageView.updateMessageUI(mv, message);
             messages.add(mv);
 
-            listMessageView.rebuildUI(new ArrayList<>(messages));
+            listMessageView.rebuildUI(getFilteredMessageViews());
             if (viewContext.logger() != null) viewContext.logger().debug("Message mis à jour : " + message);
         } else {
             if (viewContext.logger() != null) viewContext.logger().warn("Message non trouvé pour mise à jour : " + message);
         }
     }
+
+    @Override
+    public void notifySelectedChanged() {
+        if (viewContext == null || listMessageView == null) return;
+
+        listMessageView.rebuildUI(getFilteredMessageViews());
+        if (viewContext.logger() != null)
+            viewContext.logger().debug("Messages filtrés selon la sélection courante : user=" + viewContext.selected().getSelectedUser() + " channel=" + viewContext.selected().getSelectedChannel());
+    }
 }
+

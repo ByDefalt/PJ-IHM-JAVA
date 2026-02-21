@@ -4,7 +4,7 @@ import com.ubo.tp.message.datamodel.Channel;
 import com.ubo.tp.message.ihm.graphicController.service.IListCanalGraphicController;
 import com.ubo.tp.message.ihm.view.swing.CanalView;
 import com.ubo.tp.message.ihm.view.swing.ListCanalView;
-import com.ubo.tp.message.ihm.view.contexte.ViewContext;
+import com.ubo.tp.message.ihm.contexte.ViewContext;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -18,8 +18,6 @@ public class ListCanalGraphicController implements IListCanalGraphicController {
     private final ListCanalView listCanalView;
 
     private final List<CanalView> canalViews = new ArrayList<>();
-
-    private Channel selectedCanal;
 
     public ListCanalGraphicController(ViewContext viewContext, ListCanalView listCanalView) {
         this.viewContext = viewContext;
@@ -44,7 +42,7 @@ public class ListCanalGraphicController implements IListCanalGraphicController {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (viewContext.logger() != null) viewContext.logger().debug("CanalView cliqué: " + canal.getName());
-                selectedCanal = canal;
+                viewContext.selected().setSelectedChannel(canal);
             }
         });
 
@@ -65,10 +63,6 @@ public class ListCanalGraphicController implements IListCanalGraphicController {
 
         if (opt.isPresent()) {
             canalViews.remove(opt.get());
-            if (canal.equals(selectedCanal)) {
-                selectedCanal = null;
-                if (viewContext.logger() != null) viewContext.logger().debug("Canal sélectionné supprimé, sélection réinitialisée");
-            }
             listCanalView.rebuildUI(canalViews);
             if (viewContext.logger() != null) viewContext.logger().debug("Canal supprimé : " + canal);
         } else {

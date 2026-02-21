@@ -6,7 +6,7 @@ import com.ubo.tp.message.controller.service.IAppMainController;
 import com.ubo.tp.message.ihm.graphicController.service.IAppMainGraphicController;
 import com.ubo.tp.message.ihm.graphicController.swing.*;
 import com.ubo.tp.message.ihm.view.swing.*;
-import com.ubo.tp.message.ihm.view.contexte.ViewContext;
+import com.ubo.tp.message.ihm.contexte.ViewContext;
 
 public class ComposantSwingFactory implements Factory {
 

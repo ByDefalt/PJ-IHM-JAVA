@@ -2,7 +2,7 @@ package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.view.service.View;
-import com.ubo.tp.message.ihm.view.contexte.ViewContext;
+import com.ubo.tp.message.ihm.contexte.ViewContext;
 
 import javax.swing.*;
 import java.awt.*;
@@ -38,7 +38,6 @@ public class UserView extends JComponent implements View {
         setOpaque(true);
         createNameLabel();
         createStatusLabel();
-        createConnector();
     }
 
     private void createNameLabel() {
@@ -83,15 +82,6 @@ public class UserView extends JComponent implements View {
                 new Insets(0, 0, 4, 2), 0, 0
         );
         this.add(statusLabel, gbc);
-    }
-
-    private void createConnector() {
-        this.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (viewContext.logger() != null) viewContext.logger().debug("UserView cliqué: " + user.getName());
-            }
-        });
     }
 
     @Override
