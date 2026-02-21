@@ -24,15 +24,15 @@ public class MessageView extends JComponent implements View {
             .ofPattern("dd/MM/yyyy HH'h'mm")
             .withLocale(Locale.FRANCE);
 
-    private final Logger  logger;
+    private final Logger logger;
     private final Message message;
 
-    private JLabel   authorLabel;
+    private JLabel authorLabel;
     private JTextArea contentArea;
-    private JLabel   timeLabel;
+    private JLabel timeLabel;
 
     public MessageView(Logger logger, Message message) {
-        this.logger  = logger;
+        this.logger = logger;
         this.message = message;
         this.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         this.setLayout(new GridBagLayout());
@@ -80,10 +80,10 @@ public class MessageView extends JComponent implements View {
         if (timeColor == null) timeColor = new Color(114, 118, 125);
 
         // Police de base du thème
-        Font baseFont    = UIManager.getFont("Label.font");
-        Font authorFont  = (baseFont != null) ? baseFont.deriveFont(Font.BOLD,  13f)
-                : new Font("SansSerif", Font.BOLD,  13);
-        Font timeFont    = (baseFont != null) ? baseFont.deriveFont(Font.PLAIN, 11f)
+        Font baseFont = UIManager.getFont("Label.font");
+        Font authorFont = (baseFont != null) ? baseFont.deriveFont(Font.BOLD, 13f)
+                : new Font("SansSerif", Font.BOLD, 13);
+        Font timeFont = (baseFont != null) ? baseFont.deriveFont(Font.PLAIN, 11f)
                 : new Font("SansSerif", Font.PLAIN, 11);
 
         authorLabel = new JLabel(author != null ? author : "");
@@ -118,7 +118,7 @@ public class MessageView extends JComponent implements View {
         if (contentColor == null) contentColor = new Color(220, 221, 222);
 
         // Police du contenu : légèrement plus grande que le label
-        Font baseFont    = UIManager.getFont("TextArea.font");
+        Font baseFont = UIManager.getFont("TextArea.font");
         Font contentFont = (baseFont != null) ? baseFont.deriveFont(Font.PLAIN, 13f)
                 : new Font("SansSerif", Font.PLAIN, 13);
 

@@ -4,26 +4,31 @@ import com.ubo.tp.message.ihm.view.service.View;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.geom.RoundRectangle2D;
 
 public class InputMessageView extends JComponent implements View {
 
-    private static final int ARC = 20; // rayon des coins arrondis
+    private static final int ARC = 20;
 
-    private final Logger                  LOGGER;
-    private final JTextArea               inputField;
-    private       Runnable                onSendRequested;
+    private final Logger LOGGER;
+    private final JTextArea inputField;
+    private Runnable onSendRequested;
 
-    private Color   normalBorderColor;
-    private Color   focusBorderColor;
+    private Color normalBorderColor;
+    private Color focusBorderColor;
     private boolean focused = false;
 
-    // stocke le JScrollPane pour que le controller puisse agir sur la scrollbar
     private JScrollPane inputScrollPane;
 
     public InputMessageView(Logger logger) {
-        this.LOGGER     = logger;
+        this.LOGGER = logger;
         inputField = new JTextArea();
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
@@ -32,39 +37,141 @@ public class InputMessageView extends JComponent implements View {
         Color panelBg = UIManager.getColor("Panel.background");
         if (panelBg != null) this.setBackground(panelBg);
 
-        init();
+        createInputField();
+        installInternalListeners();
+
         if (this.LOGGER != null) this.LOGGER.debug("InputMessageView initialisée");
     }
 
-    private void init() {
-        createInputField();
+    // -------------------------------------------------------------------------
+    // API publique — appelée par le contrôleur graphique
+    // -------------------------------------------------------------------------
+
+    /**
+     * Enregistre le callback déclenché quand l'utilisateur valide l'envoi (Entrée).
+     */
+    public void setOnSendRequested(Runnable onSendRequested) {
+        this.onSendRequested = onSendRequested;
+    }
+
+    /** Retourne le texte saisi. */
+    public String getText() {
+        return inputField.getText();
+    }
+
+    /** Efface le champ de saisie et remet la mise en page à une ligne. */
+    public void clearText() {
+        inputField.setText("");
+        inputField.requestFocusInWindow();
+        SwingUtilities.invokeLater(() -> {
+            setInputRows(1);
+            setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        });
+    }
+
+    // -------------------------------------------------------------------------
+    // Listeners internes — purement visuels
+    // -------------------------------------------------------------------------
+
+    private void installInternalListeners() {
+        // Keybindings : Shift+Enter / Ctrl+Enter → saut de ligne, Enter → envoi
+        InputMap im = inputField.getInputMap(JComponent.WHEN_FOCUSED);
+        ActionMap am = inputField.getActionMap();
+        im.put(KeyStroke.getKeyStroke("shift ENTER"), DefaultEditorKit.insertBreakAction);
+        im.put(KeyStroke.getKeyStroke("ctrl ENTER"), DefaultEditorKit.insertBreakAction);
+        im.put(KeyStroke.getKeyStroke("ENTER"), "sendMessage");
+
+        am.put("sendMessage", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (onSendRequested != null) onSendRequested.run();
+            }
+        });
+
+        // Adaptation visuelle du nombre de lignes
+        inputField.getDocument().addDocumentListener(new DocumentListener() {
+            private void notifyChange() {
+                SwingUtilities.invokeLater(() -> {
+                    String current = inputField.getText();
+                    int actualLines = 1;
+                    if (current != null && !current.isEmpty()) {
+                        actualLines = current.split("\r\n|\r|\n", -1).length;
+                        if (actualLines < 1) actualLines = 1;
+                    }
+                    int rows = Math.min(actualLines, 3);
+                    setInputRows(rows);
+                    setVerticalScrollBarPolicy(
+                            actualLines > 3
+                                    ? ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED
+                                    : ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER
+                    );
+                });
+            }
+
+            @Override public void insertUpdate(DocumentEvent e) { notifyChange(); }
+            @Override public void removeUpdate(DocumentEvent e)  { notifyChange(); }
+            @Override public void changedUpdate(DocumentEvent e) { notifyChange(); }
+        });
+
+        // Mise en évidence de la bordure au focus
+        inputField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                setFocused(true);
+                if (LOGGER != null) LOGGER.debug("Input focus: true");
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                setFocused(false);
+                if (LOGGER != null) LOGGER.debug("Input focus: false");
+            }
+        });
+    }
+
+    // -------------------------------------------------------------------------
+    // Helpers internes
+    // -------------------------------------------------------------------------
+
+    private void setFocused(boolean focused) {
+        this.focused = focused;
+        this.repaint();
+    }
+
+    private void setInputRows(int rows) {
+        if (rows < 1) rows = 1;
+        inputField.setRows(rows);
+        inputField.revalidate();
+        inputField.repaint();
+        this.revalidate();
+    }
+
+    private void setVerticalScrollBarPolicy(int policy) {
+        if (inputScrollPane != null) inputScrollPane.setVerticalScrollBarPolicy(policy);
     }
 
     private void createInputField() {
-        // ── Couleurs ─────────────────────────────────────────────────────────
-        Color inputBg    = UIManager.getColor("TextArea.background");
-        Color inputFg    = UIManager.getColor("TextArea.foreground");
+        Color inputBg = UIManager.getColor("TextArea.background");
+        Color inputFg = UIManager.getColor("TextArea.foreground");
         Color caretColor = UIManager.getColor("TextArea.caretForeground");
         normalBorderColor = UIManager.getColor("TextField.borderColor");
-        focusBorderColor  = UIManager.getColor("TextField.focusedBorderColor");
+        focusBorderColor = UIManager.getColor("TextField.focusedBorderColor");
 
-        if (inputBg           == null) inputBg           = new Color(64,  68,  75);
-        if (inputFg           == null) inputFg           = new Color(220, 221, 222);
-        if (caretColor        == null) caretColor        = inputFg;
-        if (normalBorderColor == null) normalBorderColor = new Color(32,  34,  37);
-        if (focusBorderColor  == null) focusBorderColor  = new Color(88, 101, 242);
+        if (inputBg == null) inputBg = new Color(64, 68, 75);
+        if (inputFg == null) inputFg = new Color(220, 221, 222);
+        if (caretColor == null) caretColor = inputFg;
+        if (normalBorderColor == null) normalBorderColor = new Color(32, 34, 37);
+        if (focusBorderColor == null) focusBorderColor = new Color(88, 101, 242);
 
-        // ── Police ───────────────────────────────────────────────────────────
-        Font baseFont  = UIManager.getFont("TextArea.font");
+        Font baseFont = UIManager.getFont("TextArea.font");
         Font inputFont = (baseFont != null) ? baseFont.deriveFont(Font.PLAIN, 14f)
                 : new Font("SansSerif", Font.PLAIN, 14);
 
-        // ── JTextArea transparent (le fond sera peint par le wrapper) ────────
         inputField.setFont(inputFont);
         inputField.setBackground(inputBg);
         inputField.setForeground(inputFg);
         inputField.setCaretColor(caretColor);
-        inputField.setOpaque(false); // le wrapper peint le fond arrondi
+        inputField.setOpaque(false);
         inputField.setRows(1);
         inputField.setLineWrap(true);
         inputField.setWrapStyleWord(true);
@@ -76,39 +183,9 @@ public class InputMessageView extends JComponent implements View {
         if (selBg != null) inputField.setSelectionColor(selBg);
         if (selFg != null) inputField.setSelectedTextColor(selFg);
 
-        // ── Wrapper arrondi ──────────────────────────────────────────────────
-        final Color finalInputBg = inputBg;
-        JPanel roundedWrapper = new JPanel(new BorderLayout()) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        JPanel roundedWrapper = createRoundedWrapper(inputBg);
 
-                // Fond arrondi
-                g2.setColor(finalInputBg);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), ARC, ARC));
-
-                // Bordure (normale ou focus)
-                Color border = focused ? focusBorderColor : normalBorderColor;
-                float strokeWidth = focused ? 2f : 1.5f;
-                float inset       = strokeWidth / 2f;
-                g2.setColor(border);
-                g2.setStroke(new BasicStroke(strokeWidth));
-                g2.draw(new RoundRectangle2D.Float(
-                        inset, inset,
-                        getWidth()  - strokeWidth,
-                        getHeight() - strokeWidth,
-                        ARC, ARC));
-
-                g2.dispose();
-            }
-        };
-        roundedWrapper.setOpaque(false);
-        roundedWrapper.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-
-        // ── ScrollPane à l'intérieur du wrapper ──────────────────────────────
-        final JScrollPane sp = new JScrollPane(inputField);
-        // store in field so controller can adjust policy
+        JScrollPane sp = new JScrollPane(inputField);
         this.inputScrollPane = sp;
         sp.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
         sp.setBorder(null);
@@ -118,9 +195,6 @@ public class InputMessageView extends JComponent implements View {
 
         roundedWrapper.add(sp, BorderLayout.CENTER);
 
-        // Focus and document listeners removed — controller now attaches them
-
-        // ── Ajout dans le layout principal ───────────────────────────────────
         GridBagConstraints gbc = new GridBagConstraints(
                 0, 0, 1, 1, 1.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
@@ -129,34 +203,30 @@ public class InputMessageView extends JComponent implements View {
         this.add(roundedWrapper, gbc);
     }
 
-
-    public JTextArea getInputField() {
-        return inputField;
-    }
-
-    public void setOnSendRequested(Runnable onSendRequested) {
-        this.onSendRequested = onSendRequested;
-    }
-
-    /**
-     * Permet au controller de forcer l'état de focus (met à jour le flag et repaint le wrapper).
-     */
-    public void setFocused(boolean focused) {
-        this.focused = focused;
-        // repaint entire component so rounded wrapper repaints using the focused field
-        this.repaint();
-    }
-
-    public void setInputRows(int rows) {
-        if (rows < 1) rows = 1;
-        inputField.setRows(rows);
-        inputField.revalidate();
-        inputField.repaint();
-        this.revalidate();
-    }
-
-    public void setVerticalScrollBarPolicy(int policy) {
-        if (inputScrollPane != null) inputScrollPane.setVerticalScrollBarPolicy(policy);
+    private JPanel createRoundedWrapper(Color inputBg) {
+        JPanel roundedWrapper = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(inputBg);
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), ARC, ARC));
+                Color border = focused ? focusBorderColor : normalBorderColor;
+                float strokeWidth = focused ? 2f : 1.5f;
+                float inset = strokeWidth / 2f;
+                g2.setColor(border);
+                g2.setStroke(new BasicStroke(strokeWidth));
+                g2.draw(new RoundRectangle2D.Float(
+                        inset, inset,
+                        getWidth() - strokeWidth,
+                        getHeight() - strokeWidth,
+                        ARC, ARC));
+                g2.dispose();
+            }
+        };
+        roundedWrapper.setOpaque(false);
+        roundedWrapper.setBorder(BorderFactory.createEmptyBorder());
+        return roundedWrapper;
     }
 
     @Override

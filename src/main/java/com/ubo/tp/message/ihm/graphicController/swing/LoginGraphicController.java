@@ -22,21 +22,15 @@ public class LoginGraphicController implements ILoginGraphicController {
         createConnector();
     }
 
-    private void createConnector() {
-
-        this.loginView.getLoginButton().addActionListener(e -> {
-            if (LOGGER != null) LOGGER.debug("Bouton de connexion cliqué");
-            loginController.onLoginButtonClicked(
-                    loginView.getTagField().getText(),
-                    loginView.getNameField().getText(),
-                    new String(loginView.getPasswordField().getPassword())
-            );
+    void createConnector() {
+        loginView.setOnLoginRequested((tag, name, password) -> {
+            if (LOGGER != null) LOGGER.debug("Connexion demandée pour : " + tag);
+            loginController.onLoginButtonClicked(tag, name, password);
         });
 
-        this.loginView.getRegisterButton().addActionListener(e -> {
-            if (LOGGER != null) LOGGER.debug("Bouton d'inscription cliqué");
+        loginView.setOnRegisterRequested(() -> {
+            if (LOGGER != null) LOGGER.debug("Navigation vers l'inscription");
             navigationController.navigateToRegister();
         });
-
     }
 }

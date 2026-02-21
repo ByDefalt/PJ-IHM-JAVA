@@ -15,29 +15,22 @@ public class CanalView extends JComponent implements View {
     private Channel channel;
 
     public CanalView(Logger logger, Channel channel) {
-        this.LOGGER  = logger;
+        this.LOGGER = logger;
         this.channel = channel;
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
-        this.setOpaque(false);
+        this.setOpaque(true);
 
-        init();
+        createNameLabel();
+
         if (LOGGER != null) LOGGER.debug("CanalView initialisée pour: " + channel.getName());
     }
 
-    private void init() {
-        setOpaque(true);
-        createNameLabel();
-        createConnector();
-    }
-
     private void createNameLabel() {
-        // Police du thème, bold 13
-        Font baseFont   = UIManager.getFont("Label.font");
-        Font labelFont  = (baseFont != null) ? baseFont.deriveFont(Font.BOLD, 13f)
+        Font baseFont = UIManager.getFont("Label.font");
+        Font labelFont = (baseFont != null) ? baseFont.deriveFont(Font.BOLD, 13f)
                 : new Font("SansSerif", Font.BOLD, 13);
 
-        // Texte normal Discord (#DCDDDE)
         Color labelColor = UIManager.getColor("Label.foreground");
         if (labelColor == null) labelColor = new Color(220, 221, 222);
 
@@ -53,15 +46,6 @@ public class CanalView extends JComponent implements View {
         this.add(canalNameLabel, gbc);
     }
 
-    private void createConnector() {
-        this.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                if (LOGGER != null) LOGGER.debug("CanalView cliqué: " + channel.getName());
-            }
-        });
-    }
-
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -71,16 +55,12 @@ public class CanalView extends JComponent implements View {
         return channel;
     }
 
-    private void setChannel(Channel channel) {
+    public void updateChannel(Channel channel) {
         String oldName = this.channel != null ? this.channel.getName() : "<null>";
         this.channel = channel;
         canalNameLabel.setText(channel.getName() != null ? channel.getName() : "");
-        if (LOGGER != null) LOGGER.debug("CanalView.setChannel : '" + oldName + "' -> '" + channel.getName() + "'");
+        if (LOGGER != null) LOGGER.debug("CanalView.updateChannel : '" + oldName + "' -> '" + channel.getName() + "'");
         this.revalidate();
         this.repaint();
-    }
-
-    public void updateChannel(Channel channel) {
-        this.setChannel(channel);
     }
 }

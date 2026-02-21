@@ -1,7 +1,5 @@
 package com.ubo.tp.message.ihm.view.swing;
 
-import com.ubo.tp.message.controller.service.INavigationController;
-import com.ubo.tp.message.controller.service.IRegisterController;
 import com.ubo.tp.message.ihm.view.service.View;
 import com.ubo.tp.message.logger.Logger;
 
@@ -11,71 +9,110 @@ import java.awt.*;
 public class RegisterView extends JComponent implements View {
 
     private final Logger LOGGER;
-    private final IRegisterController controller;
-    private final INavigationController navigationController;
     private JTextField tagField;
     private JTextField nameField;
     private JPasswordField passwordField;
     private JPasswordField confirmPasswordField;
     private JButton registerButton;
     private JButton loginButton;
-    private Runnable onRegisterRequested;
+
+    /** Callback : (tag, name, password, confirmPassword) → déclenché au clic sur "S'inscrire" */
+    private QuadConsumer<String, String, String, String> onRegisterRequested;
+
+    /** Callback : déclenché au clic sur "Se Connecter" */
     private Runnable onBackToLoginRequested;
 
-    /**
-     * Crée le composant d'inscription et initialise la vue.
-     *
-     * @param logger logger optionnel pour consigner les actions
-     */
-    public RegisterView(Logger logger, IRegisterController controller, INavigationController navigationController) {
+    public RegisterView(Logger logger) {
         this.LOGGER = logger;
-        this.controller = controller;
-        this.navigationController = navigationController;
         this.init();
     }
 
     private void init() {
-        if (LOGGER != null) LOGGER.debug("Initialisation de RegisterComponent");
+        if (LOGGER != null) LOGGER.debug("Initialisation de RegisterView");
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
         createLogo();
         createTitle();
-
         createTagLabel();
         createTagField();
-
         createNameLabel();
         createNameField();
-
         createPasswordLabel();
         createPasswordField();
-
         createConfirmPasswordLabel();
         createConfirmPasswordField();
-
         createRegisterButton();
         createLoginButton();
+        installListeners();
 
-        createConnector();
-
-        if (LOGGER != null) LOGGER.debug("RegisterComponent initialisé");
+        if (LOGGER != null) LOGGER.debug("RegisterView initialisée");
     }
 
-    // --- UI builders (copied from previous RegisterView) ---
+    // -------------------------------------------------------------------------
+    // API publique — appelée par le contrôleur graphique
+    // -------------------------------------------------------------------------
+
+    public void setOnRegisterRequested(QuadConsumer<String, String, String, String> listener) {
+        this.onRegisterRequested = listener;
+    }
+
+    public void setOnBackToLoginRequested(Runnable listener) {
+        this.onBackToLoginRequested = listener;
+    }
+
+    public void clearFields() {
+        tagField.setText("");
+        nameField.setText("");
+        passwordField.setText("");
+        confirmPasswordField.setText("");
+    }
+
+    // -------------------------------------------------------------------------
+    // Listeners internes
+    // -------------------------------------------------------------------------
+
+    private void installListeners() {
+        registerButton.addActionListener(e -> {
+            if (LOGGER != null) LOGGER.debug("Bouton d'inscription cliqué");
+            if (onRegisterRequested != null) {
+                onRegisterRequested.accept(
+                        tagField.getText(),
+                        nameField.getText(),
+                        new String(passwordField.getPassword()),
+                        new String(confirmPasswordField.getPassword())
+                );
+            }
+        });
+
+        loginButton.addActionListener(e -> {
+            if (LOGGER != null) LOGGER.debug("Bouton retour connexion cliqué");
+            if (onBackToLoginRequested != null) onBackToLoginRequested.run();
+        });
+    }
+
+    // -------------------------------------------------------------------------
+    // Interface fonctionnelle utilitaire
+    // -------------------------------------------------------------------------
+
+    @FunctionalInterface
+    public interface QuadConsumer<A, B, C, D> {
+        void accept(A a, B b, C c, D d);
+    }
+
+    // -------------------------------------------------------------------------
+    // Construction UI
+    // -------------------------------------------------------------------------
+
     private void createLogo() {
-        int row = 0;
         GridBagConstraints gbc = new GridBagConstraints(
-                0, row, 1, 1, 0.0, 0.0,
+                0, 0, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.NONE,
-                new Insets(0, 0, 10, 10), 0, 0
-        );
+                new Insets(0, 0, 10, 10), 0, 0);
         try {
             java.net.URL url = getClass().getResource("/images/logo_50.png");
             if (url != null) {
-                ImageIcon logo = new ImageIcon(url);
-                JLabel logoLabel = new JLabel(logo);
-                this.add(logoLabel, gbc);
+                this.add(new JLabel(new ImageIcon(url)), gbc);
                 if (LOGGER != null) LOGGER.info("Logo chargé depuis /images/logo_50.png");
             } else {
                 if (LOGGER != null) LOGGER.warn("Ressource introuvable : /images/logo_50.png");
@@ -86,217 +123,101 @@ public class RegisterView extends JComponent implements View {
     }
 
     private void createTitle() {
-        int row = 0;
-        GridBagConstraints gbc = new GridBagConstraints(
-                1, row, 1, 1, 1.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(0, 10, 10, 0), 0, 0
-        );
         JLabel titleLabel = new JLabel("Inscription", SwingConstants.LEFT);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        this.add(titleLabel, gbc);
+        this.add(titleLabel, new GridBagConstraints(
+                1, 0, 1, 1, 1.0, 0.0,
+                GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
+                new Insets(0, 10, 10, 0), 0, 0));
     }
 
     private void createTagLabel() {
-        int row = 1;
-        GridBagConstraints gbc = new GridBagConstraints(
-                0, row, 1, 1, 0.3, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE,
-                new Insets(10, 5, 5, 5), 0, 0
-        );
         JLabel lbl = new JLabel("Tag :");
         lbl.setFont(new Font("Arial", Font.PLAIN, 14));
-        this.add(lbl, gbc);
+        this.add(lbl, new GridBagConstraints(
+                0, 1, 1, 1, 0.3, 0.0,
+                GridBagConstraints.WEST, GridBagConstraints.NONE,
+                new Insets(10, 5, 5, 5), 0, 0));
     }
 
     private void createTagField() {
-        int row = 1;
-        GridBagConstraints gbc = new GridBagConstraints(
-                1, row, 1, 1, 0.7, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(10, 5, 5, 5), 0, 0
-        );
         tagField = new JTextField();
         tagField.setFont(new Font("Arial", Font.PLAIN, 14));
-        this.add(tagField, gbc);
+        this.add(tagField, new GridBagConstraints(
+                1, 1, 1, 1, 0.7, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(10, 5, 5, 5), 0, 0));
     }
 
     private void createNameLabel() {
-        int row = 2;
-        GridBagConstraints gbc = new GridBagConstraints(
-                0, row, 1, 1, 0.3, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE,
-                new Insets(5, 5, 5, 5), 0, 0
-        );
         JLabel lbl = new JLabel("Nom :");
         lbl.setFont(new Font("Arial", Font.PLAIN, 14));
-        this.add(lbl, gbc);
+        this.add(lbl, new GridBagConstraints(
+                0, 2, 1, 1, 0.3, 0.0,
+                GridBagConstraints.WEST, GridBagConstraints.NONE,
+                new Insets(5, 5, 5, 5), 0, 0));
     }
 
     private void createNameField() {
-        int row = 2;
-        GridBagConstraints gbc = new GridBagConstraints(
-                1, row, 1, 1, 0.7, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(5, 5, 5, 5), 0, 0
-        );
         nameField = new JTextField();
         nameField.setFont(new Font("Arial", Font.PLAIN, 14));
-        this.add(nameField, gbc);
+        this.add(nameField, new GridBagConstraints(
+                1, 2, 1, 1, 0.7, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(5, 5, 5, 5), 0, 0));
     }
 
-
     private void createPasswordLabel() {
-        int row = 4;
-        GridBagConstraints gbc = new GridBagConstraints(
-                0, row, 1, 1, 0.3, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE,
-                new Insets(5, 5, 5, 5), 0, 0
-        );
         JLabel lbl = new JLabel("Mot de passe :");
         lbl.setFont(new Font("Arial", Font.PLAIN, 14));
-        this.add(lbl, gbc);
+        this.add(lbl, new GridBagConstraints(
+                0, 4, 1, 1, 0.3, 0.0,
+                GridBagConstraints.WEST, GridBagConstraints.NONE,
+                new Insets(5, 5, 5, 5), 0, 0));
     }
 
     private void createPasswordField() {
-        int row = 4;
-        GridBagConstraints gbc = new GridBagConstraints(
-                1, row, 1, 1, 0.7, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(5, 5, 5, 5), 0, 0
-        );
         passwordField = new JPasswordField();
         passwordField.setFont(new Font("Arial", Font.PLAIN, 14));
-        this.add(passwordField, gbc);
+        this.add(passwordField, new GridBagConstraints(
+                1, 4, 1, 1, 0.7, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(5, 5, 5, 5), 0, 0));
     }
 
     private void createConfirmPasswordLabel() {
-        int row = 5;
-        GridBagConstraints gbc = new GridBagConstraints(
-                0, row, 1, 1, 0.3, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE,
-                new Insets(5, 5, 10, 5), 0, 0
-        );
         JLabel lbl = new JLabel("Confirmer Mot de passe :");
         lbl.setFont(new Font("Arial", Font.PLAIN, 14));
-        this.add(lbl, gbc);
+        this.add(lbl, new GridBagConstraints(
+                0, 5, 1, 1, 0.3, 0.0,
+                GridBagConstraints.WEST, GridBagConstraints.NONE,
+                new Insets(5, 5, 10, 5), 0, 0));
     }
 
     private void createConfirmPasswordField() {
-        int row = 5;
-        GridBagConstraints gbc = new GridBagConstraints(
-                1, row, 1, 1, 0.7, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(5, 5, 10, 5), 0, 0
-        );
         confirmPasswordField = new JPasswordField();
         confirmPasswordField.setFont(new Font("Arial", Font.PLAIN, 14));
-        this.add(confirmPasswordField, gbc);
+        this.add(confirmPasswordField, new GridBagConstraints(
+                1, 5, 1, 1, 0.7, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(5, 5, 10, 5), 0, 0));
     }
 
     private void createRegisterButton() {
-        int row = 6;
-        GridBagConstraints gbc = new GridBagConstraints(
-                1, row, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.NONE,
-                new Insets(10, 10, 10, 10), 0, 0
-        );
         registerButton = new JButton("S'inscrire");
         registerButton.setFont(new Font("Arial", Font.BOLD, 14));
-        this.add(registerButton, gbc);
+        this.add(registerButton, new GridBagConstraints(
+                1, 6, 1, 1, 0.0, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.NONE,
+                new Insets(10, 10, 10, 10), 0, 0));
     }
 
     private void createLoginButton() {
-        int row = 6;
-        GridBagConstraints gbc = new GridBagConstraints(
-                0, row, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.NONE,
-                new Insets(10, 10, 10, 10), 0, 0
-        );
         loginButton = new JButton("Se Connecter");
         loginButton.setFont(new Font("Arial", Font.BOLD, 14));
-        this.add(loginButton, gbc);
+        this.add(loginButton, new GridBagConstraints(
+                0, 6, 1, 1, 0.0, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.NONE,
+                new Insets(10, 10, 10, 10), 0, 0));
     }
-
-    public void createConnector() {
-        this.getRegisterButton().addActionListener(e -> {
-            if (LOGGER != null) LOGGER.debug("Register button clicked");
-            if (onRegisterRequested != null) {
-                onRegisterRequested.run();
-            }
-            if (controller != null) {
-                boolean userIsCreated = controller.onRegisterButtonClicked(this.getTag(),
-                        this.getName(),
-                        this.getPassword(),
-                        this.getConfirmPassword());
-                if (userIsCreated) {
-                    if (LOGGER != null) LOGGER.info("User registered successfully, navigating to login view");
-                } else {
-                    if (LOGGER != null) LOGGER.warn("User registration failed, user already exists");
-                }
-            }
-        });
-
-        this.getLoginButton().addActionListener(e -> {
-            if (LOGGER != null) LOGGER.debug("Bouton Retour cliqué");
-            if (onBackToLoginRequested != null) onBackToLoginRequested.run();
-            if (navigationController != null) navigationController.navigateToLogin();
-        });
-    }
-
-    public JTextField getTagField() {
-        return tagField;
-    }
-
-    public JTextField getNameField() {
-        return nameField;
-    }
-
-    public JPasswordField getPasswordField() {
-        return passwordField;
-    }
-
-    public JPasswordField getConfirmPasswordField() {
-        return confirmPasswordField;
-    }
-
-    public JButton getRegisterButton() {
-        return registerButton;
-    }
-
-    public JButton getLoginButton() {
-        return loginButton;
-    }
-
-    public String getTag() {
-        return getTagField().getText();
-    }
-
-    public String getName() {
-        return getNameField().getText();
-    }
-
-    public String getPassword() {
-        return new String(getPasswordField().getPassword());
-    }
-
-    public String getConfirmPassword() {
-        return new String(getConfirmPasswordField().getPassword());
-    }
-
-    public void setOnRegisterRequested(Runnable handler) {
-        this.onRegisterRequested = handler;
-    }
-
-    public void setOnBackToLoginRequested(Runnable handler) {
-        this.onBackToLoginRequested = handler;
-    }
-
-    public void clearFields() {
-        getTagField().setText("");
-        getNameField().setText("");
-        getPasswordField().setText("");
-        getConfirmPasswordField().setText("");
-    }
-
 }

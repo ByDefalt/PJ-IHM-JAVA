@@ -6,9 +6,7 @@ import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Vue affichant une liste de CanalView empilés verticalement dans une zone défilante.
@@ -19,11 +17,7 @@ public class ListCanalView extends JComponent implements View {
 
     private final JPanel canalsPanel;
     private final JScrollPane scrollPane;
-    private final List<CanalView> canalViews = new ArrayList<>();
 
-    /**
-     * Référence au glue pour le déplacer sans itérer pendant modification
-     */
     private Component glue;
 
     public ListCanalView(Logger logger) {
@@ -37,10 +31,62 @@ public class ListCanalView extends JComponent implements View {
         scrollPane = createScrollPane(canalsPanel);
         addScrollPaneToThis();
 
-        // Glue initial
         glue = Box.createVerticalGlue();
         canalsPanel.add(glue, glueConstraints(0));
+
         if (this.logger != null) this.logger.debug("ListCanalView initialisée");
+    }
+
+    public void addCanalUI(CanalView canalView, int row) {
+        if (canalView == null) return;
+
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> addCanalUI(canalView, row));
+            return;
+        }
+
+        canalsPanel.remove(glue);
+        canalsPanel.add(canalView, canalConstraints(row));
+
+        glue = Box.createVerticalGlue();
+        canalsPanel.add(glue, glueConstraints(row + 1));
+
+        canalsPanel.revalidate();
+        canalsPanel.repaint();
+
+        SwingUtilities.invokeLater(() -> {
+            JScrollBar bar = scrollPane.getVerticalScrollBar();
+            if (bar != null) bar.setValue(bar.getMaximum());
+        });
+
+        if (this.logger != null) this.logger.debug("CanalView ajoutée (row=" + row + ")");
+    }
+
+    public void rebuildUI(List<CanalView> ordered) {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> rebuildUI(ordered));
+            return;
+        }
+        canalsPanel.removeAll();
+        int row = 0;
+        for (CanalView cv : ordered) {
+            canalsPanel.add(cv, canalConstraints(row++));
+        }
+        glue = Box.createVerticalGlue();
+        canalsPanel.add(glue, glueConstraints(row));
+        canalsPanel.revalidate();
+        canalsPanel.repaint();
+    }
+
+    public void updateCanalUI(CanalView view, Channel channel) {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> updateCanalUI(view, channel));
+            return;
+        }
+        view.updateChannel(channel);
+        canalsPanel.revalidate();
+        canalsPanel.repaint();
+        if (this.logger != null) this.logger.debug("CanalView mise à jour pour: " + channel);
     }
 
     private JPanel createCanalsPanel() {
@@ -66,38 +112,6 @@ public class ListCanalView extends JComponent implements View {
                 new Insets(0, 0, 0, 0), 0, 0
         );
         this.add(scrollPane, gbc);
-    }
-
-    public void addCanal(CanalView canalView) {
-        if (canalView == null) return;
-
-        if (!SwingUtilities.isEventDispatchThread()) {
-            SwingUtilities.invokeLater(() -> addCanal(canalView));
-            return;
-        }
-
-        int row = canalViews.size();
-        canalViews.add(canalView);
-
-        // Retirer uniquement le glue
-        canalsPanel.remove(glue);
-
-        // Ajouter le canal au bon gridy
-        canalsPanel.add(canalView, canalConstraints(row));
-
-        // Remettre le glue après le dernier élément
-        glue = Box.createVerticalGlue();
-        canalsPanel.add(glue, glueConstraints(canalViews.size()));
-
-        canalsPanel.revalidate();
-        canalsPanel.repaint();
-
-        SwingUtilities.invokeLater(() -> {
-            JScrollBar bar = scrollPane.getVerticalScrollBar();
-            if (bar != null) bar.setValue(bar.getMaximum());
-        });
-
-        if (this.logger != null) this.logger.debug("Canal ajouté: " + canalView.getChannel().getName());
     }
 
     private GridBagConstraints canalConstraints(int row) {
@@ -131,83 +145,5 @@ public class ListCanalView extends JComponent implements View {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-    }
-
-    public void addCanal(Channel canal) {
-        boolean isPresent = canalViews.stream().anyMatch(cv -> cv.getChannel().equals(canal));
-        if (isPresent) {
-            if (this.logger != null) this.logger.warn("Canal déjà présent: " + canal);
-        } else {
-            addCanal(new CanalView(logger, canal));
-            if (this.logger != null) this.logger.debug("Canal ajouté à la vue: " + canal);
-        }
-    }
-
-    public void removeCanal(Channel canal) {
-        Optional<CanalView> opt = canalViews.stream().filter(cv -> cv.getChannel().equals(canal)).findFirst();
-        if (opt.isPresent()) {
-            CanalView found = opt.get();
-            this.canalViews.remove(found);
-            if (logger != null) logger.debug("Canal supprimé de la vue: " + canal);
-            // update UI
-            removeCanalUI();
-        } else {
-            if (logger != null) logger.debug("Canal non trouvé dans la vue, pas supprimé: " + canal);
-        }
-    }
-
-    public void updateCanal(Channel canal) {
-        Optional<CanalView> opt = canalViews.stream().filter(cv -> cv.getChannel().equals(canal)).findFirst();
-        if (opt.isPresent()) {
-            CanalView iCanalView = opt.get();
-            // update model inside the view and refresh UI
-            updateCanalUI(iCanalView, canal);
-            if (logger != null) logger.debug("Canal mis à jour dans la vue: " + canal);
-        } else {
-            if (logger != null) logger.debug("Canal non trouvé pour mise à jour dans la vue: " + canal);
-        }
-    }
-
-    // --- Helpers UI ---
-
-    private void rebuildCanalsPanel() {
-        canalsPanel.removeAll();
-        int row = 0;
-        for (CanalView cv : canalViews) {
-            GridBagConstraints gbc = new GridBagConstraints();
-            gbc.gridx = 0;
-            gbc.gridy = row++;
-            gbc.gridwidth = 1;
-            gbc.gridheight = 1;
-            gbc.weightx = 1.0;
-            gbc.weighty = 0.0;
-            gbc.fill = GridBagConstraints.HORIZONTAL;
-            gbc.anchor = GridBagConstraints.WEST;
-            gbc.insets = new Insets(4, 4, 4, 4);
-            canalsPanel.add(cv, gbc);
-        }
-        // add glue
-        glue = Box.createVerticalGlue();
-        canalsPanel.add(glue, glueConstraints(row));
-        canalsPanel.revalidate();
-        canalsPanel.repaint();
-    }
-
-    private void removeCanalUI() {
-        if (!SwingUtilities.isEventDispatchThread()) {
-            SwingUtilities.invokeLater(this::removeCanalUI);
-            return;
-        }
-        rebuildCanalsPanel();
-    }
-
-    private void updateCanalUI(CanalView view, Channel channel) {
-        if (!SwingUtilities.isEventDispatchThread()) {
-            SwingUtilities.invokeLater(() -> updateCanalUI(view, channel));
-            return;
-        }
-        view.updateChannel(channel);
-        canalsPanel.revalidate();
-        canalsPanel.repaint();
     }
 }

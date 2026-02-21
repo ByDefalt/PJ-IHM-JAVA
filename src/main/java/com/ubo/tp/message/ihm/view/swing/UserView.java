@@ -15,7 +15,7 @@ public class UserView extends JComponent implements View {
 
     private JLabel userNameLabel;
     private JLabel statusLabel;
-    private User   user;
+    private User user;
 
     /**
      * Crée un composant UserView simple (nom + statut).
@@ -25,7 +25,7 @@ public class UserView extends JComponent implements View {
      */
     public UserView(Logger logger, User user) {
         this.LOGGER = logger;
-        this.user   = user;
+        this.user = user;
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
         this.setOpaque(false);
@@ -43,8 +43,8 @@ public class UserView extends JComponent implements View {
 
     private void createNameLabel() {
         // Police bold 13 depuis le thème
-        Font baseFont  = UIManager.getFont("Label.font");
-        Font nameFont  = (baseFont != null) ? baseFont.deriveFont(Font.BOLD, 13f)
+        Font baseFont = UIManager.getFont("Label.font");
+        Font nameFont = (baseFont != null) ? baseFont.deriveFont(Font.BOLD, 13f)
                 : new Font("SansSerif", Font.BOLD, 13);
 
         // Texte normal Discord (#DCDDDE)
@@ -65,7 +65,7 @@ public class UserView extends JComponent implements View {
 
     private void createStatusLabel() {
         // Police plain 11 depuis le thème
-        Font baseFont   = UIManager.getFont("Label.font");
+        Font baseFont = UIManager.getFont("Label.font");
         Font statusFont = (baseFont != null) ? baseFont.deriveFont(Font.PLAIN, 11f)
                 : new Font("SansSerif", Font.PLAIN, 11);
 

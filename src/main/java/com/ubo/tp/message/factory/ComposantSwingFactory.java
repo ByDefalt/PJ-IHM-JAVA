@@ -17,7 +17,7 @@ public class ComposantSwingFactory implements Factory {
     public static IAppMainController createAppMainController(IDataManager dataManager, Logger logger, ISession session) {
         AppMainView view = new AppMainView(logger);
         IAppMainGraphicController graphicController = new AppMainGraphicController(logger, view);
-        return new AppMainController(dataManager, logger,session, graphicController);
+        return new AppMainController(dataManager, logger, session, graphicController);
     }
 
     public static LoginView createLoginView(Logger LOGGER, IDataManager dataManager, NavigationController navigationController, ISession session) {
@@ -29,7 +29,9 @@ public class ComposantSwingFactory implements Factory {
 
     public static RegisterView createRegisterView(Logger LOGGER, IDataManager dataManager, NavigationController navigationController) {
         RegisterController registerController = new RegisterController(LOGGER, dataManager);
-        return new RegisterView(LOGGER, registerController, navigationController);
+        RegisterView registerView = new RegisterView(LOGGER);
+        IRegisterGraphicController registerGraphicController = new RegisterGraphicController(LOGGER, registerView, registerController, navigationController);
+        return registerView;
     }
 
     public static ListCanalView createListCanalView(Logger LOGGER, IDataManager dataManager) {

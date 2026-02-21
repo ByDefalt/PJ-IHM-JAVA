@@ -42,7 +42,7 @@ public class AppMainController implements IAppMainController {
                 ComposantSwingFactory.createLoginView(
                         logger,
                         dataManager,
-                        new NavigationController(logger, dataManager, session,this.graphicController),
+                        new NavigationController(logger, dataManager, session, this.graphicController),
                         session
                 )
         );

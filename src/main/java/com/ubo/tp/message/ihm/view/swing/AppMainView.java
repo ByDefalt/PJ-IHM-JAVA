@@ -6,9 +6,9 @@ import com.ubo.tp.message.utils.LoadIcon;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.io.File;
 
 /**
  * Vue principale de l'application (fenêtre principale).
@@ -38,6 +38,36 @@ public class AppMainView extends JComponent implements View {
 
         this.createMenuBar();
         this.logger.info("AppMainView initialisée");
+    }
+
+    /**
+     * Remplace le contenu central de la fenêtre par le composant donné.
+     * Peut être appelée depuis n'importe quel thread.
+     */
+    public void setContent(JComponent component) {
+        if (component == null) return;
+
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> setContent(component));
+            return;
+        }
+
+        logger.debug("Setting main view");
+        contentPanel.removeAll();
+
+        JPanel wrapper = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
+        wrapper.add(component, gbc);
+
+        contentPanel.add(wrapper);
+        contentPanel.revalidate();
+        contentPanel.repaint();
+        logger.debug("Main view set");
     }
 
     private void createMenuBar() {
@@ -145,14 +175,6 @@ public class AppMainView extends JComponent implements View {
 
     public Logger getLogger() {
         return logger;
-    }
-
-    public JPanel getContentPanel() {
-        return contentPanel;
-    }
-
-    public CardLayout getContentLayout() {
-        return contentLayout;
     }
 
     public Consumer<String> getOnExchangeDirectorySelected() {

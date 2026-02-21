@@ -5,9 +5,9 @@ import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.function.BiConsumer;
 
 public class LoginView extends JComponent implements View {
-
 
     private final Logger LOGGER;
     private JTextField tagField;
@@ -16,54 +16,96 @@ public class LoginView extends JComponent implements View {
     private JButton loginButton;
     private JButton registerButton;
 
-    /**
-     * Crée et initialise le composant de login.
-     *
-     * @param logger logger optionnel pour consigner les actions
-     */
+    /** Callback : (tag, name, password) → déclenché au clic sur "Se connecter" */
+    private BiConsumer<String[], Void> onLoginRequested;
+
+    /** Callback : déclenché au clic sur "S'inscrire" */
+    private Runnable onRegisterRequested;
+
     public LoginView(Logger logger) {
         this.LOGGER = logger;
         this.init();
     }
 
     private void init() {
-        if (LOGGER != null) LOGGER.debug("Initialisation de LoginComponent");
+        if (LOGGER != null) LOGGER.debug("Initialisation de LoginView");
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
         createLogo();
         createTitle();
-
         createTagLabel();
         createTagField();
-
         createNameLabel();
         createNameField();
-
         createPasswordLabel();
         createPasswordField();
-
         createLoginButton();
         createRegisterButton();
+        installListeners();
 
-        createConnector();
-
-        if (LOGGER != null) LOGGER.debug("LoginComponent initialisé");
+        if (LOGGER != null) LOGGER.debug("LoginView initialisée");
     }
 
+    // -------------------------------------------------------------------------
+    // API publique — appelée par le contrôleur graphique
+    // -------------------------------------------------------------------------
+
+    public void setOnLoginRequested(TriConsumer<String, String, String> listener) {
+        this.onLoginRequested = (args, v) ->
+                listener.accept(args[0], args[1], args[2]);
+    }
+
+    public void setOnRegisterRequested(Runnable listener) {
+        this.onRegisterRequested = listener;
+    }
+
+    // -------------------------------------------------------------------------
+    // Listeners internes
+    // -------------------------------------------------------------------------
+
+    private void installListeners() {
+        loginButton.addActionListener(e -> {
+            if (LOGGER != null) LOGGER.debug("Bouton de connexion cliqué");
+            if (onLoginRequested != null) {
+                onLoginRequested.accept(
+                        new String[]{
+                                tagField.getText(),
+                                nameField.getText(),
+                                new String(passwordField.getPassword())
+                        }, null);
+            }
+        });
+
+        registerButton.addActionListener(e -> {
+            if (LOGGER != null) LOGGER.debug("Bouton d'inscription cliqué");
+            if (onRegisterRequested != null) onRegisterRequested.run();
+        });
+    }
+
+    // -------------------------------------------------------------------------
+    // Interface fonctionnelle utilitaire
+    // -------------------------------------------------------------------------
+
+    @FunctionalInterface
+    public interface TriConsumer<A, B, C> {
+        void accept(A a, B b, C c);
+    }
+
+    // -------------------------------------------------------------------------
+    // Construction UI
+    // -------------------------------------------------------------------------
+
     private void createLogo() {
-        int row = 0;
         GridBagConstraints gbc = new GridBagConstraints(
-                0, row, 1, 1, 0.0, 0.0,
+                0, 0, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.NONE,
                 new Insets(0, 0, 10, 10), 0, 0
         );
         try {
             java.net.URL url = getClass().getResource("/images/logo_50.png");
             if (url != null) {
-                ImageIcon logo = new ImageIcon(url);
-                JLabel logoLabel = new JLabel(logo);
-                this.add(logoLabel, gbc);
+                this.add(new JLabel(new ImageIcon(url)), gbc);
                 if (LOGGER != null) LOGGER.info("Logo chargé depuis /images/logo_50.png");
             } else {
                 if (LOGGER != null) LOGGER.warn("Ressource introuvable : /images/logo_50.png");
@@ -74,137 +116,83 @@ public class LoginView extends JComponent implements View {
     }
 
     private void createTitle() {
-        int row = 0;
-        GridBagConstraints gbc = new GridBagConstraints(
-                1, row, 1, 1, 1.0, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-                new Insets(0, 10, 10, 0), 0, 0
-        );
         JLabel titleLabel = new JLabel("Connexion", SwingConstants.LEFT);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        this.add(titleLabel, gbc);
+        this.add(titleLabel, new GridBagConstraints(
+                1, 0, 1, 1, 1.0, 0.0,
+                GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
+                new Insets(0, 10, 10, 0), 0, 0));
     }
 
     private void createTagLabel() {
-        int row = 1;
-        GridBagConstraints gbc = new GridBagConstraints(
-                0, row, 1, 1, 0.3, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE,
-                new Insets(10, 5, 5, 5), 0, 0
-        );
         JLabel lbl = new JLabel("Tag :");
         lbl.setFont(new Font("Arial", Font.PLAIN, 14));
-        this.add(lbl, gbc);
+        this.add(lbl, new GridBagConstraints(
+                0, 1, 1, 1, 0.3, 0.0,
+                GridBagConstraints.WEST, GridBagConstraints.NONE,
+                new Insets(10, 5, 5, 5), 0, 0));
     }
 
     private void createTagField() {
-        int row = 1;
-        GridBagConstraints gbc = new GridBagConstraints(
-                1, row, 1, 1, 0.7, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(10, 5, 5, 5), 0, 0
-        );
         tagField = new JTextField();
         tagField.setFont(new Font("Arial", Font.PLAIN, 14));
-        this.add(tagField, gbc);
+        this.add(tagField, new GridBagConstraints(
+                1, 1, 1, 1, 0.7, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(10, 5, 5, 5), 0, 0));
     }
 
     private void createNameLabel() {
-        int row = 2;
-        GridBagConstraints gbc = new GridBagConstraints(
-                0, row, 1, 1, 0.3, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE,
-                new Insets(5, 5, 5, 5), 0, 0
-        );
         JLabel lbl = new JLabel("Nom :");
         lbl.setFont(new Font("Arial", Font.PLAIN, 14));
-        this.add(lbl, gbc);
+        this.add(lbl, new GridBagConstraints(
+                0, 2, 1, 1, 0.3, 0.0,
+                GridBagConstraints.WEST, GridBagConstraints.NONE,
+                new Insets(5, 5, 5, 5), 0, 0));
     }
 
     private void createNameField() {
-        int row = 2;
-        GridBagConstraints gbc = new GridBagConstraints(
-                1, row, 1, 1, 0.7, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(5, 5, 5, 5), 0, 0
-        );
         nameField = new JTextField();
         nameField.setFont(new Font("Arial", Font.PLAIN, 14));
-        this.add(nameField, gbc);
+        this.add(nameField, new GridBagConstraints(
+                1, 2, 1, 1, 0.7, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(5, 5, 5, 5), 0, 0));
     }
 
     private void createPasswordLabel() {
-        int row = 3;
-        GridBagConstraints gbc = new GridBagConstraints(
-                0, row, 1, 1, 0.3, 0.0,
-                GridBagConstraints.WEST, GridBagConstraints.NONE,
-                new Insets(5, 5, 10, 5), 0, 0
-        );
         JLabel lbl = new JLabel("Mot de passe :");
         lbl.setFont(new Font("Arial", Font.PLAIN, 14));
-        this.add(lbl, gbc);
+        this.add(lbl, new GridBagConstraints(
+                0, 3, 1, 1, 0.3, 0.0,
+                GridBagConstraints.WEST, GridBagConstraints.NONE,
+                new Insets(5, 5, 10, 5), 0, 0));
     }
 
     private void createPasswordField() {
-        int row = 3;
-        GridBagConstraints gbc = new GridBagConstraints(
-                1, row, 1, 1, 0.7, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                new Insets(5, 5, 10, 5), 0, 0
-        );
         passwordField = new JPasswordField();
         passwordField.setFont(new Font("Arial", Font.PLAIN, 14));
-        this.add(passwordField, gbc);
+        this.add(passwordField, new GridBagConstraints(
+                1, 3, 1, 1, 0.7, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(5, 5, 10, 5), 0, 0));
     }
 
     private void createLoginButton() {
-        int row = 4;
-        GridBagConstraints gbc = new GridBagConstraints(
-                0, row, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.NONE,
-                new Insets(10, 10, 10, 10), 0, 0
-        );
         loginButton = new JButton("Se connecter");
         loginButton.setFont(new Font("Arial", Font.BOLD, 14));
-        this.add(loginButton, gbc);
+        this.add(loginButton, new GridBagConstraints(
+                0, 4, 1, 1, 0.0, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.NONE,
+                new Insets(10, 10, 10, 10), 0, 0));
     }
 
     private void createRegisterButton() {
-        int row = 4;
-        GridBagConstraints gbc = new GridBagConstraints(
-                1, row, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.NONE,
-                new Insets(10, 10, 10, 10), 0, 0
-        );
         registerButton = new JButton("S'inscrire");
         registerButton.setFont(new Font("Arial", Font.BOLD, 14));
-        this.add(registerButton, gbc);
+        this.add(registerButton, new GridBagConstraints(
+                1, 4, 1, 1, 0.0, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.NONE,
+                new Insets(10, 10, 10, 10), 0, 0));
     }
-
-
-    public void createConnector() {
-
-    }
-
-    public JTextField getTagField() {
-        return tagField;
-    }
-
-    public JTextField getNameField() {
-        return nameField;
-    }
-
-    public JPasswordField getPasswordField() {
-        return passwordField;
-    }
-
-    public JButton getLoginButton() {
-        return loginButton;
-    }
-
-    public JButton getRegisterButton() {
-        return registerButton;
-    }
-
-
 }

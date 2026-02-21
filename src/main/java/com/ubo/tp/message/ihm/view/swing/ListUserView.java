@@ -6,9 +6,7 @@ import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Vue affichant une liste d'UserView empilés verticalement dans une zone défilante.
@@ -19,8 +17,6 @@ public class ListUserView extends JComponent implements View {
 
     private final JPanel usersPanel;
     private final JScrollPane scrollPane;
-    private final List<UserView> userViews = new ArrayList<>();
-
     private Component glue;
 
     public ListUserView(Logger logger) {
@@ -34,13 +30,79 @@ public class ListUserView extends JComponent implements View {
         scrollPane = createScrollPane(usersPanel);
         addScrollPaneToThis();
 
-        // Glue initial
         glue = Box.createVerticalGlue();
         usersPanel.add(glue, glueConstraints(0));
 
-
         if (this.logger != null) this.logger.debug("ListUserView initialisée");
     }
+
+    // -------------------------------------------------------------------------
+    // API publique — appelée par le contrôleur graphique
+    // -------------------------------------------------------------------------
+
+    /**
+     * Ajoute une UserView à la fin de la liste (UI uniquement).
+     */
+    public void addUserUI(UserView userView, int row) {
+        if (userView == null) return;
+
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> addUserUI(userView, row));
+            return;
+        }
+
+        usersPanel.remove(glue);
+        usersPanel.add(userView, userConstraints(row));
+
+        glue = Box.createVerticalGlue();
+        usersPanel.add(glue, glueConstraints(row + 1));
+
+        usersPanel.revalidate();
+        usersPanel.repaint();
+
+        SwingUtilities.invokeLater(() -> {
+            JScrollBar bar = scrollPane.getVerticalScrollBar();
+            if (bar != null) bar.setValue(bar.getMaximum());
+        });
+
+        if (this.logger != null) this.logger.debug("UserView ajoutée (row=" + row + ")");
+    }
+
+    /**
+     * Reconstruit entièrement le panel à partir de la liste ordonnée fournie par le contrôleur.
+     */
+    public void rebuildUI(List<UserView> ordered) {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> rebuildUI(ordered));
+            return;
+        }
+        usersPanel.removeAll();
+        int row = 0;
+        for (UserView uv : ordered) {
+            usersPanel.add(uv, userConstraints(row++));
+        }
+        glue = Box.createVerticalGlue();
+        usersPanel.add(glue, glueConstraints(row));
+        usersPanel.revalidate();
+        usersPanel.repaint();
+    }
+
+    /**
+     * Met à jour l'affichage d'une UserView existante.
+     */
+    public void updateUserUI(UserView view, User user) {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> updateUserUI(view, user));
+            return;
+        }
+        view.updateUser(user);
+        usersPanel.revalidate();
+        usersPanel.repaint();
+    }
+
+    // -------------------------------------------------------------------------
+    // Initialisation interne
+    // -------------------------------------------------------------------------
 
     private JPanel createUsersPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
@@ -65,38 +127,6 @@ public class ListUserView extends JComponent implements View {
                 new Insets(0, 0, 0, 0), 0, 0
         );
         this.add(scrollPane, gbc);
-    }
-
-    public void addUser(UserView userView) {
-        if (userView == null) return;
-
-        if (!SwingUtilities.isEventDispatchThread()) {
-            SwingUtilities.invokeLater(() -> addUser(userView));
-            return;
-        }
-
-        int row = userViews.size();
-        userViews.add(userView);
-
-        // Retirer uniquement le glue
-        usersPanel.remove(glue);
-
-        // Ajouter l'utilisateur au bon gridy
-        usersPanel.add(userView, userConstraints(row));
-
-        // Remettre le glue après le dernier élément
-        glue = Box.createVerticalGlue();
-        usersPanel.add(glue, glueConstraints(userViews.size()));
-
-        usersPanel.revalidate();
-        usersPanel.repaint();
-
-        SwingUtilities.invokeLater(() -> {
-            JScrollBar bar = scrollPane.getVerticalScrollBar();
-            if (bar != null) bar.setValue(bar.getMaximum());
-        });
-
-        if (this.logger != null) this.logger.debug("User ajouté: " + userView.getUser().getName());
     }
 
     private GridBagConstraints userConstraints(int row) {
@@ -130,83 +160,5 @@ public class ListUserView extends JComponent implements View {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-    }
-
-    public void addUser(User user) {
-        boolean isPresent = userViews.stream().anyMatch(uv -> uv.getUser().equals(user));
-        if (isPresent) {
-            if (logger != null) logger.debug("User déjà présent, pas ajouté: " + user.getName());
-        } else {
-            addUser(new UserView(logger, user));
-            if (logger != null) logger.debug("User ajouté: " + user.getName());
-        }
-    }
-
-    public void removeUser(User user) {
-        Optional<UserView> opt = userViews.stream().filter(uv -> uv.getUser().equals(user)).findFirst();
-        if (opt.isPresent()) {
-            UserView found = opt.get();
-            this.userViews.remove(found);
-            // update UI
-            removeUserUI();
-            if (logger != null) logger.debug("User supprimé de la vue: " + user.getName());
-        } else {
-            if (logger != null) logger.debug("User non trouvé dans la vue, pas supprimé: " + user.getName());
-        }
-    }
-
-    public void updateUser(User user) {
-        Optional<UserView> opt = userViews.stream().filter(uv -> uv.getUser().equals(user)).findFirst();
-        if (opt.isPresent()) {
-            UserView iUserView = opt.get();
-            // update model inside the view and refresh UI
-            updateUserUI(iUserView, user);
-            if (logger != null) logger.debug("User mis à jour dans la vue: " + user.getName());
-        } else {
-            if (logger != null) logger.debug("User non trouvé pour mise à jour dans la vue: " + user.getName());
-        }
-    }
-
-    // --- Helpers UI ---
-
-    private void rebuildUsersPanel() {
-        usersPanel.removeAll();
-        int row = 0;
-        for (UserView uv : userViews) {
-            GridBagConstraints gbc = new GridBagConstraints();
-            gbc.gridx = 0;
-            gbc.gridy = row++;
-            gbc.gridwidth = 1;
-            gbc.gridheight = 1;
-            gbc.weightx = 1.0;
-            gbc.weighty = 0.0;
-            gbc.fill = GridBagConstraints.HORIZONTAL;
-            gbc.anchor = GridBagConstraints.WEST;
-            gbc.insets = new Insets(4, 4, 4, 4);
-            usersPanel.add(uv, gbc);
-        }
-        // add glue
-        glue = Box.createVerticalGlue();
-        usersPanel.add(glue, glueConstraints(row));
-        usersPanel.revalidate();
-        usersPanel.repaint();
-    }
-
-    private void removeUserUI() {
-        if (!SwingUtilities.isEventDispatchThread()) {
-            SwingUtilities.invokeLater(this::removeUserUI);
-            return;
-        }
-        rebuildUsersPanel();
-    }
-
-    private void updateUserUI(UserView view, User user) {
-        if (!SwingUtilities.isEventDispatchThread()) {
-            SwingUtilities.invokeLater(() -> updateUserUI(view, user));
-            return;
-        }
-        view.updateUser(user);
-        usersPanel.revalidate();
-        usersPanel.repaint();
     }
 }
