@@ -7,6 +7,7 @@ import com.ubo.tp.message.ihm.view.swing.ListMessageView;
 import com.ubo.tp.message.ihm.view.swing.MessageView;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
 
+import javax.swing.SwingUtilities;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Optional;
@@ -85,6 +86,16 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
     public void addMessage(Message message) {
         if (message == null || listMessageView == null) return;
 
+        // Toujours exécuter l'ajout et la reconstruction UI sur l'Event Dispatch Thread.
+        if (SwingUtilities.isEventDispatchThread()) {
+            doAddMessageOnEDT(message);
+        } else {
+            SwingUtilities.invokeLater(() -> doAddMessageOnEDT(message));
+        }
+    }
+
+    // Ajout exécuté sur l'EDT
+    private void doAddMessageOnEDT(Message message) {
         boolean alreadyPresent = messages.stream()
                 .anyMatch(mv -> mv.getMessage().equals(message));
 
@@ -97,12 +108,13 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
         messages.add(messageView);
 
         ArrayList<MessageView> filtered = getFilteredMessageViews();
-        listMessageView.rebuildUI(filtered);
 
-        // Faire défiler si le message ajouté est visible dans la vue filtrée
+        // Scroller vers le bas si le nouveau message est visible dans la vue filtrée
         if (filtered.contains(messageView)) {
-            listMessageView.scrollToBottom();
+            listMessageView.requestScrollToBottomOnce();
         }
+
+        listMessageView.rebuildUI(filtered);
 
         if (viewContext.logger() != null) viewContext.logger().debug("Message ajouté : " + message);
     }
@@ -155,4 +167,3 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
             viewContext.logger().debug("Messages filtrés selon la sélection courante : user=" + viewContext.selected().getSelectedUser() + " channel=" + viewContext.selected().getSelectedChannel());
     }
 }
-

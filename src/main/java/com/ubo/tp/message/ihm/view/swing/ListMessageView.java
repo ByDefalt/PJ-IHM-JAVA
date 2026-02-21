@@ -23,6 +23,7 @@ public class ListMessageView extends JComponent implements View {
     private final JPanel messagesPanel;
     private final JScrollPane scrollPane;
     private Component verticalGlue;
+    private volatile boolean pendingScroll = false;
 
     public ListMessageView(ViewContext viewContext) {
         this.viewContext = viewContext;
@@ -49,6 +50,13 @@ public class ListMessageView extends JComponent implements View {
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.VERTICAL;
         messagesPanel.add(verticalGlue, gbc);
+    }
+
+    /**
+     * Demande un scroll vers le bas à effectuer une seule fois après le prochain rebuildUI.
+     */
+    public void requestScrollToBottomOnce() {
+        this.pendingScroll = true;
     }
 
     // -------------------------------------------------------------------------
@@ -103,6 +111,12 @@ public class ListMessageView extends JComponent implements View {
 
         messagesPanel.revalidate();
         messagesPanel.repaint();
+
+        // Si un scroll a été demandé, l'exécuter une fois après le layout
+        if (pendingScroll) {
+            pendingScroll = false;
+            SwingUtilities.invokeLater(this::scrollToBottom);
+        }
     }
 
     /**
@@ -120,12 +134,17 @@ public class ListMessageView extends JComponent implements View {
 
     /**
      * Fait défiler jusqu'au bas de la liste.
+     * Utilise un double invokeLater pour s'assurer que le layout est terminé
+     * avant de lire les dimensions réelles du viewport.
      */
     public void scrollToBottom() {
-        SwingUtilities.invokeLater(() -> {
-            JScrollBar sb = scrollPane.getVerticalScrollBar();
-            sb.setValue(sb.getMaximum());
-        });
+        SwingUtilities.invokeLater(() -> SwingUtilities.invokeLater(() -> {
+            try {
+                JScrollBar sb = scrollPane.getVerticalScrollBar();
+                if (sb != null) sb.setValue(sb.getMaximum());
+            } catch (Exception ignored) {
+            }
+        }));
     }
 
     // -------------------------------------------------------------------------
