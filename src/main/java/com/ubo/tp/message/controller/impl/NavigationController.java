@@ -6,8 +6,8 @@ import com.ubo.tp.message.core.session.ISession;
 import com.ubo.tp.message.core.session.ISessionObserver;
 import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.factory.ComposantSwingFactory;
+import com.ubo.tp.message.ihm.graphicController.service.IAppMainGraphicController;
 import com.ubo.tp.message.ihm.view.service.View;
-import com.ubo.tp.message.ihm.view.swing.AppMainView;
 import com.ubo.tp.message.logger.Logger;
 
 public class NavigationController implements INavigationController, ISessionObserver {
@@ -15,20 +15,20 @@ public class NavigationController implements INavigationController, ISessionObse
     private final Logger LOGGER;
     private final IDataManager dataManager;
     private final ISession session;
-    private final AppMainView appMainView;
+    private final IAppMainGraphicController graphicController;
 
-    public NavigationController(Logger logger, IDataManager dataManager, ISession session, AppMainView appMainView) {
+    public NavigationController(Logger logger, IDataManager dataManager, ISession session, IAppMainGraphicController graphicController) {
         LOGGER = logger;
         this.dataManager = dataManager;
         this.session = session;
-        this.appMainView = appMainView;
+        this.graphicController = graphicController;
 
         this.session.addObserver(this);
     }
 
     private void setMainContent(View mainContent) {
         LOGGER.info("setMainContent");
-        this.appMainView.setMainContent(mainContent);
+        this.graphicController.setMainView(mainContent);
     }
 
     @Override

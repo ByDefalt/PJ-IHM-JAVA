@@ -1,16 +1,10 @@
 package com.ubo.tp.message.ihm.view.swing;
 
-import com.ubo.tp.message.controller.service.IInputMessageController;
 import com.ubo.tp.message.ihm.view.service.View;
 import com.ubo.tp.message.logger.Logger;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.awt.geom.RoundRectangle2D;
 
 public class InputMessageView extends JComponent implements View {
@@ -18,18 +12,19 @@ public class InputMessageView extends JComponent implements View {
     private static final int ARC = 20; // rayon des coins arrondis
 
     private final Logger                  LOGGER;
-    private final IInputMessageController controller;
-    private       JTextArea               inputField;
+    private final JTextArea               inputField;
     private       Runnable                onSendRequested;
 
-    // Couleurs gardées en champs pour le FocusListener et le paintComponent du wrapper
     private Color   normalBorderColor;
     private Color   focusBorderColor;
     private boolean focused = false;
 
-    public InputMessageView(Logger logger, IInputMessageController controller) {
+    // stocke le JScrollPane pour que le controller puisse agir sur la scrollbar
+    private JScrollPane inputScrollPane;
+
+    public InputMessageView(Logger logger) {
         this.LOGGER     = logger;
-        this.controller = controller;
+        inputField = new JTextArea();
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
         this.setOpaque(true);
@@ -41,13 +36,8 @@ public class InputMessageView extends JComponent implements View {
         if (this.LOGGER != null) this.LOGGER.debug("InputMessageView initialisée");
     }
 
-    public InputMessageView(Logger logger) {
-        this(logger, null);
-    }
-
     private void init() {
         createInputField();
-        createConnector();
     }
 
     private void createInputField() {
@@ -70,7 +60,6 @@ public class InputMessageView extends JComponent implements View {
                 : new Font("SansSerif", Font.PLAIN, 14);
 
         // ── JTextArea transparent (le fond sera peint par le wrapper) ────────
-        inputField = new JTextArea();
         inputField.setFont(inputFont);
         inputField.setBackground(inputBg);
         inputField.setForeground(inputFg);
@@ -119,6 +108,8 @@ public class InputMessageView extends JComponent implements View {
 
         // ── ScrollPane à l'intérieur du wrapper ──────────────────────────────
         final JScrollPane sp = new JScrollPane(inputField);
+        // store in field so controller can adjust policy
+        this.inputScrollPane = sp;
         sp.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
         sp.setBorder(null);
         sp.setOpaque(false);
@@ -127,42 +118,7 @@ public class InputMessageView extends JComponent implements View {
 
         roundedWrapper.add(sp, BorderLayout.CENTER);
 
-        // ── Focus listener → repeindre la bordure ────────────────────────────
-        inputField.addFocusListener(new FocusAdapter() {
-            @Override public void focusGained(FocusEvent e) {
-                focused = true;
-                roundedWrapper.repaint();
-            }
-            @Override public void focusLost(FocusEvent e) {
-                focused = false;
-                roundedWrapper.repaint();
-            }
-        });
-
-        // ── Ajustement dynamique 1..3 lignes ────────────────────────────────
-        inputField.getDocument().addDocumentListener(new DocumentListener() {
-            private void adjust() {
-                SwingUtilities.invokeLater(() -> {
-                    int actualLines = inputField.getLineCount();
-                    if (actualLines < 1) actualLines = 1;
-                    int rows = Math.min(actualLines, 3);
-
-                    sp.setVerticalScrollBarPolicy(inputField.getLineCount() > 3
-                            ? ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED
-                            : ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-
-                    if (inputField.getRows() != rows) {
-                        inputField.setRows(rows);
-                        inputField.revalidate();
-                        inputField.repaint();
-                        InputMessageView.this.revalidate();
-                    }
-                });
-            }
-            @Override public void insertUpdate(DocumentEvent e)  { adjust(); }
-            @Override public void removeUpdate(DocumentEvent e)   { adjust(); }
-            @Override public void changedUpdate(DocumentEvent e)  { adjust(); }
-        });
+        // Focus and document listeners removed — controller now attaches them
 
         // ── Ajout dans le layout principal ───────────────────────────────────
         GridBagConstraints gbc = new GridBagConstraints(
@@ -173,34 +129,34 @@ public class InputMessageView extends JComponent implements View {
         this.add(roundedWrapper, gbc);
     }
 
-    private void createConnector() {
-        InputMap  im = inputField.getInputMap(JComponent.WHEN_FOCUSED);
-        ActionMap am = inputField.getActionMap();
 
-        im.put(KeyStroke.getKeyStroke("shift ENTER"), DefaultEditorKit.insertBreakAction);
-        im.put(KeyStroke.getKeyStroke("ctrl ENTER"),  DefaultEditorKit.insertBreakAction);
-        im.put(KeyStroke.getKeyStroke("ENTER"), "sendMessage");
-
-        am.put("sendMessage", new AbstractAction() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                if (LOGGER != null) LOGGER.debug("Enter pressed: " + getMessageText());
-                if (onSendRequested != null) onSendRequested.run();
-            }
-        });
+    public JTextArea getInputField() {
+        return inputField;
     }
 
-    public String getMessageText()  { return inputField.getText(); }
-    public void   clearInput()      { inputField.setText(""); }
-
-    public String consumeMessage() {
-        String t = getMessageText();
-        clearInput();
-        return t;
+    public void setOnSendRequested(Runnable onSendRequested) {
+        this.onSendRequested = onSendRequested;
     }
 
-    public void setOnSendRequested(Runnable handler) {
-        this.onSendRequested = handler;
+    /**
+     * Permet au controller de forcer l'état de focus (met à jour le flag et repaint le wrapper).
+     */
+    public void setFocused(boolean focused) {
+        this.focused = focused;
+        // repaint entire component so rounded wrapper repaints using the focused field
+        this.repaint();
+    }
+
+    public void setInputRows(int rows) {
+        if (rows < 1) rows = 1;
+        inputField.setRows(rows);
+        inputField.revalidate();
+        inputField.repaint();
+        this.revalidate();
+    }
+
+    public void setVerticalScrollBarPolicy(int policy) {
+        if (inputScrollPane != null) inputScrollPane.setVerticalScrollBarPolicy(policy);
     }
 
     @Override

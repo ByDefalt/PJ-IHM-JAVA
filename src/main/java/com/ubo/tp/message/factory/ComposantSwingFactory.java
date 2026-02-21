@@ -32,21 +32,21 @@ public class ComposantSwingFactory implements Factory {
         return new RegisterView(LOGGER, registerController, navigationController);
     }
 
-    public static ListCanalView createListCanalController(Logger LOGGER, IDataManager dataManager) {
+    public static ListCanalView createListCanalView(Logger LOGGER, IDataManager dataManager) {
         ListCanalView listCanalView = new ListCanalView(LOGGER);
         IListCanalGraphicController listCanalGraphicController = new ListCanalGraphicController(LOGGER, listCanalView);
         IListCanalController canalController = new ListCanalController(LOGGER, dataManager, listCanalGraphicController);
         return listCanalView;
     }
 
-    public static ListMessageView createListMessageController(Logger LOGGER, IDataManager dataManager, ISession session) {
+    public static ListMessageView createListMessageView(Logger LOGGER, IDataManager dataManager, ISession session) {
         ListMessageView listMessageView = new ListMessageView(LOGGER);
         IListMessageGraphicController listMessageGraphicController = new ListMessageGraphicController(LOGGER, listMessageView);
         IListMessageController listMessageController = new ListMessageController(LOGGER, dataManager, session, listMessageGraphicController);
         return listMessageView;
     }
 
-    public static ListUserView createListUserController(Logger LOGGER, IDataManager dataManager) {
+    public static ListUserView createListUserView(Logger LOGGER, IDataManager dataManager) {
         ListUserView listUserView = new ListUserView(LOGGER);
         IListUserGraphicController listUserGraphicController = new ListUserGraphicController(LOGGER, listUserView);
         IListUserController listUserController = new ListUserController(LOGGER, dataManager, listUserGraphicController);
@@ -55,14 +55,16 @@ public class ComposantSwingFactory implements Factory {
 
     public static InputMessageView createInputMessageView(Logger LOGGER, IDataManager dataManager, ISession session) {
         InputMessageController inputMessageController = new InputMessageController(LOGGER, dataManager, session);
-        return new InputMessageView(LOGGER, inputMessageController);
+        InputMessageView inputMessageView = new InputMessageView(LOGGER);
+        IInputMessageGraphicController inputMessageGraphicController = new InputMessageGraphicController(LOGGER, inputMessageView, inputMessageController);
+        return inputMessageView;
     }
 
     public static ChatMainView createChatMainView(Logger LOGGER, IDataManager dataManager, ISession session) {
         InputMessageView inputMessageView = createInputMessageView(LOGGER, dataManager, session);
-        ListCanalView listCanalView = createListCanalController(LOGGER, dataManager);
-        ListMessageView listMessageView = createListMessageController(LOGGER, dataManager, session);
-        ListUserView listUserView = createListUserController(LOGGER, dataManager);
+        ListCanalView listCanalView = createListCanalView(LOGGER, dataManager);
+        ListMessageView listMessageView = createListMessageView(LOGGER, dataManager, session);
+        ListUserView listUserView = createListUserView(LOGGER, dataManager);
 
         return new ChatMainView(
                 LOGGER,

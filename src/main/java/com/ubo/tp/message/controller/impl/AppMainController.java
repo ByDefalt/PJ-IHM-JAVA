@@ -38,11 +38,11 @@ public class AppMainController implements IAppMainController {
         // Connecter le callback de la vue à la logique du contrôleur
         this.graphicController.setOnExchangeDirectorySelected(this::onExchangeDirectorySelected);
 
-        this.graphicController.setMainContent(
+        this.graphicController.setMainView(
                 ComposantSwingFactory.createLoginView(
                         logger,
                         dataManager,
-                        new NavigationController(logger, dataManager, session,this.graphicController.getAppMainView()),
+                        new NavigationController(logger, dataManager, session,this.graphicController),
                         session
                 )
         );

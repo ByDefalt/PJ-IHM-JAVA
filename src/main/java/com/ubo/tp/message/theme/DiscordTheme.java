@@ -51,18 +51,14 @@ public class DiscordTheme extends AbstractTheme {
     @Override
     public void apply() {
 
-        // ── 1. UI Defaults AVANT d'installer le LAF ─────────────────────────
-
-        // Géométrie et focus
         UIManager.put("Component.arc",              8);
-        UIManager.put("Button.arc",                 4);   // Discord : boutons peu arrondis
+        UIManager.put("Button.arc",                 4);
         UIManager.put("TextComponent.arc",          8);
         UIManager.put("TextArea.arc",               8);
         UIManager.put("Component.focusWidth",       2);
         UIManager.put("Component.focusColor",       ACCENT);
         UIManager.put("Component.innerFocusWidth",  0);
 
-        // Scrollbar fine et sombre comme Discord
         UIManager.put("ScrollBar.width",            8);
         UIManager.put("ScrollBar.thumbArc",         4);
         UIManager.put("ScrollBar.background",       BG_SECONDARY);
@@ -71,17 +67,14 @@ public class DiscordTheme extends AbstractTheme {
         UIManager.put("ScrollBar.trackColor",       BG_SECONDARY);
         UIManager.put("ScrollBar.showButtons",      false);
 
-        // Panel / frame
         UIManager.put("Panel.background",           BG_PRIMARY);
         UIManager.put("RootPane.background",        BG_TERTIARY);
         UIManager.put("Desktop.background",         BG_TERTIARY);
         UIManager.put("control",                    BG_PRIMARY);
 
-        // Label
         UIManager.put("Label.foreground",           TEXT_NORMAL);
         UIManager.put("Label.disabledForeground",   TEXT_MUTED);
 
-        // Button — style Discord "bouton secondaire"
         UIManager.put("Button.background",          BG_MODIFIER);
         UIManager.put("Button.foreground",          TEXT_HEADING);
         UIManager.put("Button.hoverBackground",     new ColorUIResource(0x5D6269));
@@ -90,13 +83,12 @@ public class DiscordTheme extends AbstractTheme {
         UIManager.put("Button.disabledForeground",  TEXT_MUTED);
         UIManager.put("Button.focusedBackground",   BG_MODIFIER);
         UIManager.put("Button.borderColor",         BG_MODIFIER);
-        UIManager.put("Button.default.background",  ACCENT);          // bouton principal
+        UIManager.put("Button.default.background",  ACCENT);
         UIManager.put("Button.default.foreground",  TEXT_HEADING);
         UIManager.put("Button.default.hoverBackground",  ACCENT_HOVER);
         UIManager.put("Button.default.focusedBackground",ACCENT_HOVER);
         UIManager.put("Button.default.borderColor", ACCENT);
 
-        // TextField
         UIManager.put("TextField.background",       BG_INPUT);
         UIManager.put("TextField.foreground",       TEXT_NORMAL);
         UIManager.put("TextField.caretForeground",  TEXT_NORMAL);
@@ -106,19 +98,16 @@ public class DiscordTheme extends AbstractTheme {
         UIManager.put("TextField.borderColor",      BG_TERTIARY);
         UIManager.put("TextField.focusedBorderColor", ACCENT);
 
-        // TextArea
         UIManager.put("TextArea.background",        BG_INPUT);
         UIManager.put("TextArea.foreground",        TEXT_NORMAL);
         UIManager.put("TextArea.caretForeground",   TEXT_NORMAL);
         UIManager.put("TextArea.selectionBackground", ACCENT);
         UIManager.put("TextArea.selectionForeground", TEXT_HEADING);
 
-        // PasswordField
         UIManager.put("PasswordField.background",   BG_INPUT);
         UIManager.put("PasswordField.foreground",   TEXT_NORMAL);
         UIManager.put("PasswordField.caretForeground", TEXT_NORMAL);
 
-        // ComboBox
         UIManager.put("ComboBox.background",        BG_INPUT);
         UIManager.put("ComboBox.foreground",        TEXT_NORMAL);
         UIManager.put("ComboBox.buttonBackground",  BG_INPUT);
@@ -127,14 +116,12 @@ public class DiscordTheme extends AbstractTheme {
         UIManager.put("ComboBox.popupBackground",   BG_FLOATING);
         UIManager.put("ComboBox.borderColor",       BG_TERTIARY);
 
-        // List (liste de canaux, utilisateurs, messages)
         UIManager.put("List.background",            BG_PRIMARY);
         UIManager.put("List.foreground",            TEXT_NORMAL);
         UIManager.put("List.selectionBackground",   BG_MODIFIER);
         UIManager.put("List.selectionForeground",   TEXT_HEADING);
         UIManager.put("List.hoverBackground",       new ColorUIResource(0x42454B));
 
-        // Table
         UIManager.put("Table.background",           BG_PRIMARY);
         UIManager.put("Table.foreground",           TEXT_NORMAL);
         UIManager.put("Table.gridColor",            SEPARATOR);
@@ -143,17 +130,14 @@ public class DiscordTheme extends AbstractTheme {
         UIManager.put("TableHeader.background",     BG_SECONDARY);
         UIManager.put("TableHeader.foreground",     TEXT_MUTED);
 
-        // Tree (si utilisé)
         UIManager.put("Tree.background",            BG_SECONDARY);
         UIManager.put("Tree.foreground",            TEXT_NORMAL);
         UIManager.put("Tree.selectionBackground",   BG_MODIFIER);
         UIManager.put("Tree.selectionForeground",   TEXT_HEADING);
 
-        // ScrollPane
         UIManager.put("ScrollPane.background",      BG_PRIMARY);
         UIManager.put("ScrollPane.border",          BorderFactory.createEmptyBorder());
 
-        // ToolTip — Discord : fond très sombre, petit texte blanc
         UIManager.put("ToolTip.background",         BG_FLOATING);
         UIManager.put("ToolTip.foreground",         TEXT_HEADING);
         UIManager.put("ToolTip.border",
@@ -161,7 +145,6 @@ public class DiscordTheme extends AbstractTheme {
                         BorderFactory.createLineBorder(BG_MODIFIER, 1),
                         BorderFactory.createEmptyBorder(6, 10, 6, 10)));
 
-        // MenuBar / Menu
         UIManager.put("MenuBar.background",         BG_TERTIARY);
         UIManager.put("MenuBar.foreground",         TEXT_NORMAL);
         UIManager.put("MenuBar.borderColor",        SEPARATOR);
@@ -177,7 +160,6 @@ public class DiscordTheme extends AbstractTheme {
         UIManager.put("MenuItem.selectionBackground", ACCENT);
         UIManager.put("MenuItem.selectionForeground", TEXT_HEADING);
 
-        // TabbedPane
         UIManager.put("TabbedPane.background",      BG_PRIMARY);
         UIManager.put("TabbedPane.foreground",      TEXT_MUTED);
         UIManager.put("TabbedPane.selectedBackground", BG_PRIMARY);
@@ -185,20 +167,16 @@ public class DiscordTheme extends AbstractTheme {
         UIManager.put("TabbedPane.underlineColor",  ACCENT);
         UIManager.put("TabbedPane.hoverColor",      BG_MODIFIER);
 
-        // SplitPane — séparateur fin et discret
         UIManager.put("SplitPane.background",       BG_TERTIARY);
         UIManager.put("SplitPaneDivider.draggingColor", ACCENT);
         UIManager.put("SplitPane.dividerSize",      4);
 
-        // Separator
         UIManager.put("Separator.foreground",       SEPARATOR);
         UIManager.put("Separator.background",       SEPARATOR);
 
-        // ProgressBar
         UIManager.put("ProgressBar.background",     BG_TERTIARY);
         UIManager.put("ProgressBar.foreground",     ACCENT);
 
-        // CheckBox / RadioButton
         UIManager.put("CheckBox.background",        BG_PRIMARY);
         UIManager.put("CheckBox.foreground",        TEXT_NORMAL);
         UIManager.put("CheckBox.icon.background",   BG_INPUT);
@@ -206,30 +184,24 @@ public class DiscordTheme extends AbstractTheme {
         UIManager.put("RadioButton.background",     BG_PRIMARY);
         UIManager.put("RadioButton.foreground",     TEXT_NORMAL);
 
-        // Spinner
         UIManager.put("Spinner.background",         BG_INPUT);
         UIManager.put("Spinner.foreground",         TEXT_NORMAL);
         UIManager.put("Spinner.borderColor",        BG_TERTIARY);
 
-        // Dialog / OptionPane
         UIManager.put("OptionPane.background",      BG_SECONDARY);
         UIManager.put("OptionPane.foreground",      TEXT_NORMAL);
         UIManager.put("OptionPane.messageForeground",TEXT_NORMAL);
         UIManager.put("Dialog.background",          BG_SECONDARY);
 
-        // TitlePane (fenêtre décorative FlatLaf)
         UIManager.put("TitlePane.background",       BG_TERTIARY);
         UIManager.put("TitlePane.foreground",       TEXT_HEADING);
         UIManager.put("TitlePane.buttonHoverBackground",  BG_MODIFIER);
         UIManager.put("TitlePane.buttonPressedBackground",new ColorUIResource(0x686D73));
 
-        // Police — Discord utilise GG Sans / Whitney, fallback propre
         applyFont("Segoe UI", 14);
 
-        // ── 2. Installer FlatLaf ─────────────────────────────────────────────
         FlatDarkLaf.setup();
 
-        // ── 3. Rafraîchir les fenêtres ouvertes ─────────────────────────────
         for (Window w : Window.getWindows()) {
             SwingUtilities.updateComponentTreeUI(w);
             w.pack();
@@ -237,7 +209,6 @@ public class DiscordTheme extends AbstractTheme {
         }
     }
 
-    // ── Helpers ──────────────────────────────────────────────────────────────
 
     /** Convertit un int RGB hexadécimal en ColorUIResource. */
     private static ColorUIResource c(int rgb) {
