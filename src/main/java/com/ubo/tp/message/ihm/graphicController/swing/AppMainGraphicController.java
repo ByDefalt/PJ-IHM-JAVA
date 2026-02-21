@@ -14,6 +14,7 @@ public class AppMainGraphicController implements IAppMainGraphicController, ISes
 
     private final ViewContext viewContext;
     private final AppMainView appMainView;
+    private Runnable clearSelected;
 
     public AppMainGraphicController(ViewContext viewContext, AppMainView appMainView) {
         this.viewContext = viewContext;
@@ -48,6 +49,11 @@ public class AppMainGraphicController implements IAppMainGraphicController, ISes
     }
 
     @Override
+    public void setClearSelected(Runnable clearSelected) {
+        this.clearSelected = clearSelected;
+    }
+
+    @Override
     public void notifyLogin(User connectedUser) {
         appMainView.setConnectMenuVisible(true);
     }
@@ -55,5 +61,6 @@ public class AppMainGraphicController implements IAppMainGraphicController, ISes
     @Override
     public void notifyLogout() {
         appMainView.setConnectMenuVisible(false);
+        if (clearSelected != null) clearSelected.run();
     }
 }

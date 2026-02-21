@@ -51,6 +51,5 @@ public class NavigationController implements INavigationController, ISessionObse
     @Override
     public void notifyLogout() {
         this.navigateToLogin();
-        this.context.selected().clearSelectedChannel();
     }
 }

@@ -37,6 +37,7 @@ public class AppMainController implements IAppMainController {
 
         // Connecter le callback de la vue à la logique du contrôleur
         this.graphicController.setOnExchangeDirectorySelected(this::onExchangeDirectorySelected);
+        this.graphicController.setClearSelected(this::clearSelected);
 
         // Créer le NavigationController et passer le contexte
         NavigationController navigationController = new NavigationController(this.context, this.graphicController, this.viewContext);
@@ -64,5 +65,9 @@ public class AppMainController implements IAppMainController {
 
     public IAppMainGraphicController getGraphicController() {
         return this.graphicController;
+    }
+
+    public void clearSelected() {
+        context.selected().clearSelectedChannel();
     }
 }

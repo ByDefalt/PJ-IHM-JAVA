@@ -10,4 +10,6 @@ public interface IAppMainGraphicController extends GraphicController {
     void setOnExchangeDirectorySelected(Consumer<String> onExchangeDirectorySelected);
 
     void setMainView(View component);
+
+    void setClearSelected(Runnable clearSelected);
 }
