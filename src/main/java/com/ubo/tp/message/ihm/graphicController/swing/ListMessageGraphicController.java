@@ -44,11 +44,6 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
         if(viewContext.selected().getSelectedChannel() == null && viewContext.selected().getSelectedUser() == null) return filtered;
 
         var sel = viewContext.selected();
-        if (sel == null || (sel.getSelectedUser() == null && sel.getSelectedChannel() == null)) {
-            filtered.addAll(messages);
-            return filtered;
-        }
-
         if (sel.getSelectedUser() != null) {
             var selectedUser = sel.getSelectedUser();
             var connectedUser = (viewContext.session() != null) ? viewContext.session().getConnectedUser() : null;
