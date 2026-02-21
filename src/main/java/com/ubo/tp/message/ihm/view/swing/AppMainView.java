@@ -19,6 +19,7 @@ public class AppMainView extends JComponent implements View {
     private final ViewContext viewContext;
     private final JPanel contentPanel;
     private final CardLayout contentLayout;
+    private JMenu connectMenu;
     private Consumer<String> onExchangeDirectorySelected;
 
     public AppMainView(ViewContext viewContext) {
@@ -26,14 +27,12 @@ public class AppMainView extends JComponent implements View {
         this.viewContext.logger().info("Initialisation de AppMainView");
 
         this.mainFrame = new JFrame("MessageApp");
-        // Intercepter la fermeture pour s'assurer que l'on déclenche la déconnexion
         this.mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         this.mainFrame.setSize(800, 600);
         this.mainFrame.setMinimumSize(new Dimension(800, 600));
         Image iconImage = LoadIcon.loadIcon("/images/logo_20.png");
         this.mainFrame.setIconImage(iconImage);
 
-        // Listener pour déclencher la déconnexion si un utilisateur est connecté
         this.mainFrame.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent e) {
@@ -41,14 +40,12 @@ public class AppMainView extends JComponent implements View {
                 try {
                     if (viewContext.session() != null && viewContext.session().getConnectedUser() != null) {
                         viewContext.logger().info("Déconnexion en cours...");
-                        // Effectuer la déconnexion en arrière-plan pour ne pas bloquer l'EDT
                         new Thread(() -> {
                             try {
                                 viewContext.session().disconnect();
                             } catch (Exception ex) {
                                 viewContext.logger().error("Erreur lors de la déconnexion", ex);
                             } finally {
-                                // Fermer la fenêtre puis quitter l'application
                                 SwingUtilities.invokeLater(() -> {
                                     mainFrame.dispose();
                                     System.exit(0);
@@ -73,6 +70,19 @@ public class AppMainView extends JComponent implements View {
 
         this.createMenuBar();
         this.viewContext.logger().info("AppMainView initialisée");
+    }
+
+    /**
+     * Affiche ou masque le menu "Connexion" selon l'état de la session.
+     * Peut être appelée depuis n'importe quel thread.
+     */
+    public void setConnectMenuVisible(boolean visible) {
+        SwingUtilities.invokeLater(() -> {
+            connectMenu.setVisible(visible);
+            // Forcer le rafraîchissement de la barre de menu
+            mainFrame.getJMenuBar().revalidate();
+            mainFrame.getJMenuBar().repaint();
+        });
     }
 
     /**
@@ -108,6 +118,7 @@ public class AppMainView extends JComponent implements View {
     private void createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
 
+        // Menu Fichier
         JMenu fileMenu = new JMenu("Fichier");
 
         JMenuItem selectDirItem = new JMenuItem("Sélectionner répertoire",
@@ -118,23 +129,32 @@ public class AppMainView extends JComponent implements View {
 
         JMenuItem exitItem = new JMenuItem("Quitter",
                 new ImageIcon(Objects.requireNonNull(LoadIcon.loadIcon("/images/exitIcon_20.png"))));
-        exitItem.addActionListener(e -> mainFrame.dispatchEvent(new java.awt.event.WindowEvent(mainFrame, java.awt.event.WindowEvent.WINDOW_CLOSING)));
+        exitItem.addActionListener(e -> mainFrame.dispatchEvent(
+                new java.awt.event.WindowEvent(mainFrame, java.awt.event.WindowEvent.WINDOW_CLOSING)));
         fileMenu.add(exitItem);
 
+        // Menu Aide
         JMenu helpMenu = new JMenu("Aide");
         JMenuItem aboutItem = new JMenuItem("À propos",
                 new ImageIcon(Objects.requireNonNull(LoadIcon.loadIcon("/images/logo_20.png"))));
         aboutItem.addActionListener(_ -> this.showAboutDialog());
         helpMenu.add(aboutItem);
 
-        JMenu connectMenu = new JMenu("Connexion");
-        JMenuItem connectItem = new JMenuItem("Déconnexion");
-        connectItem.addActionListener(_ ->{if(this.viewContext.session().getConnectedUser()!=null) this.viewContext.session().disconnect();});
-        connectMenu.add(connectItem);
+        // Menu Connexion — caché par défaut, affiché uniquement si connecté
+        this.connectMenu = new JMenu("Connexion");
+        this.connectMenu.setVisible(false);
+
+        JMenuItem disconnectItem = new JMenuItem("Déconnexion");
+        disconnectItem.addActionListener(_ -> {
+            if (this.viewContext.session().getConnectedUser() != null) {
+                this.viewContext.session().disconnect();
+            }
+        });
+        this.connectMenu.add(disconnectItem);
 
         menuBar.add(fileMenu);
         menuBar.add(helpMenu);
-        menuBar.add(connectMenu);
+        menuBar.add(this.connectMenu);
 
         this.mainFrame.setJMenuBar(menuBar);
         this.viewContext.logger().debug("MenuBar créé");
