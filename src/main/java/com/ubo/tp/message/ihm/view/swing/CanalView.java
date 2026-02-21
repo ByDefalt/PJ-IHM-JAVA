@@ -12,11 +12,10 @@ public class CanalView extends JComponent implements View {
     private final Logger LOGGER;
 
     private JLabel canalNameLabel;
-
     private Channel channel;
 
     public CanalView(Logger logger, Channel channel) {
-        this.LOGGER = logger;
+        this.LOGGER  = logger;
         this.channel = channel;
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
@@ -27,16 +26,24 @@ public class CanalView extends JComponent implements View {
     }
 
     private void init() {
-
         setOpaque(true);
         createNameLabel();
         createConnector();
     }
 
     private void createNameLabel() {
+        // Police du thème, bold 13
+        Font baseFont   = UIManager.getFont("Label.font");
+        Font labelFont  = (baseFont != null) ? baseFont.deriveFont(Font.BOLD, 13f)
+                : new Font("SansSerif", Font.BOLD, 13);
+
+        // Texte normal Discord (#DCDDDE)
+        Color labelColor = UIManager.getColor("Label.foreground");
+        if (labelColor == null) labelColor = new Color(220, 221, 222);
+
         canalNameLabel = new JLabel(channel.getName() != null ? channel.getName() : "");
-        canalNameLabel.setFont(new Font("Arial", Font.BOLD, 13));
-        canalNameLabel.setForeground(Color.BLACK);
+        canalNameLabel.setFont(labelFont);
+        canalNameLabel.setForeground(labelColor);
 
         GridBagConstraints gbc = new GridBagConstraints(
                 0, 0, 1, 1, 1.0, 0.0,
@@ -69,8 +76,6 @@ public class CanalView extends JComponent implements View {
         this.channel = channel;
         canalNameLabel.setText(channel.getName() != null ? channel.getName() : "");
         if (LOGGER != null) LOGGER.debug("CanalView.setChannel : '" + oldName + "' -> '" + channel.getName() + "'");
-        //TODO: le reste des infos du canal (description, nombre de membres, etc.)
-        // Forcer rafraîchissement visuel
         this.revalidate();
         this.repaint();
     }

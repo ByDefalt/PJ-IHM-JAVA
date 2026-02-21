@@ -1,92 +1,278 @@
 package com.ubo.tp.message.theme;
 
 import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.util.ColorFunctions;
 
 import javax.swing.*;
 import javax.swing.plaf.ColorUIResource;
+import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 
 /**
- * Thème "Discord-like" basé sur FlatLaf Dark.
- * <p>
- * Définit des UI defaults cohérents avec les vues du projet (ListUserView, ListCanalView,
- * ListMessageView, InputMessageView, UserView, MessageView, etc.).
+ * Thème Discord fidèle — basé sur FlatLaf Dark.
+ *
+ * Palette officielle Discord (Dark Mode) :
+ *   #36393F  background primary     (panneaux centraux)
+ *   #2F3136  background secondary   (sidebars)
+ *   #202225  background tertiary    (barre de membres, header de groupe)
+ *   #18191C  background floating    (menus, tooltips, modals)
+ *   #40444B  channel text input
+ *   #DCDDDE  text normal
+ *   #B9BBBE  text muted
+ *   #FFFFFF  text heading
+ *   #5865F2  bleu accent / brand
+ *   #3BA55D  vert (online / success)
+ *   #ED4245  rouge (danger / déconnexion)
  */
 public class DiscordTheme extends AbstractTheme {
 
+    // ── Palette ─────────────────────────────────────────────────────────────
+
+    private static final ColorUIResource BG_PRIMARY     = c(0x36393F);
+    private static final ColorUIResource BG_SECONDARY   = c(0x2F3136);
+    private static final ColorUIResource BG_TERTIARY    = c(0x202225);
+    private static final ColorUIResource BG_FLOATING    = c(0x18191C);
+    private static final ColorUIResource BG_INPUT       = c(0x40444B);
+    private static final ColorUIResource BG_MODIFIER    = c(0x4F545C); // hover léger
+
+    private static final ColorUIResource TEXT_NORMAL    = c(0xDCDDDE);
+    private static final ColorUIResource TEXT_MUTED     = c(0x72767D);
+    private static final ColorUIResource TEXT_HEADING   = c(0xFFFFFF);
+
+    private static final ColorUIResource ACCENT         = c(0x5865F2); // bleu Discord
+    private static final ColorUIResource ACCENT_HOVER   = c(0x4752C4);
+    private static final ColorUIResource SUCCESS        = c(0x3BA55D);
+    private static final ColorUIResource DANGER         = c(0xED4245);
+    private static final ColorUIResource SEPARATOR      = c(0x42454B);
+
+    private static final ColorUIResource SCROLLBAR      = c(0x202225);
+    private static final ColorUIResource SCROLLBAR_THUMB= c(0x1A1B1E);
+
     @Override
     public void apply() {
-        // Installer le LAF Flat Dark
-        FlatDarkLaf.setup();
 
-        // Couleurs principales (inspirées de Discord Dark)
-        ColorUIResource background = new ColorUIResource(54, 57, 63); // panel background
-        ColorUIResource sidebar = new ColorUIResource(47, 49, 54); // sidebar
-        ColorUIResource panel = new ColorUIResource(64, 68, 75);
-        ColorUIResource accent = new ColorUIResource(88, 101, 242); // bleu accent
-        ColorUIResource muted = new ColorUIResource(100, 100, 100);
-        ColorUIResource white = new ColorUIResource(220, 221, 222);
+        // ── 1. UI Defaults AVANT d'installer le LAF ─────────────────────────
 
-        // Formes et arrondis
-        UIManager.put("Component.focusWidth", 2);
-        UIManager.put("Component.focusColor", new ColorUIResource(120, 130, 220));
-        UIManager.put("Button.arc", 10);
-        UIManager.put("TextComponent.arc", 8);
-        UIManager.put("TextArea.arc", 8);
-        UIManager.put("ScrollBar.thumbArc", 8);
-        UIManager.put("ScrollBar.width", 12);
+        // Géométrie et focus
+        UIManager.put("Component.arc",              8);
+        UIManager.put("Button.arc",                 4);   // Discord : boutons peu arrondis
+        UIManager.put("TextComponent.arc",          8);
+        UIManager.put("TextArea.arc",               8);
+        UIManager.put("Component.focusWidth",       2);
+        UIManager.put("Component.focusColor",       ACCENT);
+        UIManager.put("Component.innerFocusWidth",  0);
 
-        // Couleurs globales
-        UIManager.put("Panel.background", background);
-        UIManager.put("control", background);
-        UIManager.put("Label.foreground", white);
-        UIManager.put("List.background", background);
-        UIManager.put("List.foreground", white);
-        UIManager.put("Table.background", background);
+        // Scrollbar fine et sombre comme Discord
+        UIManager.put("ScrollBar.width",            8);
+        UIManager.put("ScrollBar.thumbArc",         4);
+        UIManager.put("ScrollBar.background",       BG_SECONDARY);
+        UIManager.put("ScrollBar.thumb",            SCROLLBAR_THUMB);
+        UIManager.put("ScrollBar.hoverThumbColor",  BG_MODIFIER);
+        UIManager.put("ScrollBar.trackColor",       BG_SECONDARY);
+        UIManager.put("ScrollBar.showButtons",      false);
 
-        // Sidebar specifics
-        UIManager.put("Sidebar.background", sidebar);
-        UIManager.put("Sidebar.foreground", white);
+        // Panel / frame
+        UIManager.put("Panel.background",           BG_PRIMARY);
+        UIManager.put("RootPane.background",        BG_TERTIARY);
+        UIManager.put("Desktop.background",         BG_TERTIARY);
+        UIManager.put("control",                    BG_PRIMARY);
 
-        // Buttons
-        UIManager.put("Button.background", panel);
-        UIManager.put("Button.foreground", white);
-        UIManager.put("Button.selectionBackground", accent);
-        UIManager.put("Button.selectionForeground", white);
+        // Label
+        UIManager.put("Label.foreground",           TEXT_NORMAL);
+        UIManager.put("Label.disabledForeground",   TEXT_MUTED);
 
-        // Tooltips
-        UIManager.put("ToolTip.background", new ColorUIResource(60, 63, 65));
-        UIManager.put("ToolTip.foreground", white);
+        // Button — style Discord "bouton secondaire"
+        UIManager.put("Button.background",          BG_MODIFIER);
+        UIManager.put("Button.foreground",          TEXT_HEADING);
+        UIManager.put("Button.hoverBackground",     new ColorUIResource(0x5D6269));
+        UIManager.put("Button.pressedBackground",   new ColorUIResource(0x686D73));
+        UIManager.put("Button.disabledBackground",  BG_SECONDARY);
+        UIManager.put("Button.disabledForeground",  TEXT_MUTED);
+        UIManager.put("Button.focusedBackground",   BG_MODIFIER);
+        UIManager.put("Button.borderColor",         BG_MODIFIER);
+        UIManager.put("Button.default.background",  ACCENT);          // bouton principal
+        UIManager.put("Button.default.foreground",  TEXT_HEADING);
+        UIManager.put("Button.default.hoverBackground",  ACCENT_HOVER);
+        UIManager.put("Button.default.focusedBackground",ACCENT_HOVER);
+        UIManager.put("Button.default.borderColor", ACCENT);
 
-        // Inputs
-        UIManager.put("TextField.background", new ColorUIResource(60, 63, 65));
-        UIManager.put("TextField.foreground", white);
-        UIManager.put("TextArea.background", new ColorUIResource(60, 63, 65));
-        UIManager.put("TextArea.foreground", white);
+        // TextField
+        UIManager.put("TextField.background",       BG_INPUT);
+        UIManager.put("TextField.foreground",       TEXT_NORMAL);
+        UIManager.put("TextField.caretForeground",  TEXT_NORMAL);
+        UIManager.put("TextField.selectionBackground", ACCENT);
+        UIManager.put("TextField.selectionForeground", TEXT_HEADING);
+        UIManager.put("TextField.placeholderForeground", TEXT_MUTED);
+        UIManager.put("TextField.borderColor",      BG_TERTIARY);
+        UIManager.put("TextField.focusedBorderColor", ACCENT);
+
+        // TextArea
+        UIManager.put("TextArea.background",        BG_INPUT);
+        UIManager.put("TextArea.foreground",        TEXT_NORMAL);
+        UIManager.put("TextArea.caretForeground",   TEXT_NORMAL);
+        UIManager.put("TextArea.selectionBackground", ACCENT);
+        UIManager.put("TextArea.selectionForeground", TEXT_HEADING);
+
+        // PasswordField
+        UIManager.put("PasswordField.background",   BG_INPUT);
+        UIManager.put("PasswordField.foreground",   TEXT_NORMAL);
+        UIManager.put("PasswordField.caretForeground", TEXT_NORMAL);
+
+        // ComboBox
+        UIManager.put("ComboBox.background",        BG_INPUT);
+        UIManager.put("ComboBox.foreground",        TEXT_NORMAL);
+        UIManager.put("ComboBox.buttonBackground",  BG_INPUT);
+        UIManager.put("ComboBox.selectionBackground", ACCENT);
+        UIManager.put("ComboBox.selectionForeground", TEXT_HEADING);
+        UIManager.put("ComboBox.popupBackground",   BG_FLOATING);
+        UIManager.put("ComboBox.borderColor",       BG_TERTIARY);
+
+        // List (liste de canaux, utilisateurs, messages)
+        UIManager.put("List.background",            BG_PRIMARY);
+        UIManager.put("List.foreground",            TEXT_NORMAL);
+        UIManager.put("List.selectionBackground",   BG_MODIFIER);
+        UIManager.put("List.selectionForeground",   TEXT_HEADING);
+        UIManager.put("List.hoverBackground",       new ColorUIResource(0x42454B));
+
+        // Table
+        UIManager.put("Table.background",           BG_PRIMARY);
+        UIManager.put("Table.foreground",           TEXT_NORMAL);
+        UIManager.put("Table.gridColor",            SEPARATOR);
+        UIManager.put("Table.selectionBackground",  ACCENT);
+        UIManager.put("Table.selectionForeground",  TEXT_HEADING);
+        UIManager.put("TableHeader.background",     BG_SECONDARY);
+        UIManager.put("TableHeader.foreground",     TEXT_MUTED);
+
+        // Tree (si utilisé)
+        UIManager.put("Tree.background",            BG_SECONDARY);
+        UIManager.put("Tree.foreground",            TEXT_NORMAL);
+        UIManager.put("Tree.selectionBackground",   BG_MODIFIER);
+        UIManager.put("Tree.selectionForeground",   TEXT_HEADING);
 
         // ScrollPane
-        UIManager.put("ScrollPane.background", background);
+        UIManager.put("ScrollPane.background",      BG_PRIMARY);
+        UIManager.put("ScrollPane.border",          BorderFactory.createEmptyBorder());
 
-        // Message/List item specifics: lighten or darken backgrounds
-        ColorUIResource entryBg = new ColorUIResource(64, 68, 75);
-        ColorUIResource entryHover = new ColorUIResource(72, 75, 82);
-        UIManager.put("List.itemBackground", entryBg);
-        UIManager.put("List.itemHoverBackground", entryHover);
+        // ToolTip — Discord : fond très sombre, petit texte blanc
+        UIManager.put("ToolTip.background",         BG_FLOATING);
+        UIManager.put("ToolTip.foreground",         TEXT_HEADING);
+        UIManager.put("ToolTip.border",
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(BG_MODIFIER, 1),
+                        BorderFactory.createEmptyBorder(6, 10, 6, 10)));
 
-        // Accent
-        UIManager.put("Component.focusColor", accent);
-        UIManager.put("nimbusOrange", accent);
+        // MenuBar / Menu
+        UIManager.put("MenuBar.background",         BG_TERTIARY);
+        UIManager.put("MenuBar.foreground",         TEXT_NORMAL);
+        UIManager.put("MenuBar.borderColor",        SEPARATOR);
+        UIManager.put("Menu.background",            BG_TERTIARY);
+        UIManager.put("Menu.foreground",            TEXT_NORMAL);
+        UIManager.put("Menu.selectionBackground",   ACCENT);
+        UIManager.put("Menu.selectionForeground",   TEXT_HEADING);
+        UIManager.put("PopupMenu.background",       BG_FLOATING);
+        UIManager.put("PopupMenu.foreground",       TEXT_NORMAL);
+        UIManager.put("PopupMenu.borderColor",      BG_MODIFIER);
+        UIManager.put("MenuItem.background",        BG_FLOATING);
+        UIManager.put("MenuItem.foreground",        TEXT_NORMAL);
+        UIManager.put("MenuItem.selectionBackground", ACCENT);
+        UIManager.put("MenuItem.selectionForeground", TEXT_HEADING);
 
-        // Misc
-        UIManager.put("Separator.foreground", new ColorUIResource(75, 78, 85));
+        // TabbedPane
+        UIManager.put("TabbedPane.background",      BG_PRIMARY);
+        UIManager.put("TabbedPane.foreground",      TEXT_MUTED);
+        UIManager.put("TabbedPane.selectedBackground", BG_PRIMARY);
+        UIManager.put("TabbedPane.selectedForeground", TEXT_HEADING);
+        UIManager.put("TabbedPane.underlineColor",  ACCENT);
+        UIManager.put("TabbedPane.hoverColor",      BG_MODIFIER);
 
-        // Force refresh of current windows
+        // SplitPane — séparateur fin et discret
+        UIManager.put("SplitPane.background",       BG_TERTIARY);
+        UIManager.put("SplitPaneDivider.draggingColor", ACCENT);
+        UIManager.put("SplitPane.dividerSize",      4);
+
+        // Separator
+        UIManager.put("Separator.foreground",       SEPARATOR);
+        UIManager.put("Separator.background",       SEPARATOR);
+
+        // ProgressBar
+        UIManager.put("ProgressBar.background",     BG_TERTIARY);
+        UIManager.put("ProgressBar.foreground",     ACCENT);
+
+        // CheckBox / RadioButton
+        UIManager.put("CheckBox.background",        BG_PRIMARY);
+        UIManager.put("CheckBox.foreground",        TEXT_NORMAL);
+        UIManager.put("CheckBox.icon.background",   BG_INPUT);
+        UIManager.put("CheckBox.icon.selectedColor",ACCENT);
+        UIManager.put("RadioButton.background",     BG_PRIMARY);
+        UIManager.put("RadioButton.foreground",     TEXT_NORMAL);
+
+        // Spinner
+        UIManager.put("Spinner.background",         BG_INPUT);
+        UIManager.put("Spinner.foreground",         TEXT_NORMAL);
+        UIManager.put("Spinner.borderColor",        BG_TERTIARY);
+
+        // Dialog / OptionPane
+        UIManager.put("OptionPane.background",      BG_SECONDARY);
+        UIManager.put("OptionPane.foreground",      TEXT_NORMAL);
+        UIManager.put("OptionPane.messageForeground",TEXT_NORMAL);
+        UIManager.put("Dialog.background",          BG_SECONDARY);
+
+        // TitlePane (fenêtre décorative FlatLaf)
+        UIManager.put("TitlePane.background",       BG_TERTIARY);
+        UIManager.put("TitlePane.foreground",       TEXT_HEADING);
+        UIManager.put("TitlePane.buttonHoverBackground",  BG_MODIFIER);
+        UIManager.put("TitlePane.buttonPressedBackground",new ColorUIResource(0x686D73));
+
+        // Police — Discord utilise GG Sans / Whitney, fallback propre
+        applyFont("Segoe UI", 14);
+
+        // ── 2. Installer FlatLaf ─────────────────────────────────────────────
+        FlatDarkLaf.setup();
+
+        // ── 3. Rafraîchir les fenêtres ouvertes ─────────────────────────────
         for (Window w : Window.getWindows()) {
             SwingUtilities.updateComponentTreeUI(w);
-            w.invalidate();
-            w.validate();
+            w.pack();
             w.repaint();
         }
     }
-}
 
+    // ── Helpers ──────────────────────────────────────────────────────────────
+
+    /** Convertit un int RGB hexadécimal en ColorUIResource. */
+    private static ColorUIResource c(int rgb) {
+        return new ColorUIResource(new Color(rgb));
+    }
+
+    /**
+     * Applique une police à tous les composants textuels courants.
+     * Essaie d'abord {@code preferredFamily}, sinon retombe sur "SansSerif".
+     */
+    private void applyFont(String preferredFamily, int size) {
+        String family = isFontAvailable(preferredFamily) ? preferredFamily : "SansSerif";
+        FontUIResource regular = new FontUIResource(family, Font.PLAIN, size);
+        FontUIResource bold    = new FontUIResource(family, Font.BOLD,  size);
+
+        String[] regularKeys = {
+                "Label.font", "Button.font", "TextField.font", "TextArea.font",
+                "List.font", "ComboBox.font", "Table.font", "MenuItem.font",
+                "Menu.font", "MenuBar.font", "ToolTip.font", "CheckBox.font",
+                "RadioButton.font", "TabbedPane.font", "ProgressBar.font",
+                "Spinner.font", "OptionPane.font", "PasswordField.font",
+        };
+        String[] boldKeys = {
+                "TitledBorder.font", "TableHeader.font", "TitlePane.font"
+        };
+
+        for (String key : regularKeys) UIManager.put(key, regular);
+        for (String key : boldKeys)    UIManager.put(key, bold);
+    }
+
+    private boolean isFontAvailable(String name) {
+        for (String f : GraphicsEnvironment.getLocalGraphicsEnvironment()
+                .getAvailableFontFamilyNames()) {
+            if (f.equalsIgnoreCase(name)) return true;
+        }
+        return false;
+    }
+}

@@ -21,6 +21,7 @@ public class ListMessageView extends JComponent implements View {
     private static final DateTimeFormatter DATE_ONLY_FORMATTER = DateTimeFormatter
             .ofPattern("dd/MM/yyyy")
             .withLocale(Locale.FRANCE);
+
     private final Logger logger;
     private final JPanel messagesPanel;
     private final List<MessageView> messages = new ArrayList<>();
@@ -33,61 +34,55 @@ public class ListMessageView extends JComponent implements View {
         messagesPanel = new JPanel(new GridBagLayout());
         messagesPanel.setOpaque(false);
 
-        // Crée un JScrollPane interne au lieu d'hériter de JScrollPane
         scrollPane = new JScrollPane(messagesPanel);
         scrollPane.getViewport().setOpaque(false);
+        scrollPane.getViewport().setBackground(UIManager.getColor("Panel.background"));
         scrollPane.setOpaque(false);
+        scrollPane.setBackground(UIManager.getColor("Panel.background"));
         scrollPane.setBorder(null);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
-        // Utiliser BorderLayout pour contenir le scrollPane
         setLayout(new BorderLayout());
         add(scrollPane, BorderLayout.CENTER);
 
         // Initial vertical glue
         verticalGlue = Box.createVerticalGlue();
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
+        gbc.gridx  = 0;
+        gbc.gridy  = 0;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.fill = GridBagConstraints.VERTICAL;
+        gbc.fill   = GridBagConstraints.VERTICAL;
         messagesPanel.add(verticalGlue, gbc);
     }
 
     /**
-     * Ajoute un IMessageView au panneau des messages.
-     * Insère l'élément dans la liste `messages` en respectant l'ordre chronologique
-     * (ancien -> récent) défini par message.getEmissionDate().
+     * Ajoute un MessageView au panneau des messages.
+     * Insère l'élément dans la liste en respectant l'ordre chronologique (ancien → récent).
      */
     public void addMessage(MessageView messageView) {
         if (messageView == null) {
             return;
         }
 
-        // remove existing glue so we can re-layout messages
         messagesPanel.remove(verticalGlue);
 
-        // Trouver la position d'insertion triée (ordre ascendant sur emissionDate)
-        Message m = messageView.getMessage();
-        long emission = (m != null) ? m.getEmissionDate() : Long.MAX_VALUE;
+        Message m        = messageView.getMessage();
+        long emission    = (m != null) ? m.getEmissionDate() : Long.MAX_VALUE;
+        int insertIndex  = 0;
 
-        int insertIndex = 0;
         while (insertIndex < messages.size()) {
-            MessageView existing = messages.get(insertIndex);
-            Message em = existing.getMessage();
-            long existingEmission = (em != null) ? em.getEmissionDate() : Long.MAX_VALUE;
-            if (existingEmission > emission) {
-                break;
-            }
+            MessageView existing      = messages.get(insertIndex);
+            Message     em            = existing.getMessage();
+            long        existingEmission = (em != null) ? em.getEmissionDate() : Long.MAX_VALUE;
+            if (existingEmission > emission) break;
             insertIndex++;
         }
 
-        // Insérer dans la liste interne et reconstruire l'UI
         messages.add(insertIndex, messageView);
         rebuildMessagesPanel();
 
-        // Scroll to bottom only if we inserted at the end (le plus récent)
+        // Scroll to bottom uniquement si on a inséré le message le plus récent
         if (insertIndex == messages.size() - 1) {
             SwingUtilities.invokeLater(() -> {
                 JScrollBar sb = scrollPane.getVerticalScrollBar();
@@ -101,18 +96,18 @@ public class ListMessageView extends JComponent implements View {
         if (isPresent) {
             if (logger != null) logger.debug("Message déjà présent dans la vue, pas ajouté : " + message);
         } else {
-            this.addMessage(new MessageView(logger, message));
+            addMessage(new MessageView(logger, message));
             if (logger != null) logger.debug("Message ajouté à la vue : " + message);
         }
     }
 
     public void removeMessage(Message message) {
-        Optional<MessageView> opt = messages.stream().filter(mv -> mv.getMessage().equals(message)).findFirst();
+        Optional<MessageView> opt = messages.stream()
+                .filter(mv -> mv.getMessage().equals(message))
+                .findFirst();
+
         if (opt.isPresent()) {
-            MessageView found = opt.get();
-            // remove from internal list
-            this.messages.remove(found);
-            // update UI
+            messages.remove(opt.get());
             removeMessageUI();
             if (logger != null) logger.debug("Message supprimé de la vue : " + message);
         } else {
@@ -121,60 +116,61 @@ public class ListMessageView extends JComponent implements View {
     }
 
     public void updateMessage(Message message) {
-        Optional<MessageView> opt = messages.stream().filter(mv -> mv.getMessage().equals(message)).findFirst();
+        Optional<MessageView> opt = messages.stream()
+                .filter(mv -> mv.getMessage().equals(message))
+                .findFirst();
+
         if (opt.isPresent()) {
-            MessageView MessageView = opt.get();
-            // remove from internal list so we can reinsert sorted if date changed
-            this.messages.remove(MessageView);
+            MessageView mv = opt.get();
+            messages.remove(mv);
+            updateMessageUI(mv, message);
 
-            // update model inside the view and refresh UI
-            updateMessageUI(MessageView, message);
-
-            // Reposition according to the (potentially new) emission date
-            long emission = message.getEmissionDate();
-            int insertIndex = 0;
+            long emission    = message.getEmissionDate();
+            int insertIndex  = 0;
             while (insertIndex < messages.size()) {
-                MessageView existing = messages.get(insertIndex);
-                Message em = existing.getMessage();
-                long existingEmission = (em != null) ? em.getEmissionDate() : Long.MAX_VALUE;
-                if (existingEmission > emission) {
-                    break;
-                }
+                MessageView existing       = messages.get(insertIndex);
+                Message     em             = existing.getMessage();
+                long        existingEmission = (em != null) ? em.getEmissionDate() : Long.MAX_VALUE;
+                if (existingEmission > emission) break;
                 insertIndex++;
             }
 
-            messages.add(insertIndex, MessageView);
+            messages.add(insertIndex, mv);
             rebuildMessagesPanel();
-
             if (logger != null) logger.debug("Message mis à jour dans la vue : " + message);
         } else {
             if (logger != null) logger.debug("Message non trouvé pour mise à jour dans la vue : " + message);
         }
     }
 
+    // ── Construction du panneau ──────────────────────────────────────────────
+
     /**
      * Reconstruit entièrement le panneau des messages à partir de la liste interne.
      */
     private void rebuildMessagesPanel() {
         messagesPanel.removeAll();
-        // re-add all message components in order
-        int row = 0;
+
+        int       row      = 0;
         LocalDate prevDate = null;
+
         for (MessageView mv : messages) {
-            Message msg = mv.getMessage();
+            Message   msg     = mv.getMessage();
             LocalDate msgDate = null;
+
             if (msg != null) {
-                msgDate = Instant.ofEpochMilli(msg.getEmissionDate()).atZone(ZoneId.systemDefault()).toLocalDate();
+                msgDate = Instant.ofEpochMilli(msg.getEmissionDate())
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate();
             }
 
-            // Si la date du message diffère de la précédente (ou si c'est le premier), on insère un séparateur
+            // Séparateur de journée si la date change
             if (msgDate != null && !msgDate.equals(prevDate)) {
-                JComponent sep = createDateSeparator(msgDate);
+                JComponent sep    = createDateSeparator(msgDate);
                 GridBagConstraints gbcSep = new GridBagConstraints(
                         0, row++, 1, 1, 1.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
-                        new Insets(8, 6, 4, 6), 0, 0
-                );
+                        new Insets(8, 6, 4, 6), 0, 0);
                 messagesPanel.add(sep, gbcSep);
                 prevDate = msgDate;
             }
@@ -182,50 +178,70 @@ public class ListMessageView extends JComponent implements View {
             GridBagConstraints gbc = new GridBagConstraints(
                     0, row++, 1, 1, 1.0, 0.0,
                     GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
-                    new Insets(6, 6, 6, 6), 0, 0
-            );
+                    new Insets(6, 6, 6, 6), 0, 0);
             gbc.fill = GridBagConstraints.HORIZONTAL;
             messagesPanel.add(mv, gbc);
         }
-        // add glue at the end
+
+        // Glue final pour pousser les messages vers le haut
         verticalGlue = Box.createVerticalGlue();
         GridBagConstraints gbcGlue = new GridBagConstraints(
                 0, row, 1, 1, 1.0, 1.0,
                 GridBagConstraints.NORTH, GridBagConstraints.BOTH,
-                new Insets(0, 0, 0, 0), 0, 0
-        );
+                new Insets(0, 0, 0, 0), 0, 0);
         messagesPanel.add(verticalGlue, gbcGlue);
+
         messagesPanel.revalidate();
         messagesPanel.repaint();
     }
 
     /**
-     * Crée un composant séparateur centré avec une ligne de chaque côté et la date au centre.
+     * Crée un séparateur centré de type :  ──────── 12/01/2025 ────────
+     * Les couleurs et la police sont lues depuis l'UIManager (thème Discord).
      */
     private JComponent createDateSeparator(LocalDate date) {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setOpaque(false);
 
-        JSeparator left = new JSeparator();
+        // Couleur de la ligne : Separator.foreground défini dans DiscordTheme (#42454B)
+        Color separatorColor = UIManager.getColor("Separator.foreground");
+        // Texte en muted : Label.disabledForeground défini dans DiscordTheme (#72767D)
+        Color textColor      = UIManager.getColor("Label.disabledForeground");
+        // Police héritée du thème, taille 12 bold
+        Font  baseFont       = UIManager.getFont("Label.font");
+        Font  labelFont      = (baseFont != null)
+                ? baseFont.deriveFont(Font.BOLD, 12f)
+                : new Font("SansSerif", Font.BOLD, 12);
+
+        JSeparator left  = new JSeparator();
         JSeparator right = new JSeparator();
+        if (separatorColor != null) {
+            left.setForeground(separatorColor);
+            right.setForeground(separatorColor);
+        }
 
         JLabel label = new JLabel(date.format(DATE_ONLY_FORMATTER));
-        label.setForeground(new Color(150, 150, 150));
-        label.setFont(new Font("Arial", Font.BOLD, 12));
+        label.setForeground(textColor);
+        label.setFont(labelFont);
 
-        GridBagConstraints gbcLeft = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 6, 0, 6), 0, 0);
+        GridBagConstraints gbcLeft  = new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(0, 6, 0, 6), 0, 0);
         GridBagConstraints gbcLabel = new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 6, 0, 6), 0, 0);
+                GridBagConstraints.CENTER, GridBagConstraints.NONE,
+                new Insets(0, 6, 0, 6), 0, 0);
         GridBagConstraints gbcRight = new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 6, 0, 6), 0, 0);
+                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(0, 6, 0, 6), 0, 0);
 
-        panel.add(left, gbcLeft);
+        panel.add(left,  gbcLeft);
         panel.add(label, gbcLabel);
         panel.add(right, gbcRight);
 
         return panel;
     }
+
+    // ── Mises à jour thread-safe ─────────────────────────────────────────────
 
     private void removeMessageUI() {
         if (!SwingUtilities.isEventDispatchThread()) {

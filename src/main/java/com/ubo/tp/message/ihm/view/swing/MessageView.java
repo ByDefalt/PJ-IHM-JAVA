@@ -15,7 +15,7 @@ import java.util.Locale;
 /**
  * Composant représentant un seul message (bulle) — style simple inspiré de Discord.
  * Utilise GridBagLayout et sépare la construction en méthodes.
- * La vue est autonome et n'a pas de référence au controller.
+ * Les couleurs et polices sont lues depuis l'UIManager pour s'intégrer au DiscordTheme.
  */
 public class MessageView extends JComponent implements View {
 
@@ -23,14 +23,16 @@ public class MessageView extends JComponent implements View {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter
             .ofPattern("dd/MM/yyyy HH'h'mm")
             .withLocale(Locale.FRANCE);
-    private final Logger logger;
+
+    private final Logger  logger;
     private final Message message;
-    private JLabel authorLabel;
+
+    private JLabel   authorLabel;
     private JTextArea contentArea;
-    private JLabel timeLabel;
+    private JLabel   timeLabel;
 
     public MessageView(Logger logger, Message message) {
-        this.logger = logger;
+        this.logger  = logger;
         this.message = message;
         this.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         this.setLayout(new GridBagLayout());
@@ -38,18 +40,22 @@ public class MessageView extends JComponent implements View {
 
         init(message);
 
-        if (this.logger != null) this.logger.debug("MessageView initialisée pour '" + message.getSender() + "'");
+        if (this.logger != null)
+            this.logger.debug("MessageView initialisée pour '" + message.getSender() + "'");
     }
 
     private void init(Message message) {
-        // On transmet le timestamp (millis) et on le formate localement
         String authorName = (message.getSender() != null) ? message.getSender().getName() : "";
         createBubble(authorName, message.getText(), message.getEmissionDate());
     }
 
     private void createBubble(String author, String content, long emissionMillis) {
         JPanel bubble = new JPanel(new GridBagLayout());
-        bubble.setBackground(new Color(64, 68, 75));
+
+        // Fond de la bulle : List.selectionBackground (#4F545C) ou fallback
+        Color bubbleBg = UIManager.getColor("List.selectionBackground");
+        if (bubbleBg == null) bubbleBg = UIManager.getColor("Panel.background");
+        bubble.setBackground(bubbleBg);
         bubble.setBorder(new EmptyBorder(6, 8, 6, 8));
         bubble.setOpaque(false);
 
@@ -60,38 +66,40 @@ public class MessageView extends JComponent implements View {
         );
         this.add(bubble, gbcBubble);
 
-        // Header and content inside bubble
         createHeader(bubble, author, emissionMillis);
         createContent(bubble, content);
     }
 
     private void createHeader(JPanel bubble, String author, long emissionMillis) {
+        // Couleur auteur : texte heading blanc (#FFFFFF)
+        Color authorColor = UIManager.getColor("Label.foreground");
+        if (authorColor == null) authorColor = Color.WHITE;
+
+        // Couleur heure : texte muted (#72767D)
+        Color timeColor = UIManager.getColor("Label.disabledForeground");
+        if (timeColor == null) timeColor = new Color(114, 118, 125);
+
+        // Police de base du thème
+        Font baseFont    = UIManager.getFont("Label.font");
+        Font authorFont  = (baseFont != null) ? baseFont.deriveFont(Font.BOLD,  13f)
+                : new Font("SansSerif", Font.BOLD,  13);
+        Font timeFont    = (baseFont != null) ? baseFont.deriveFont(Font.PLAIN, 11f)
+                : new Font("SansSerif", Font.PLAIN, 11);
+
         authorLabel = new JLabel(author != null ? author : "");
-        authorLabel.setForeground(Color.WHITE);
-        authorLabel.setFont(new Font("Arial", Font.BOLD, 12));
+        authorLabel.setForeground(authorColor);
+        authorLabel.setFont(authorFont);
+        authorLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
 
-        timeLabel = new JLabel();
-        timeLabel.setForeground(new Color(170, 170, 170));
-        // Utiliser la même taille de police que l'auteur pour éviter un léger décalage vertical
-        timeLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        timeLabel = new JLabel(formatTimestamp(emissionMillis));
+        timeLabel.setForeground(timeColor);
+        timeLabel.setFont(timeFont);
+        timeLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
+        timeLabel.setBorder(new EmptyBorder(0, 8, 0, 0));
 
-        // Formatter la date à partir du timestamp
-        String formattedTime = formatTimestamp(emissionMillis);
-        timeLabel.setText(formattedTime != null ? formattedTime : "");
-
-        // Header panel pour afficher le nom et la date côte à côte avec un petit espacement
-        // Utiliser BoxLayout horizontal et aligner verticalement les composants au centre
         JPanel headerPanel = new JPanel();
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.X_AXIS));
         headerPanel.setOpaque(false);
-
-        // Aligner verticalement au centre pour corriger la différence d'alignement
-        authorLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
-        timeLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
-
-        // Ajouter un petit espace entre le nom et la date en utilisant une bordure gauche sur la date
-        timeLabel.setBorder(new EmptyBorder(0, 8, 0, 0));
-
         headerPanel.add(authorLabel);
         headerPanel.add(timeLabel);
 
@@ -100,21 +108,34 @@ public class MessageView extends JComponent implements View {
                 GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
                 new Insets(0, 0, 4, 0), 0, 0
         );
-
         bubble.add(headerPanel, gbcHeader);
     }
 
     private void createContent(JPanel bubble, String content) {
+        // Couleur du texte du message : text normal (#DCDDDE)
+        Color contentColor = UIManager.getColor("TextArea.foreground");
+        if (contentColor == null) contentColor = UIManager.getColor("Label.foreground");
+        if (contentColor == null) contentColor = new Color(220, 221, 222);
+
+        // Police du contenu : légèrement plus grande que le label
+        Font baseFont    = UIManager.getFont("TextArea.font");
+        Font contentFont = (baseFont != null) ? baseFont.deriveFont(Font.PLAIN, 13f)
+                : new Font("SansSerif", Font.PLAIN, 13);
+
         contentArea = new JTextArea();
         contentArea.setEditable(false);
         contentArea.setLineWrap(true);
         contentArea.setWrapStyleWord(true);
         contentArea.setOpaque(false);
-        contentArea.setForeground(Color.WHITE);
-        contentArea.setFont(new Font("Arial", Font.PLAIN, 13));
+        contentArea.setForeground(contentColor);
+        contentArea.setFont(contentFont);
         contentArea.setBorder(null);
         contentArea.setFocusable(false);
         contentArea.setText(content != null ? content : "");
+
+        // Couleur du caret (invisible car non éditable, mais cohérent)
+        Color caretColor = UIManager.getColor("TextArea.caretForeground");
+        if (caretColor != null) contentArea.setCaretColor(caretColor);
 
         GridBagConstraints gbcContent = new GridBagConstraints(
                 0, 1, 2, 1, 1.0, 0.0,
@@ -145,9 +166,11 @@ public class MessageView extends JComponent implements View {
      */
     private String formatTimestamp(long millis) {
         try {
-            return DATE_FORMATTER.format(Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()));
+            return DATE_FORMATTER.format(
+                    Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()));
         } catch (Exception e) {
-            if (this.logger != null) this.logger.debug("Erreur formatage date: " + e.getMessage());
+            if (this.logger != null)
+                this.logger.debug("Erreur formatage date: " + e.getMessage());
             return String.valueOf(millis);
         }
     }
