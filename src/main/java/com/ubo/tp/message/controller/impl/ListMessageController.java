@@ -4,6 +4,7 @@ package com.ubo.tp.message.controller.impl;
 import com.ubo.tp.message.controller.service.IListMessageController;
 import com.ubo.tp.message.core.IDataManager;
 import com.ubo.tp.message.core.database.observer.IMessageDatabaseObserver;
+import com.ubo.tp.message.core.session.ISession;
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.ihm.graphicController.service.IListMessageGraphicController;
 import com.ubo.tp.message.logger.Logger;
@@ -13,11 +14,13 @@ public class ListMessageController implements IListMessageController, IMessageDa
     private final Logger LOGGER;
 
     private final IDataManager dataManager;
+    private final ISession session;
     private final IListMessageGraphicController graphicController;
 
-    public ListMessageController(Logger logger, IDataManager dataManager, IListMessageGraphicController graphicController) {
+    public ListMessageController(Logger logger, IDataManager dataManager, ISession session, IListMessageGraphicController graphicController) {
         LOGGER = logger;
         this.dataManager = dataManager;
+        this.session = session;
         this.graphicController = graphicController;
 
         this.dataManager.addObserver(this);

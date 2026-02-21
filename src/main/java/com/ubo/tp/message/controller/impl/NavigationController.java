@@ -46,7 +46,7 @@ public class NavigationController implements INavigationController, ISessionObse
     @Override
     public void notifyLogin(User connectedUser) {
         LOGGER.info("notifyLogin");
-        this.setMainContent(ComposantSwingFactory.createChatMainView(LOGGER, dataManager));
+        this.setMainContent(ComposantSwingFactory.createChatMainView(LOGGER, dataManager, session));
     }
 
     @Override

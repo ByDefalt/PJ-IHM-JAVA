@@ -25,11 +25,10 @@ import java.util.UUID;
  */
 public class MessageAppLauncher {
 
-    protected static boolean IS_MOCK_ENABLED = true;
+    protected static boolean IS_MOCK_ENABLED = false;
     protected static String EXCHANGE_DIRECTORY_PATH = "E:\\ihm";
 
-    static void main(String[] args) throws InterruptedException {
-        // Nettoyage du répertoire d'échange (hors EDT, c'est correct)
+    static void main(String[] args) {
         try {
             java.io.File exchangeDir = new java.io.File(EXCHANGE_DIRECTORY_PATH);
             if (!exchangeDir.exists()) exchangeDir.mkdirs();
@@ -51,12 +50,13 @@ public class MessageAppLauncher {
         DbConnector dbConnector = new DbConnector(database);
         MessageAppMock mock = new MessageAppMock(dbConnector, dataManager);
 
-        // TOUTE construction et affichage de l'UI doit se faire sur l'EDT
         SwingUtilities.invokeLater(() -> {
-            //mock.showGUI();
             MessageApp messageApp = new MessageApp(dataManager, logger, session);
             messageApp.init();
             messageApp.show();
+            if (IS_MOCK_ENABLED) {
+                mock.showGUI();
+            }
         });
     }
 

@@ -39,10 +39,10 @@ public class ComposantSwingFactory implements Factory {
         return listCanalView;
     }
 
-    public static ListMessageView createListMessageController(Logger LOGGER, IDataManager dataManager) {
+    public static ListMessageView createListMessageController(Logger LOGGER, IDataManager dataManager, ISession session) {
         ListMessageView listMessageView = new ListMessageView(LOGGER);
         IListMessageGraphicController listMessageGraphicController = new ListMessageGraphicController(LOGGER, listMessageView);
-        IListMessageController listMessageController = new ListMessageController(LOGGER, dataManager, listMessageGraphicController);
+        IListMessageController listMessageController = new ListMessageController(LOGGER, dataManager, session, listMessageGraphicController);
         return listMessageView;
     }
 
@@ -53,15 +53,15 @@ public class ComposantSwingFactory implements Factory {
         return listUserView;
     }
 
-    public static InputMessageView createInputMessageView(Logger LOGGER, IDataManager dataManager) {
-        InputMessageController inputMessageController = new InputMessageController(LOGGER, dataManager);
+    public static InputMessageView createInputMessageView(Logger LOGGER, IDataManager dataManager, ISession session) {
+        InputMessageController inputMessageController = new InputMessageController(LOGGER, dataManager, session);
         return new InputMessageView(LOGGER, inputMessageController);
     }
 
-    public static ChatMainView createChatMainView(Logger LOGGER, IDataManager dataManager) {
-        InputMessageView inputMessageView = createInputMessageView(LOGGER, dataManager);
+    public static ChatMainView createChatMainView(Logger LOGGER, IDataManager dataManager, ISession session) {
+        InputMessageView inputMessageView = createInputMessageView(LOGGER, dataManager, session);
         ListCanalView listCanalView = createListCanalController(LOGGER, dataManager);
-        ListMessageView listMessageView = createListMessageController(LOGGER, dataManager);
+        ListMessageView listMessageView = createListMessageController(LOGGER, dataManager, session);
         ListUserView listUserView = createListUserController(LOGGER, dataManager);
 
         return new ChatMainView(
