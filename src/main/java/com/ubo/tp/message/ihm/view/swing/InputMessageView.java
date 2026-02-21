@@ -16,6 +16,8 @@ import java.awt.geom.RoundRectangle2D;
 public class InputMessageView extends JComponent implements View {
 
     private static final int ARC = 20;
+    // Hauteur minimale raisonnable pour la zone de saisie (inclut padding)
+    private static final int MIN_HEIGHT = 48;
 
     private final ViewContext viewContext;
     private final JTextArea inputField;
@@ -158,6 +160,10 @@ public class InputMessageView extends JComponent implements View {
         inputField.setRows(rows);
         inputField.revalidate();
         inputField.repaint();
+        if (inputScrollPane != null) {
+            inputScrollPane.revalidate();
+            inputScrollPane.repaint();
+        }
         this.revalidate();
     }
 
@@ -255,4 +261,22 @@ public class InputMessageView extends JComponent implements View {
         g2.dispose();
         super.paintComponent(g);
     }
+
+    // Garantir une taille minimale et préférée pour éviter d'être écrasé par le JScrollPane
+    @Override
+    public Dimension getMinimumSize() {
+        Insets in = getInsets();
+        int minH = MIN_HEIGHT + in.top + in.bottom;
+        return new Dimension(0, minH);
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        Insets in = getInsets();
+        Dimension inner = (inputScrollPane != null) ? inputScrollPane.getPreferredSize() : new Dimension(0, MIN_HEIGHT);
+        int h = inner.height + in.top + in.bottom;
+        h = Math.max(h, MIN_HEIGHT);
+        return new Dimension(inner.width, h);
+    }
 }
+
