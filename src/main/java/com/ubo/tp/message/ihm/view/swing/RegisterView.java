@@ -1,7 +1,7 @@
 package com.ubo.tp.message.ihm.view.swing;
 
-import com.ubo.tp.message.ihm.view.service.View;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
+import com.ubo.tp.message.ihm.view.service.View;
 
 import javax.swing.*;
 import java.awt.*;
@@ -110,7 +110,8 @@ public class RegisterView extends JComponent implements View {
                 this.add(new JLabel(new ImageIcon(url)), gbc);
                 if (viewContext.logger() != null) viewContext.logger().info("Logo chargé depuis /images/logo_50.png");
             } else {
-                if (viewContext.logger() != null) viewContext.logger().warn("Ressource introuvable : /images/logo_50.png");
+                if (viewContext.logger() != null)
+                    viewContext.logger().warn("Ressource introuvable : /images/logo_50.png");
             }
         } catch (Exception e) {
             if (viewContext.logger() != null) viewContext.logger().error("Erreur lors du chargement du logo", e);

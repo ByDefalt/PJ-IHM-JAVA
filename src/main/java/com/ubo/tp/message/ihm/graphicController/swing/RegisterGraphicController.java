@@ -2,9 +2,9 @@ package com.ubo.tp.message.ihm.graphicController.swing;
 
 import com.ubo.tp.message.controller.service.INavigationController;
 import com.ubo.tp.message.controller.service.IRegisterController;
+import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.graphicController.service.GraphicController;
 import com.ubo.tp.message.ihm.view.swing.RegisterView;
-import com.ubo.tp.message.ihm.contexte.ViewContext;
 
 public class RegisterGraphicController implements GraphicController {
 
@@ -23,7 +23,8 @@ public class RegisterGraphicController implements GraphicController {
             if (viewContext.logger() != null) viewContext.logger().debug("Inscription demandée pour : " + tag);
             boolean created = registerController.onRegisterButtonClicked(tag, name, password, confirmPassword);
             if (created) {
-                if (viewContext.logger() != null) viewContext.logger().info("Inscription réussie, navigation vers login");
+                if (viewContext.logger() != null)
+                    viewContext.logger().info("Inscription réussie, navigation vers login");
                 navigationController.navigateToLogin();
             } else {
                 if (viewContext.logger() != null) viewContext.logger().warn("Inscription échouée pour : " + tag);

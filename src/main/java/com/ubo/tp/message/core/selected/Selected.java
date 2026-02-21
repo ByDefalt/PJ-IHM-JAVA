@@ -8,10 +8,9 @@ import java.util.List;
 
 public class Selected implements ISelected {
 
+    private final List<ISelectedObserver> observers = new ArrayList<>();
     private User selectedUser;
     private Channel selectedChannel;
-
-    private final List<ISelectedObserver> observers = new ArrayList<>();
 
     @Override
     public void addObserver(ISelectedObserver observer) {

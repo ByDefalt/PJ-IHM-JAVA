@@ -1,10 +1,10 @@
 package com.ubo.tp.message.ihm.graphicController.swing;
 
 import com.ubo.tp.message.datamodel.Channel;
+import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.graphicController.service.IListCanalGraphicController;
 import com.ubo.tp.message.ihm.view.swing.CanalView;
 import com.ubo.tp.message.ihm.view.swing.ListCanalView;
-import com.ubo.tp.message.ihm.contexte.ViewContext;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;

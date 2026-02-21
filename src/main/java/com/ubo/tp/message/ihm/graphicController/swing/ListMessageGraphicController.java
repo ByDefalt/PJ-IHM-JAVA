@@ -2,12 +2,12 @@ package com.ubo.tp.message.ihm.graphicController.swing;
 
 import com.ubo.tp.message.core.selected.ISelectedObserver;
 import com.ubo.tp.message.datamodel.Message;
+import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.graphicController.service.IListMessageGraphicController;
 import com.ubo.tp.message.ihm.view.swing.ListMessageView;
 import com.ubo.tp.message.ihm.view.swing.MessageView;
-import com.ubo.tp.message.ihm.contexte.ViewContext;
 
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Optional;
@@ -41,7 +41,8 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
     private ArrayList<MessageView> getFilteredMessageViews() {
         ArrayList<MessageView> filtered = new ArrayList<>();
         if (viewContext == null || listMessageView == null) return filtered;
-        if(viewContext.selected().getSelectedChannel() == null && viewContext.selected().getSelectedUser() == null) return filtered;
+        if (viewContext.selected().getSelectedChannel() == null && viewContext.selected().getSelectedUser() == null)
+            return filtered;
 
         var sel = viewContext.selected();
         if (sel.getSelectedUser() != null) {
@@ -128,7 +129,8 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
             listMessageView.rebuildUI(getFilteredMessageViews());
             if (viewContext.logger() != null) viewContext.logger().debug("Message supprimé : " + message);
         } else {
-            if (viewContext.logger() != null) viewContext.logger().warn("Message non trouvé, pas supprimé : " + message);
+            if (viewContext.logger() != null)
+                viewContext.logger().warn("Message non trouvé, pas supprimé : " + message);
         }
     }
 
@@ -150,7 +152,8 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
             listMessageView.rebuildUI(getFilteredMessageViews());
             if (viewContext.logger() != null) viewContext.logger().debug("Message mis à jour : " + message);
         } else {
-            if (viewContext.logger() != null) viewContext.logger().warn("Message non trouvé pour mise à jour : " + message);
+            if (viewContext.logger() != null)
+                viewContext.logger().warn("Message non trouvé pour mise à jour : " + message);
         }
     }
 

@@ -1,8 +1,8 @@
 package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.datamodel.Message;
-import com.ubo.tp.message.ihm.view.service.View;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
+import com.ubo.tp.message.ihm.view.service.View;
 
 import javax.swing.*;
 import java.awt.*;
@@ -45,11 +45,11 @@ public class ListMessageView extends JComponent implements View {
 
         verticalGlue = Box.createVerticalGlue();
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx   = 0;
-        gbc.gridy   = 0;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.fill    = GridBagConstraints.VERTICAL;
+        gbc.fill = GridBagConstraints.VERTICAL;
         messagesPanel.add(verticalGlue, gbc);
     }
 
@@ -74,11 +74,11 @@ public class ListMessageView extends JComponent implements View {
         }
 
         messagesPanel.removeAll();
-        int row      = 0;
+        int row = 0;
         LocalDate prevDate = null;
 
         for (MessageView mv : ordered) {
-            Message msg     = mv.getMessage();
+            Message msg = mv.getMessage();
             LocalDate msgDate = null;
 
             if (msg != null) {
@@ -146,7 +146,8 @@ public class ListMessageView extends JComponent implements View {
                             try {
                                 JScrollBar sb = scrollPane.getVerticalScrollBar();
                                 if (sb != null) sb.setValue(sb.getMaximum());
-                            } catch (Exception ignored) {}
+                            } catch (Exception ignored) {
+                            }
                         })
                 )
         );
@@ -161,13 +162,13 @@ public class ListMessageView extends JComponent implements View {
         panel.setOpaque(false);
 
         Color separatorColor = UIManager.getColor("Separator.foreground");
-        Color textColor      = UIManager.getColor("Label.disabledForeground");
-        Font  baseFont       = UIManager.getFont("Label.font");
-        Font  labelFont      = (baseFont != null)
+        Color textColor = UIManager.getColor("Label.disabledForeground");
+        Font baseFont = UIManager.getFont("Label.font");
+        Font labelFont = (baseFont != null)
                 ? baseFont.deriveFont(Font.BOLD, 12f)
                 : new Font("SansSerif", Font.BOLD, 12);
 
-        JSeparator left  = new JSeparator();
+        JSeparator left = new JSeparator();
         JSeparator right = new JSeparator();
         if (separatorColor != null) {
             left.setForeground(separatorColor);
@@ -178,8 +179,8 @@ public class ListMessageView extends JComponent implements View {
         label.setForeground(textColor);
         label.setFont(labelFont);
 
-        panel.add(left,  new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 6, 0, 6), 0, 0));
-        panel.add(label, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,       new Insets(0, 6, 0, 6), 0, 0));
+        panel.add(left, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 6, 0, 6), 0, 0));
+        panel.add(label, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 6, 0, 6), 0, 0));
         panel.add(right, new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 6, 0, 6), 0, 0));
 
         return panel;

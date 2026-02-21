@@ -33,7 +33,7 @@ public class MessageAppLauncher {
     private static final boolean IS_MOCK_ENABLED = false;
     private static final String EXCHANGE_DIRECTORY_PATH = System.getProperty("exchange.dir", "E:\\ihm");
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         try {
             prepareExchangeDirectory(EXCHANGE_DIRECTORY_PATH);
         } catch (Exception e) {
@@ -53,7 +53,7 @@ public class MessageAppLauncher {
         MessageAppMock mock = new MessageAppMock(dbConnector, dataManager);
         ISelected selected = new Selected();
         ControllerContext controllerContext = new ControllerContext(logger, dataManager, session, selected);
-        ViewContext viewContext = new ViewContext(logger, session,selected);
+        ViewContext viewContext = new ViewContext(logger, session, selected);
 
         SwingUtilities.invokeLater(() -> {
             MessageApp messageApp = new MessageApp(controllerContext, viewContext);

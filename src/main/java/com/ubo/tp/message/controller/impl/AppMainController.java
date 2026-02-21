@@ -3,8 +3,8 @@ package com.ubo.tp.message.controller.impl;
 import com.ubo.tp.message.controller.contexte.ControllerContext;
 import com.ubo.tp.message.controller.service.IAppMainController;
 import com.ubo.tp.message.factory.ComposantSwingFactory;
-import com.ubo.tp.message.ihm.graphicController.service.IAppMainGraphicController;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
+import com.ubo.tp.message.ihm.graphicController.service.IAppMainGraphicController;
 
 import java.util.Objects;
 

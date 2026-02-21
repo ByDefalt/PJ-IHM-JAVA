@@ -1,8 +1,8 @@
 package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.datamodel.Message;
-import com.ubo.tp.message.ihm.view.service.View;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
+import com.ubo.tp.message.ihm.view.service.View;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;

@@ -25,9 +25,9 @@ public class InputMessageController implements IInputMessageController {
         String trimmedMessage = message.trim();
         context.logger().debug("Envoi du message : " + trimmedMessage);
         UUID recipientUuid = null;
-        if(context.selected().getSelectedChannel()!=null){
+        if (context.selected().getSelectedChannel() != null) {
             recipientUuid = context.selected().getSelectedChannel().getUuid();
-        } else if(context.selected().getSelectedUser()!=null){
+        } else if (context.selected().getSelectedUser() != null) {
             recipientUuid = context.selected().getSelectedUser().getUuid();
         } else {
             context.logger().warn("Aucun destinataire sélectionné, envoi annulé");

@@ -1,7 +1,7 @@
 package com.ubo.tp.message.ihm.view.swing;
 
-import com.ubo.tp.message.ihm.view.service.View;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
+import com.ubo.tp.message.ihm.view.service.View;
 
 import javax.swing.*;
 import java.awt.*;
@@ -62,9 +62,20 @@ public class ChatMainView extends JComponent implements View {
     private JPanel createSidebar() {
         final int sidebarWidth = 300;
         JPanel sidebar = new JPanel(new BorderLayout()) {
-            @Override public Dimension getPreferredSize() { return new Dimension(sidebarWidth, super.getPreferredSize().height); }
-            @Override public Dimension getMinimumSize()   { return new Dimension(220,           super.getMinimumSize().height);   }
-            @Override public Dimension getMaximumSize()   { return new Dimension(sidebarWidth, Integer.MAX_VALUE);               }
+            @Override
+            public Dimension getPreferredSize() {
+                return new Dimension(sidebarWidth, super.getPreferredSize().height);
+            }
+
+            @Override
+            public Dimension getMinimumSize() {
+                return new Dimension(220, super.getMinimumSize().height);
+            }
+
+            @Override
+            public Dimension getMaximumSize() {
+                return new Dimension(sidebarWidth, Integer.MAX_VALUE);
+            }
         };
         sidebar.setOpaque(true);
         sidebar.setBackground(new Color(47, 49, 54));
@@ -73,7 +84,7 @@ public class ChatMainView extends JComponent implements View {
         JPanel buttonPanel = new JPanel(new GridLayout(2, 1, 0, 4));
         buttonPanel.setOpaque(false);
         JButton btnCanaux = createSidebarButton("Canaux");
-        JButton btnUsers  = createSidebarButton("Utilisateurs");
+        JButton btnUsers = createSidebarButton("Utilisateurs");
         buttonPanel.add(btnCanaux);
         buttonPanel.add(btnUsers);
         sidebar.add(buttonPanel, BorderLayout.NORTH);
@@ -144,7 +155,7 @@ public class ChatMainView extends JComponent implements View {
         rightPanel.setBackground(new Color(54, 57, 63));
 
         // listMessageView contient déjà son JScrollPane — ajout direct
-        addToGrid(rightPanel, listMessageView,  0, 0, 1.0, 1.0, GridBagConstraints.BOTH);
+        addToGrid(rightPanel, listMessageView, 0, 0, 1.0, 1.0, GridBagConstraints.BOTH);
 
         // Barre de saisie fixe en bas
         addToGrid(rightPanel, inputMessageView, 0, 1, 1.0, 0.0, GridBagConstraints.HORIZONTAL);
@@ -157,19 +168,30 @@ public class ChatMainView extends JComponent implements View {
                            double weightX, double weightY,
                            int fill) {
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx   = x;
-        gbc.gridy   = y;
+        gbc.gridx = x;
+        gbc.gridy = y;
         gbc.weightx = weightX;
         gbc.weighty = weightY;
-        gbc.fill    = fill;
-        gbc.insets  = new Insets(6, 6, 6, 6);
+        gbc.fill = fill;
+        gbc.insets = new Insets(6, 6, 6, 6);
         parent.add(comp, gbc);
     }
 
     // --- Getters ---
 
-    public ListCanalView getListCanalView()       { return listCanalView;    }
-    public ListUserView getListUserView()          { return listUserView;     }
-    public ListMessageView getListMessageView()    { return listMessageView;  }
-    public InputMessageView getInputMessageView()  { return inputMessageView; }
+    public ListCanalView getListCanalView() {
+        return listCanalView;
+    }
+
+    public ListUserView getListUserView() {
+        return listUserView;
+    }
+
+    public ListMessageView getListMessageView() {
+        return listMessageView;
+    }
+
+    public InputMessageView getInputMessageView() {
+        return inputMessageView;
+    }
 }

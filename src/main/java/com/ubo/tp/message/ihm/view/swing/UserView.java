@@ -1,13 +1,11 @@
 package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.datamodel.User;
-import com.ubo.tp.message.ihm.view.service.View;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
+import com.ubo.tp.message.ihm.view.service.View;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 public class UserView extends JComponent implements View {
 
@@ -21,7 +19,7 @@ public class UserView extends JComponent implements View {
      * Crée un composant UserView simple (nom + statut).
      *
      * @param viewContext contexte de la vue (contient le logger)
-     * @param user   le User
+     * @param user        le User
      */
     public UserView(ViewContext viewContext, User user) {
         this.viewContext = viewContext;

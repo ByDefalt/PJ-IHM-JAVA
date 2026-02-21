@@ -3,17 +3,17 @@ package com.ubo.tp.message.factory;
 import com.ubo.tp.message.controller.contexte.ControllerContext;
 import com.ubo.tp.message.controller.impl.*;
 import com.ubo.tp.message.controller.service.IAppMainController;
+import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.graphicController.service.IAppMainGraphicController;
 import com.ubo.tp.message.ihm.graphicController.swing.*;
 import com.ubo.tp.message.ihm.view.swing.*;
-import com.ubo.tp.message.ihm.contexte.ViewContext;
 
 public class ComposantSwingFactory implements Factory {
 
     public static IAppMainController createAppMainController(ControllerContext context, ViewContext vc) {
         AppMainView view = new AppMainView(vc);
         IAppMainGraphicController graphicController = new AppMainGraphicController(vc, view);
-        return new com.ubo.tp.message.controller.impl.AppMainController(context, graphicController, vc);
+        return new AppMainController(context, graphicController, vc);
     }
 
     public static LoginView createLoginView(ControllerContext context, ViewContext vc, NavigationController navigationController) {

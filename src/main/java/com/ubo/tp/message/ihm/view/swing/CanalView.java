@@ -1,8 +1,8 @@
 package com.ubo.tp.message.ihm.view.swing;
 
 import com.ubo.tp.message.datamodel.Channel;
-import com.ubo.tp.message.ihm.view.service.View;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
+import com.ubo.tp.message.ihm.view.service.View;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,7 +23,8 @@ public class CanalView extends JComponent implements View {
 
         createNameLabel();
 
-        if (viewContext.logger() != null) viewContext.logger().debug("CanalView initialisée pour: " + channel.getName());
+        if (viewContext.logger() != null)
+            viewContext.logger().debug("CanalView initialisée pour: " + channel.getName());
     }
 
     private void createNameLabel() {
@@ -59,7 +60,8 @@ public class CanalView extends JComponent implements View {
         String oldName = this.channel != null ? this.channel.getName() : "<null>";
         this.channel = channel;
         canalNameLabel.setText(channel.getName() != null ? channel.getName() : "");
-        if (viewContext.logger() != null) viewContext.logger().debug("CanalView.updateChannel : '" + oldName + "' -> '" + channel.getName() + "'");
+        if (viewContext.logger() != null)
+            viewContext.logger().debug("CanalView.updateChannel : '" + oldName + "' -> '" + channel.getName() + "'");
         this.revalidate();
         this.repaint();
     }

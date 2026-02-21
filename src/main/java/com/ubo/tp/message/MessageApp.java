@@ -14,10 +14,9 @@ import java.io.File;
  * @author S.Lucas
  */
 public class MessageApp {
-    protected IAppMainController mMainController;
-
     private final ControllerContext controllerContext;
     private final ViewContext viewContext;
+    protected IAppMainController mMainController;
 
     public MessageApp(ControllerContext controllerContext, ViewContext viewContext) {
         this.controllerContext = controllerContext;
