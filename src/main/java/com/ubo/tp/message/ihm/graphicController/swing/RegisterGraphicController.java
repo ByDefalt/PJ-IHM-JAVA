@@ -2,11 +2,11 @@ package com.ubo.tp.message.ihm.graphicController.swing;
 
 import com.ubo.tp.message.controller.service.INavigationController;
 import com.ubo.tp.message.controller.service.IRegisterController;
-import com.ubo.tp.message.ihm.graphicController.service.IRegisterGraphicController;
+import com.ubo.tp.message.ihm.graphicController.service.GraphicController;
 import com.ubo.tp.message.ihm.view.swing.RegisterView;
 import com.ubo.tp.message.logger.Logger;
 
-public class RegisterGraphicController implements IRegisterGraphicController {
+public class RegisterGraphicController implements GraphicController {
 
     private final Logger LOGGER;
     private final RegisterView registerView;

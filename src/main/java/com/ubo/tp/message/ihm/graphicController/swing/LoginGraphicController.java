@@ -2,11 +2,11 @@ package com.ubo.tp.message.ihm.graphicController.swing;
 
 import com.ubo.tp.message.controller.service.ILoginController;
 import com.ubo.tp.message.controller.service.INavigationController;
-import com.ubo.tp.message.ihm.graphicController.service.ILoginGraphicController;
+import com.ubo.tp.message.ihm.graphicController.service.GraphicController;
 import com.ubo.tp.message.ihm.view.swing.LoginView;
 import com.ubo.tp.message.logger.Logger;
 
-public class LoginGraphicController implements ILoginGraphicController {
+public class LoginGraphicController implements GraphicController {
 
     private final Logger LOGGER;
     private final LoginView loginView;

@@ -23,14 +23,14 @@ public class ComposantSwingFactory implements Factory {
     public static LoginView createLoginView(Logger LOGGER, IDataManager dataManager, NavigationController navigationController, ISession session) {
         LoginController loginController = new LoginController(LOGGER, dataManager, session);
         LoginView loginView = new LoginView(LOGGER);
-        ILoginGraphicController loginGraphicController = new LoginGraphicController(LOGGER, loginView, loginController, navigationController);
+        LoginGraphicController loginGraphicController = new LoginGraphicController(LOGGER, loginView, loginController, navigationController);
         return loginView;
     }
 
     public static RegisterView createRegisterView(Logger LOGGER, IDataManager dataManager, NavigationController navigationController) {
         RegisterController registerController = new RegisterController(LOGGER, dataManager);
         RegisterView registerView = new RegisterView(LOGGER);
-        IRegisterGraphicController registerGraphicController = new RegisterGraphicController(LOGGER, registerView, registerController, navigationController);
+        RegisterGraphicController registerGraphicController = new RegisterGraphicController(LOGGER, registerView, registerController, navigationController);
         return registerView;
     }
 
@@ -58,7 +58,7 @@ public class ComposantSwingFactory implements Factory {
     public static InputMessageView createInputMessageView(Logger LOGGER, IDataManager dataManager, ISession session) {
         InputMessageController inputMessageController = new InputMessageController(LOGGER, dataManager, session);
         InputMessageView inputMessageView = new InputMessageView(LOGGER);
-        IInputMessageGraphicController inputMessageGraphicController = new InputMessageGraphicController(LOGGER, inputMessageView, inputMessageController);
+        InputMessageGraphicController inputMessageGraphicController = new InputMessageGraphicController(LOGGER, inputMessageView, inputMessageController);
         return inputMessageView;
     }
 

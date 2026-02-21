@@ -1,11 +1,11 @@
 package com.ubo.tp.message.ihm.graphicController.swing;
 
 import com.ubo.tp.message.controller.service.IInputMessageController;
-import com.ubo.tp.message.ihm.graphicController.service.IInputMessageGraphicController;
+import com.ubo.tp.message.ihm.graphicController.service.GraphicController;
 import com.ubo.tp.message.ihm.view.swing.InputMessageView;
 import com.ubo.tp.message.logger.Logger;
 
-public class InputMessageGraphicController implements IInputMessageGraphicController {
+public class InputMessageGraphicController implements GraphicController {
 
     private final Logger LOGGER;
     private final InputMessageView inputMessageView;
