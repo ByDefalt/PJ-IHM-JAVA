@@ -26,11 +26,46 @@ public class AppMainView extends JComponent implements View {
         this.viewContext.logger().info("Initialisation de AppMainView");
 
         this.mainFrame = new JFrame("MessageApp");
-        this.mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // Intercepter la fermeture pour s'assurer que l'on déclenche la déconnexion
+        this.mainFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         this.mainFrame.setSize(800, 600);
         this.mainFrame.setMinimumSize(new Dimension(800, 600));
         Image iconImage = LoadIcon.loadIcon("/images/logo_20.png");
         this.mainFrame.setIconImage(iconImage);
+
+        // Listener pour déclencher la déconnexion si un utilisateur est connecté
+        this.mainFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                viewContext.logger().info("Fermeture de l'application demandée");
+                try {
+                    if (viewContext.session() != null && viewContext.session().getConnectedUser() != null) {
+                        viewContext.logger().info("Déconnexion en cours...");
+                        // Effectuer la déconnexion en arrière-plan pour ne pas bloquer l'EDT
+                        new Thread(() -> {
+                            try {
+                                viewContext.session().disconnect();
+                            } catch (Exception ex) {
+                                viewContext.logger().error("Erreur lors de la déconnexion", ex);
+                            } finally {
+                                // Fermer la fenêtre puis quitter l'application
+                                SwingUtilities.invokeLater(() -> {
+                                    mainFrame.dispose();
+                                    System.exit(0);
+                                });
+                            }
+                        }, "disconnect-thread").start();
+                    } else {
+                        mainFrame.dispose();
+                        System.exit(0);
+                    }
+                } catch (Exception ex) {
+                    viewContext.logger().error("Erreur lors du traitement de la fermeture", ex);
+                    mainFrame.dispose();
+                    System.exit(0);
+                }
+            }
+        });
 
         this.contentLayout = new CardLayout();
         this.contentPanel = new JPanel(contentLayout);
@@ -83,17 +118,23 @@ public class AppMainView extends JComponent implements View {
 
         JMenuItem exitItem = new JMenuItem("Quitter",
                 new ImageIcon(Objects.requireNonNull(LoadIcon.loadIcon("/images/exitIcon_20.png"))));
-        exitItem.addActionListener(e -> System.exit(0));
+        exitItem.addActionListener(e -> mainFrame.dispatchEvent(new java.awt.event.WindowEvent(mainFrame, java.awt.event.WindowEvent.WINDOW_CLOSING)));
         fileMenu.add(exitItem);
 
         JMenu helpMenu = new JMenu("Aide");
         JMenuItem aboutItem = new JMenuItem("À propos",
                 new ImageIcon(Objects.requireNonNull(LoadIcon.loadIcon("/images/logo_20.png"))));
-        aboutItem.addActionListener(e -> this.showAboutDialog());
+        aboutItem.addActionListener(_ -> this.showAboutDialog());
         helpMenu.add(aboutItem);
+
+        JMenu connectMenu = new JMenu("Connexion");
+        JMenuItem connectItem = new JMenuItem("Déconnexion");
+        connectItem.addActionListener(_ ->{if(this.viewContext.session().getConnectedUser()!=null) this.viewContext.session().disconnect();});
+        connectMenu.add(connectItem);
 
         menuBar.add(fileMenu);
         menuBar.add(helpMenu);
+        menuBar.add(connectMenu);
 
         this.mainFrame.setJMenuBar(menuBar);
         this.viewContext.logger().debug("MenuBar créé");
