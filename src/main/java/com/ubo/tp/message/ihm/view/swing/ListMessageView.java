@@ -37,6 +37,7 @@ public class ListMessageView extends JComponent implements View {
         scrollPane.setOpaque(false);
         scrollPane.setBackground(UIManager.getColor("Panel.background"));
         scrollPane.setBorder(null);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
         setLayout(new BorderLayout());
@@ -44,13 +45,17 @@ public class ListMessageView extends JComponent implements View {
 
         verticalGlue = Box.createVerticalGlue();
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
+        gbc.gridx   = 0;
+        gbc.gridy   = 0;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
-        gbc.fill = GridBagConstraints.VERTICAL;
+        gbc.fill    = GridBagConstraints.VERTICAL;
         messagesPanel.add(verticalGlue, gbc);
     }
+
+    // -------------------------------------------------------------------------
+    // API publique
+    // -------------------------------------------------------------------------
 
     /**
      * Demande un scroll vers le bas à effectuer une seule fois après le prochain rebuildUI.
@@ -59,12 +64,8 @@ public class ListMessageView extends JComponent implements View {
         this.pendingScroll = true;
     }
 
-    // -------------------------------------------------------------------------
-    // API publique — appelée par le contrôleur graphique
-    // -------------------------------------------------------------------------
-
     /**
-     * Reconstruit entièrement le panneau à partir de la liste ordonnée fournie par le contrôleur.
+     * Reconstruit entièrement le panneau à partir de la liste ordonnée.
      */
     public void rebuildUI(List<MessageView> ordered) {
         if (!SwingUtilities.isEventDispatchThread()) {
@@ -73,11 +74,11 @@ public class ListMessageView extends JComponent implements View {
         }
 
         messagesPanel.removeAll();
-        int row = 0;
+        int row      = 0;
         LocalDate prevDate = null;
 
         for (MessageView mv : ordered) {
-            Message msg = mv.getMessage();
+            Message msg     = mv.getMessage();
             LocalDate msgDate = null;
 
             if (msg != null) {
@@ -103,6 +104,7 @@ public class ListMessageView extends JComponent implements View {
             messagesPanel.add(mv, gbc);
         }
 
+        // Glue final pour pousser les messages vers le haut
         verticalGlue = Box.createVerticalGlue();
         messagesPanel.add(verticalGlue, new GridBagConstraints(
                 0, row, 1, 1, 1.0, 1.0,
@@ -112,10 +114,10 @@ public class ListMessageView extends JComponent implements View {
         messagesPanel.revalidate();
         messagesPanel.repaint();
 
-        // Si un scroll a été demandé, l'exécuter une fois après le layout
+        // Scroll différé : on attend que le layout soit vraiment terminé
         if (pendingScroll) {
             pendingScroll = false;
-            SwingUtilities.invokeLater(this::scrollToBottom);
+            scrollToBottom();
         }
     }
 
@@ -133,18 +135,21 @@ public class ListMessageView extends JComponent implements View {
     }
 
     /**
-     * Fait défiler jusqu'au bas de la liste.
-     * Utilise un double invokeLater pour s'assurer que le layout est terminé
-     * avant de lire les dimensions réelles du viewport.
+     * Fait défiler jusqu'en bas.
+     * Utilise trois invokeLater imbriqués pour s'assurer que le layout complet
+     * (revalidate → layout → paint) est terminé avant de lire getMaximum().
      */
     public void scrollToBottom() {
-        SwingUtilities.invokeLater(() -> SwingUtilities.invokeLater(() -> {
-            try {
-                JScrollBar sb = scrollPane.getVerticalScrollBar();
-                if (sb != null) sb.setValue(sb.getMaximum());
-            } catch (Exception ignored) {
-            }
-        }));
+        SwingUtilities.invokeLater(() ->
+                SwingUtilities.invokeLater(() ->
+                        SwingUtilities.invokeLater(() -> {
+                            try {
+                                JScrollBar sb = scrollPane.getVerticalScrollBar();
+                                if (sb != null) sb.setValue(sb.getMaximum());
+                            } catch (Exception ignored) {}
+                        })
+                )
+        );
     }
 
     // -------------------------------------------------------------------------
@@ -156,13 +161,13 @@ public class ListMessageView extends JComponent implements View {
         panel.setOpaque(false);
 
         Color separatorColor = UIManager.getColor("Separator.foreground");
-        Color textColor = UIManager.getColor("Label.disabledForeground");
-        Font baseFont = UIManager.getFont("Label.font");
-        Font labelFont = (baseFont != null)
+        Color textColor      = UIManager.getColor("Label.disabledForeground");
+        Font  baseFont       = UIManager.getFont("Label.font");
+        Font  labelFont      = (baseFont != null)
                 ? baseFont.deriveFont(Font.BOLD, 12f)
                 : new Font("SansSerif", Font.BOLD, 12);
 
-        JSeparator left = new JSeparator();
+        JSeparator left  = new JSeparator();
         JSeparator right = new JSeparator();
         if (separatorColor != null) {
             left.setForeground(separatorColor);
@@ -173,8 +178,8 @@ public class ListMessageView extends JComponent implements View {
         label.setForeground(textColor);
         label.setFont(labelFont);
 
-        panel.add(left, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 6, 0, 6), 0, 0));
-        panel.add(label, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 6, 0, 6), 0, 0));
+        panel.add(left,  new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 6, 0, 6), 0, 0));
+        panel.add(label, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,       new Insets(0, 6, 0, 6), 0, 0));
         panel.add(right, new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 6, 0, 6), 0, 0));
 
         return panel;
