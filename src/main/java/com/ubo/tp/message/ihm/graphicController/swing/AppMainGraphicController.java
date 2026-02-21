@@ -31,5 +31,9 @@ public class AppMainGraphicController implements IAppMainGraphicController {
     public void setMainContent(View component) {
         this.appMainView.setMainContent(component);
     }
+
+    public AppMainView getAppMainView() {
+        return appMainView;
+    }
 }
 

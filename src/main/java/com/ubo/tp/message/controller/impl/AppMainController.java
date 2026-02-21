@@ -2,6 +2,7 @@ package com.ubo.tp.message.controller.impl;
 
 import com.ubo.tp.message.controller.service.IAppMainController;
 import com.ubo.tp.message.core.IDataManager;
+import com.ubo.tp.message.core.session.ISession;
 import com.ubo.tp.message.factory.ComposantSwingFactory;
 import com.ubo.tp.message.ihm.graphicController.service.IAppMainGraphicController;
 import com.ubo.tp.message.logger.Logger;
@@ -18,6 +19,7 @@ public class AppMainController implements IAppMainController {
     private final Logger logger;
 
     private final IDataManager dataManager;
+    private final ISession session;
     private final IAppMainGraphicController graphicController;
 
     /**
@@ -27,24 +29,22 @@ public class AppMainController implements IAppMainController {
      * @param logger            logger de l'application
      * @param graphicController vue principale injectée
      */
-    public AppMainController(IDataManager dataManager, Logger logger, IAppMainGraphicController graphicController) {
+    public AppMainController(IDataManager dataManager, Logger logger, ISession session, IAppMainGraphicController graphicController) {
         this.dataManager = dataManager;
         this.logger = logger;
+        this.session = session;
         this.graphicController = graphicController;
 
         // Connecter le callback de la vue à la logique du contrôleur
         this.graphicController.setOnExchangeDirectorySelected(this::onExchangeDirectorySelected);
 
-        //this.view.setMainContent(
-        //        ComposantSwingFactory.createLoginView(
-        //                logger,
-        //                dataManager,
-        //                new NavigationController(logger, dataManager, this.view)
-        //        )
-        //);
-
         this.graphicController.setMainContent(
-                ComposantSwingFactory.createChatMainView(logger, dataManager)
+                ComposantSwingFactory.createLoginView(
+                        logger,
+                        dataManager,
+                        new NavigationController(logger, dataManager, session,this.graphicController.getAppMainView()),
+                        session
+                )
         );
 
         this.graphicController.setVisibility(true);

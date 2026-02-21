@@ -6,6 +6,8 @@ import com.ubo.tp.message.core.IDataManager;
 import com.ubo.tp.message.core.database.Database;
 import com.ubo.tp.message.core.database.DbConnector;
 import com.ubo.tp.message.core.database.EntityManager;
+import com.ubo.tp.message.core.session.ISession;
+import com.ubo.tp.message.core.session.Session;
 import com.ubo.tp.message.datamodel.Channel;
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.datamodel.User;
@@ -42,6 +44,8 @@ public class MessageAppLauncher {
         IDataManager dataManager = new DataManager(database, entityManager, logger);
         dataManager.setExchangeDirectory(EXCHANGE_DIRECTORY_PATH);
 
+        ISession session = new Session();
+
         createTestData(dataManager, entityManager);
 
         DbConnector dbConnector = new DbConnector(database);
@@ -50,7 +54,7 @@ public class MessageAppLauncher {
         // TOUTE construction et affichage de l'UI doit se faire sur l'EDT
         SwingUtilities.invokeLater(() -> {
             //mock.showGUI();
-            MessageApp messageApp = new MessageApp(dataManager, logger);
+            MessageApp messageApp = new MessageApp(dataManager, logger, session);
             messageApp.init();
             messageApp.show();
         });
@@ -60,10 +64,12 @@ public class MessageAppLauncher {
         User user1 = new User("toto", "toto", "Toto");
         User user2 = new User("alice", "alice", "Alice");
         User user3 = new User("bob", "bob", "Bob");
+        User user4 = new User("1", "1", "1");
 
         dataManager.sendUser(user1);
         dataManager.sendUser(user2);
         dataManager.sendUser(user3);
+        dataManager.sendUser(user4);
 
         Channel channel1 = new Channel(user1, "general");
         Channel channel2 = new Channel(user1, "random");

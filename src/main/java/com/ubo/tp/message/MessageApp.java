@@ -2,6 +2,7 @@ package com.ubo.tp.message;
 
 import com.ubo.tp.message.controller.service.IAppMainController;
 import com.ubo.tp.message.core.IDataManager;
+import com.ubo.tp.message.core.session.ISession;
 import com.ubo.tp.message.factory.ComposantSwingFactory;
 import com.ubo.tp.message.logger.Logger;
 import com.ubo.tp.message.theme.DiscordTheme;
@@ -24,14 +25,17 @@ public class MessageApp {
      */
     protected IAppMainController mMainController;
 
+    protected ISession mSession;
+
     /**
      * Constructeur.
      *
      * @param dataManager
      */
-    public MessageApp(IDataManager dataManager, Logger logger) {
+    public MessageApp(IDataManager dataManager, Logger logger, ISession session) {
         this.mDataManager = dataManager;
         this.logger = logger;
+        this.mSession = session;
     }
 
     /**
@@ -65,7 +69,7 @@ public class MessageApp {
      * Initialisation de l'interface graphique.
      */
     protected void initGui() {
-        mMainController = ComposantSwingFactory.createAppMainController(mDataManager, logger);
+        mMainController = ComposantSwingFactory.createAppMainController(mDataManager, logger, mSession);
     }
 
     /**

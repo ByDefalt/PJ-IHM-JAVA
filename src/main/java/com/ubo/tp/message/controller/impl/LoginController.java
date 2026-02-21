@@ -2,6 +2,7 @@ package com.ubo.tp.message.controller.impl;
 
 import com.ubo.tp.message.controller.service.ILoginController;
 import com.ubo.tp.message.core.IDataManager;
+import com.ubo.tp.message.core.session.ISession;
 import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.logger.Logger;
 
@@ -18,15 +19,17 @@ public class LoginController implements ILoginController {
 
     private final Logger logger;
     private final IDataManager dataManager;
+    private final ISession session;
 
     /**
      * Crée un LoginController.
      *
      * @param logger service de logging (peut être null)
      */
-    public LoginController(Logger logger, IDataManager dataManager) {
+    public LoginController(Logger logger, IDataManager dataManager, ISession session) {
         this.logger = logger;
         this.dataManager = dataManager;
+        this.session = session;
         if (this.logger != null) this.logger.debug("LoginController created");
     }
 
@@ -44,7 +47,7 @@ public class LoginController implements ILoginController {
             user.setOnline(true);
             dataManager.sendUser(user);
             logger.info("LoginController: User set online - " + tag);
-
+            this.session.connect(user);
         } else {
             logger.warn("LoginController: Login failed for tag - " + tag);
         }

@@ -6,6 +6,7 @@ import com.ubo.tp.message.controller.service.IListCanalController;
 import com.ubo.tp.message.controller.service.IListMessageController;
 import com.ubo.tp.message.controller.service.IListUserController;
 import com.ubo.tp.message.core.IDataManager;
+import com.ubo.tp.message.core.session.ISession;
 import com.ubo.tp.message.ihm.graphicController.service.*;
 import com.ubo.tp.message.ihm.graphicController.swing.*;
 import com.ubo.tp.message.ihm.view.swing.*;
@@ -13,14 +14,14 @@ import com.ubo.tp.message.logger.Logger;
 
 public class ComposantSwingFactory implements Factory {
 
-    public static IAppMainController createAppMainController(IDataManager dataManager, Logger logger) {
+    public static IAppMainController createAppMainController(IDataManager dataManager, Logger logger, ISession session) {
         AppMainView view = new AppMainView(logger);
         IAppMainGraphicController graphicController = new AppMainGraphicController(logger, view);
-        return new AppMainController(dataManager, logger, graphicController);
+        return new AppMainController(dataManager, logger,session, graphicController);
     }
 
-    public static LoginView createLoginView(Logger LOGGER, IDataManager dataManager, NavigationController navigationController) {
-        LoginController loginController = new LoginController(LOGGER, dataManager);
+    public static LoginView createLoginView(Logger LOGGER, IDataManager dataManager, NavigationController navigationController, ISession session) {
+        LoginController loginController = new LoginController(LOGGER, dataManager, session);
         LoginView loginView = new LoginView(LOGGER);
         ILoginGraphicController loginGraphicController = new LoginGraphicController(LOGGER, loginView, loginController, navigationController);
         return loginView;
