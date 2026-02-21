@@ -41,6 +41,7 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
     private ArrayList<MessageView> getFilteredMessageViews() {
         ArrayList<MessageView> filtered = new ArrayList<>();
         if (viewContext == null || listMessageView == null) return filtered;
+        if(viewContext.selected().getSelectedChannel() == null && viewContext.selected().getSelectedUser() == null) return filtered;
 
         var sel = viewContext.selected();
         if (sel == null || (sel.getSelectedUser() == null && sel.getSelectedChannel() == null)) {
