@@ -137,7 +137,7 @@ public class AppMainView extends JComponent implements View {
         JMenu helpMenu = new JMenu("Aide");
         JMenuItem aboutItem = new JMenuItem("À propos",
                 new ImageIcon(Objects.requireNonNull(LoadIcon.loadIcon("/images/logo_20.png"))));
-        aboutItem.addActionListener(_ -> this.showAboutDialog());
+        aboutItem.addActionListener(e -> this.showAboutDialog());
         helpMenu.add(aboutItem);
 
         // Menu Connexion — caché par défaut, affiché uniquement si connecté
@@ -145,7 +145,7 @@ public class AppMainView extends JComponent implements View {
         this.connectMenu.setVisible(false);
 
         JMenuItem disconnectItem = new JMenuItem("Déconnexion");
-        disconnectItem.addActionListener(_ -> {
+        disconnectItem.addActionListener(e -> {
             if (this.viewContext.session().getConnectedUser() != null) {
                 this.viewContext.session().disconnect();
             }

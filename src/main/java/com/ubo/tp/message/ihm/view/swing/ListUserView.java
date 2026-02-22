@@ -5,6 +5,8 @@ import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.view.service.View;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.util.List;
 
@@ -19,6 +21,9 @@ public class ListUserView extends JComponent implements View {
     private final JScrollPane scrollPane;
     private Component glue;
 
+    // Champ de recherche
+    private JTextField searchField;
+
     public ListUserView(ViewContext viewContext) {
         this.viewContext = viewContext;
         this.setLayout(new GridBagLayout());
@@ -28,6 +33,10 @@ public class ListUserView extends JComponent implements View {
 
         usersPanel = createUsersPanel();
         scrollPane = createScrollPane(usersPanel);
+
+        // create and insert search field
+        searchField = createSearchField();
+
         addScrollPaneToThis();
 
         glue = Box.createVerticalGlue();
@@ -85,6 +94,10 @@ public class ListUserView extends JComponent implements View {
         usersPanel.add(glue, glueConstraints(row));
         usersPanel.revalidate();
         usersPanel.repaint();
+
+        // réappliquer le filtre courant si nécessaire
+        String q = searchField != null ? searchField.getText() : null;
+        applyFilter(q);
     }
 
     /**
@@ -121,8 +134,16 @@ public class ListUserView extends JComponent implements View {
     }
 
     private void addScrollPaneToThis() {
+        // search field at y=0
+        GridBagConstraints gbcSearch = new GridBagConstraints(
+                0, 0, 1, 1, 1.0, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL,
+                new Insets(0, 0, 6, 0), 0, 0
+        );
+        this.add(searchField, gbcSearch);
+
         GridBagConstraints gbc = new GridBagConstraints(
-                0, 0, 1, 1, 1.0, 1.0,
+                0, 1, 1, 1, 1.0, 1.0,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 0), 0, 0
         );
@@ -161,4 +182,60 @@ public class ListUserView extends JComponent implements View {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
     }
+
+    // Création du champ de recherche et du DocumentListener
+    private JTextField createSearchField() {
+        JTextField tf = new JTextField();
+        tf.setColumns(15);
+        tf.setOpaque(true);
+        tf.setBackground(new Color(47, 49, 54));
+        tf.setForeground(new Color(220, 221, 222));
+        tf.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(32, 34, 37)),
+                BorderFactory.createEmptyBorder(4, 6, 4, 6)
+        ));
+        tf.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                applyFilter(tf.getText());
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                applyFilter(tf.getText());
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                applyFilter(tf.getText());
+            }
+        });
+        return tf;
+    }
+
+    // Applique le filtre côté client en masquant/montrant les UserView
+    private void applyFilter(String query) {
+        String q = (query == null) ? "" : query.trim().toLowerCase();
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> applyFilter(query));
+            return;
+        }
+        for (Component c : usersPanel.getComponents()) {
+            if (c instanceof UserView) {
+                boolean match = matches((UserView) c, q);
+                c.setVisible(match);
+            }
+        }
+        usersPanel.revalidate();
+        usersPanel.repaint();
+    }
+
+    private boolean matches(UserView uv, String q) {
+        if (q == null || q.isEmpty()) return true;
+        User u = uv.getUser();
+        if (u == null) return false;
+        String name = u.getName() != null ? u.getName().toLowerCase() : "";
+        return name.contains(q);
+    }
 }
+
