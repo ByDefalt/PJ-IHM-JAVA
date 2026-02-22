@@ -57,7 +57,7 @@ public class ChatMainView extends JComponent implements View {
     }
 
     /**
-     * Sidebar fixe avec boutons + CardLayout pour Canaux / Utilisateurs.
+     * Sidebar fixe avec JTabbedPane pour Canaux / Utilisateurs.
      */
     private JPanel createSidebar() {
         final int sidebarWidth = 300;
@@ -80,22 +80,13 @@ public class ChatMainView extends JComponent implements View {
         sidebar.setOpaque(true);
         sidebar.setBackground(new Color(47, 49, 54));
 
-        // Boutons haut
-        JPanel buttonPanel = new JPanel(new GridLayout(2, 1, 0, 4));
-        buttonPanel.setOpaque(false);
-        JButton btnCanaux = createSidebarButton("Canaux");
-        JButton btnUsers = createSidebarButton("Utilisateurs");
-        buttonPanel.add(btnCanaux);
-        buttonPanel.add(btnUsers);
-        sidebar.add(buttonPanel, BorderLayout.NORTH);
+        // Utilisation d'un JTabbedPane pour remplacer les deux boutons + CardLayout
+        JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+        tabbedPane.setOpaque(true);
+        tabbedPane.setBackground(new Color(47, 49, 54));
+        tabbedPane.setForeground(Color.WHITE);
 
-        // CardLayout pour les vues
         Dimension cardsPreferred = new Dimension(sidebarWidth, 0);
-        JPanel cardsPanel = new JPanel(new CardLayout());
-        cardsPanel.setOpaque(false);
-        cardsPanel.setPreferredSize(cardsPreferred);
-        cardsPanel.setMinimumSize(new Dimension(220, 0));
-        cardsPanel.setMaximumSize(new Dimension(sidebarWidth, Integer.MAX_VALUE));
 
         JPanel canalWrapper = new JPanel(new BorderLayout());
         canalWrapper.setOpaque(false);
@@ -111,37 +102,14 @@ public class ChatMainView extends JComponent implements View {
         userWrapper.setMinimumSize(new Dimension(220, 0));
         userWrapper.setMaximumSize(new Dimension(sidebarWidth, Integer.MAX_VALUE));
 
-        cardsPanel.add(canalWrapper, "Canaux");
-        cardsPanel.add(userWrapper, "Utilisateurs");
+        tabbedPane.addTab("Canaux", canalWrapper);
+        tabbedPane.addTab("Utilisateurs", userWrapper);
 
-        btnCanaux.addActionListener(e -> {
-            ((CardLayout) cardsPanel.getLayout()).show(cardsPanel, "Canaux");
-            cardsPanel.revalidate();
-            cardsPanel.repaint();
-            sidebar.revalidate();
-            sidebar.repaint();
-        });
-        btnUsers.addActionListener(e -> {
-            ((CardLayout) cardsPanel.getLayout()).show(cardsPanel, "Utilisateurs");
-            cardsPanel.revalidate();
-            cardsPanel.repaint();
-            sidebar.revalidate();
-            sidebar.repaint();
-        });
+        // Stylisation minimale des onglets
+        UIManager.put("TabbedPane.contentAreaColor", new Color(47, 49, 54));
 
-        sidebar.add(cardsPanel, BorderLayout.CENTER);
+        sidebar.add(tabbedPane, BorderLayout.CENTER);
         return sidebar;
-    }
-
-    private JButton createSidebarButton(String text) {
-        JButton button = new JButton(text);
-        button.setFocusPainted(false);
-        button.setBackground(new Color(64, 68, 75));
-        button.setForeground(Color.WHITE);
-        button.setFont(new Font("Arial", Font.BOLD, 14));
-        button.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
-        button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        return button;
     }
 
     /**
@@ -195,3 +163,4 @@ public class ChatMainView extends JComponent implements View {
         return inputMessageView;
     }
 }
+
