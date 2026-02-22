@@ -61,24 +61,7 @@ public class ChatMainView extends JComponent implements View {
      */
     private JPanel createSidebar() {
         final int sidebarWidth = 300;
-        JPanel sidebar = new JPanel(new BorderLayout()) {
-            @Override
-            public Dimension getPreferredSize() {
-                return new Dimension(sidebarWidth, super.getPreferredSize().height);
-            }
-
-            @Override
-            public Dimension getMinimumSize() {
-                return new Dimension(220, super.getMinimumSize().height);
-            }
-
-            @Override
-            public Dimension getMaximumSize() {
-                return new Dimension(sidebarWidth, Integer.MAX_VALUE);
-            }
-        };
-        sidebar.setOpaque(true);
-        sidebar.setBackground(new Color(47, 49, 54));
+        JPanel sidebar = createJPanel(sidebarWidth);
 
         // Utilisation d'un JTabbedPane pour remplacer les deux boutons + CardLayout
         JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
@@ -109,6 +92,28 @@ public class ChatMainView extends JComponent implements View {
         UIManager.put("TabbedPane.contentAreaColor", new Color(47, 49, 54));
 
         sidebar.add(tabbedPane, BorderLayout.CENTER);
+        return sidebar;
+    }
+
+    private JPanel createJPanel(int sidebarWidth) {
+        JPanel sidebar = new JPanel(new BorderLayout()) {
+            @Override
+            public Dimension getPreferredSize() {
+                return new Dimension(sidebarWidth, super.getPreferredSize().height);
+            }
+
+            @Override
+            public Dimension getMinimumSize() {
+                return new Dimension(220, super.getMinimumSize().height);
+            }
+
+            @Override
+            public Dimension getMaximumSize() {
+                return new Dimension(sidebarWidth, Integer.MAX_VALUE);
+            }
+        };
+        sidebar.setOpaque(true);
+        sidebar.setBackground(new Color(47, 49, 54));
         return sidebar;
     }
 
