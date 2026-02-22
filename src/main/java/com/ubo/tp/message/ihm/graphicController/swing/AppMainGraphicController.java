@@ -1,5 +1,6 @@
 package com.ubo.tp.message.ihm.graphicController.swing;
 
+import com.ubo.tp.message.controller.service.INavigationController;
 import com.ubo.tp.message.core.session.ISessionObserver;
 import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
@@ -14,13 +15,18 @@ public class AppMainGraphicController implements IAppMainGraphicController, ISes
 
     private final ViewContext viewContext;
     private final AppMainView appMainView;
+    private final INavigationController navigationController;
     private Runnable clearSelected;
 
-    public AppMainGraphicController(ViewContext viewContext, AppMainView appMainView) {
+    public AppMainGraphicController(ViewContext viewContext, AppMainView appMainView, INavigationController navigationController) {
         this.viewContext = viewContext;
         this.appMainView = appMainView;
+        this.navigationController = navigationController;
 
         this.viewContext.session().addObserver(this);
+
+        this.navigationController.setMainView(this::setMainView);
+        this.setOnUpdateProfile(this::truc);
     }
 
     @Override
@@ -62,5 +68,23 @@ public class AppMainGraphicController implements IAppMainGraphicController, ISes
     public void notifyLogout() {
         appMainView.setConnectMenuVisible(false);
         if (clearSelected != null) clearSelected.run();
+    }
+
+    @Override
+    public void setOnDisconnect(Runnable onDisconnect) {
+        appMainView.setOnDisconnect(onDisconnect);
+    }
+
+    @Override
+    public void setOnDeleteAccount(Runnable onDeleteAccount) {
+        appMainView.setOnDeleteAccount(onDeleteAccount);
+    }
+
+    public void setOnUpdateProfile(Runnable onUpdateProfile) {
+        appMainView.setOnUpdateProfile(onUpdateProfile);
+    }
+
+    public void truc(){
+        navigationController.navigateToLogin();
     }
 }

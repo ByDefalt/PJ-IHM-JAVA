@@ -23,7 +23,7 @@ public class ListCanalView extends JComponent implements View {
     private Component glue;
 
     // Champ de recherche
-    private JTextField searchField;
+    private final JTextField searchField;
 
     public ListCanalView(ViewContext viewContext) {
         this.viewContext = viewContext;

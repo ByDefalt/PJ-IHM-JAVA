@@ -10,16 +10,16 @@ import com.ubo.tp.message.ihm.graphicController.service.IAppMainGraphicControlle
 import com.ubo.tp.message.ihm.view.service.View;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class NavigationController implements INavigationController, ISessionObserver {
 
     private final ControllerContext context;
-    private final IAppMainGraphicController graphicController;
     private final ViewContext viewContext;
+    private Consumer<View> mainView;
 
-    public NavigationController(ControllerContext context, IAppMainGraphicController graphicController, ViewContext viewContext) {
+    public NavigationController(ControllerContext context, ViewContext viewContext) {
         this.context = Objects.requireNonNull(context);
-        this.graphicController = graphicController;
         this.viewContext = viewContext;
 
         this.context.session().addObserver(this);
@@ -27,7 +27,7 @@ public class NavigationController implements INavigationController, ISessionObse
 
     private void setMainContent(View mainContent) {
         context.logger().info("setMainContent");
-        this.graphicController.setMainView(mainContent);
+        this.mainView.accept(mainContent);
     }
 
     @Override
@@ -40,6 +40,16 @@ public class NavigationController implements INavigationController, ISessionObse
     public void navigateToRegister() {
         context.logger().info("navigateToRegister");
         this.setMainContent(ComposantSwingFactory.createRegisterView(context, viewContext, this));
+    }
+
+    @Override
+    public void navigateToProfile() {
+
+    }
+
+    @Override
+    public void setMainView(Consumer<View> mainView) {
+        this.mainView = mainView;
     }
 
     @Override

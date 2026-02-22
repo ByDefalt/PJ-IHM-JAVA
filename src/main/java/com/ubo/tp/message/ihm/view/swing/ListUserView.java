@@ -22,7 +22,7 @@ public class ListUserView extends JComponent implements View {
     private Component glue;
 
     // Champ de recherche
-    private JTextField searchField;
+    private final JTextField searchField;
 
     public ListUserView(ViewContext viewContext) {
         this.viewContext = viewContext;

@@ -22,6 +22,11 @@ public class AppMainView extends JComponent implements View {
     private JMenu connectMenu;
     private Consumer<String> onExchangeDirectorySelected;
 
+    // Callbacks externes pour actions du menu Compte
+    private Runnable onDisconnect;
+    private Runnable onUpdateProfile;
+    private Runnable onDeleteAccount;
+
     public AppMainView(ViewContext viewContext) {
         this.viewContext = viewContext;
         this.viewContext.logger().info("Initialisation de AppMainView");
@@ -146,19 +151,17 @@ public class AppMainView extends JComponent implements View {
 
         JMenuItem disconnectItem = new JMenuItem("Déconnexion");
         disconnectItem.addActionListener(e -> {
-            if (this.viewContext.session().getConnectedUser() != null) {
-                this.viewContext.session().disconnect();
-            }
+            if (onDisconnect != null) onDisconnect.run();
         });
         this.connectMenu.add(disconnectItem);
         JMenuItem updateProfileItem = new JMenuItem("Modifier le profil");
         updateProfileItem.addActionListener(e -> {
-
+            if (onUpdateProfile != null) onUpdateProfile.run();
         });
         this.connectMenu.add(updateProfileItem);
         JMenuItem deleteAccountItem = new JMenuItem("Supprimer le compte");
         deleteAccountItem.addActionListener(e -> {
-
+            if (onDeleteAccount != null) onDeleteAccount.run();
         });
         this.connectMenu.add(deleteAccountItem);
 
@@ -255,4 +258,18 @@ public class AppMainView extends JComponent implements View {
     public void setOnExchangeDirectorySelected(Consumer<String> onExchangeDirectorySelected) {
         this.onExchangeDirectorySelected = onExchangeDirectorySelected;
     }
+
+    // Setters pour les callbacks externes (controller graphique)
+    public void setOnDisconnect(Runnable onDisconnect) {
+        this.onDisconnect = onDisconnect;
+    }
+
+    public void setOnUpdateProfile(Runnable onUpdateProfile) {
+        this.onUpdateProfile = onUpdateProfile;
+    }
+
+    public void setOnDeleteAccount(Runnable onDeleteAccount) {
+        this.onDeleteAccount = onDeleteAccount;
+    }
 }
+

@@ -2,8 +2,6 @@ package com.ubo.tp.message.controller.impl;
 
 import com.ubo.tp.message.controller.contexte.ControllerContext;
 import com.ubo.tp.message.controller.service.IAppMainController;
-import com.ubo.tp.message.factory.ComposantSwingFactory;
-import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.graphicController.service.IAppMainGraphicController;
 import com.ubo.tp.message.ihm.view.service.View;
 
@@ -27,7 +25,7 @@ public class AppMainController implements IAppMainController {
      *
      * @param context           contexte regroupant les services
      * @param graphicController vue principale injectée
-     * @param firstView       première vue à afficher dans la vue principale
+     * @param firstView         première vue à afficher dans la vue principale
      */
     public AppMainController(ControllerContext context, IAppMainGraphicController graphicController, View firstView) {
         this.context = Objects.requireNonNull(context);
@@ -36,6 +34,10 @@ public class AppMainController implements IAppMainController {
         // Connecter le callback de la vue à la logique du contrôleur
         this.graphicController.setOnExchangeDirectorySelected(this::onExchangeDirectorySelected);
         this.graphicController.setClearSelected(this::clearSelected);
+
+        // Enregistrer handlers pour les actions du menu Compte
+        this.graphicController.setOnDisconnect(this::onDisconnectRequested);
+        this.graphicController.setOnDeleteAccount(this::onDeleteAccountRequested);
 
         this.graphicController.setMainView(firstView);
 
@@ -58,5 +60,36 @@ public class AppMainController implements IAppMainController {
 
     public void clearSelected() {
         context.selected().clearSelectedChannel();
+    }
+
+    // ----------------------------
+    // Handlers pour actions Compte
+    // ----------------------------
+    private void onDisconnectRequested() {
+        context.logger().info("Controller: demande de déconnexion reçue");
+        try {
+            if (context.session() != null && context.session().getConnectedUser() != null) {
+                context.session().disconnect();
+            }
+        } catch (Exception ex) {
+            context.logger().error("Erreur lors de la déconnexion via controller", ex);
+        }
+    }
+
+    private void onDeleteAccountRequested() {
+        context.logger().info("Controller: demande de suppression du compte reçue");
+        try {
+            if (context.session() != null && context.session().getConnectedUser() != null) {
+                var user = context.session().getConnectedUser();
+                boolean deleted = context.dataManager().deleteUserFile(user);
+                context.logger().info("Suppression du compte effectuée? " + deleted);
+                if (deleted) {
+                    // après suppression, déco
+                    context.session().disconnect();
+                }
+            }
+        } catch (Exception ex) {
+            context.logger().error("Erreur lors de la suppression du compte via controller", ex);
+        }
     }
 }

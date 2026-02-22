@@ -3,6 +3,7 @@ package com.ubo.tp.message.factory;
 import com.ubo.tp.message.controller.contexte.ControllerContext;
 import com.ubo.tp.message.controller.impl.*;
 import com.ubo.tp.message.controller.service.IAppMainController;
+import com.ubo.tp.message.controller.service.INavigationController;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.graphicController.service.IAppMainGraphicController;
 import com.ubo.tp.message.ihm.graphicController.swing.*;
@@ -11,19 +12,20 @@ import com.ubo.tp.message.ihm.view.swing.*;
 public class ComposantSwingFactory implements Factory {
 
     public static IAppMainController createAppMainController(ControllerContext context, ViewContext vc) {
+        INavigationController navigationController = new NavigationController(context, vc);
         AppMainView view = new AppMainView(vc);
-        IAppMainGraphicController graphicController = new AppMainGraphicController(vc, view);
-        return new AppMainController(context, graphicController, ComposantSwingFactory.createLoginView(context, vc, new NavigationController(context, graphicController, vc)));
+        IAppMainGraphicController graphicController = new AppMainGraphicController(vc, view, navigationController);
+        return new AppMainController(context, graphicController, ComposantSwingFactory.createLoginView(context, vc, navigationController));
     }
 
-    public static LoginView createLoginView(ControllerContext context, ViewContext vc, NavigationController navigationController) {
+    public static LoginView createLoginView(ControllerContext context, ViewContext vc, INavigationController navigationController) {
         LoginController loginController = new LoginController(context);
         LoginView loginView = new LoginView(vc);
         new LoginGraphicController(vc, loginView, loginController, navigationController);
         return loginView;
     }
 
-    public static RegisterView createRegisterView(ControllerContext context, ViewContext vc, NavigationController navigationController) {
+    public static RegisterView createRegisterView(ControllerContext context, ViewContext vc, INavigationController navigationController) {
         RegisterController registerController = new RegisterController(context);
         RegisterView registerView = new RegisterView(vc);
         new RegisterGraphicController(vc, registerView, registerController, navigationController);
