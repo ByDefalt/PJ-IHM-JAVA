@@ -6,6 +6,7 @@ import com.ubo.tp.message.ihm.view.service.View;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.*;
 import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -199,6 +200,12 @@ public class InputMessageView extends JComponent implements View {
         inputField.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
         inputField.setColumns(30);
 
+        // --- UI-side validation: limiter la saisie à 200 caractères ---
+        if (inputField.getDocument() instanceof AbstractDocument) {
+            AbstractDocument adoc = (AbstractDocument) inputField.getDocument();
+            adoc.setDocumentFilter(new MaxLengthFilter(200));
+        }
+
         Color selBg = UIManager.getColor("TextArea.selectionBackground");
         Color selFg = UIManager.getColor("TextArea.selectionForeground");
         if (selBg != null) inputField.setSelectionColor(selBg);
@@ -278,5 +285,56 @@ public class InputMessageView extends JComponent implements View {
         h = Math.max(h, MIN_HEIGHT);
         return new Dimension(inner.width, h);
     }
-}
 
+    // DocumentFilter interne pour limiter la longueur du texte
+    private static class MaxLengthFilter extends DocumentFilter {
+        private final int max;
+
+        public MaxLengthFilter(int max) {
+            this.max = max;
+        }
+
+        @Override
+        public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+            if (string == null) return;
+            int currentLength = fb.getDocument().getLength();
+            int newLength = string.length();
+            if (currentLength + newLength <= max) {
+                super.insertString(fb, offset, string, attr);
+            } else {
+                // tronquer le texte pour respecter la taille max
+                int allowed = max - currentLength;
+                if (allowed > 0) {
+                    String cut = string.substring(0, Math.max(0, allowed));
+                    super.insertString(fb, offset, cut, attr);
+                    Toolkit.getDefaultToolkit().beep();
+                } else {
+                    Toolkit.getDefaultToolkit().beep();
+                }
+            }
+        }
+
+        @Override
+        public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+            if (text == null) {
+                super.replace(fb, offset, length, text, attrs);
+                return;
+            }
+            int currentLength = fb.getDocument().getLength();
+            int newLength = text.length();
+            int resulting = currentLength - length + newLength;
+            if (resulting <= max) {
+                super.replace(fb, offset, length, text, attrs);
+            } else {
+                int allowed = max - (currentLength - length);
+                if (allowed > 0) {
+                    String cut = text.substring(0, Math.max(0, allowed));
+                    super.replace(fb, offset, length, cut, attrs);
+                    Toolkit.getDefaultToolkit().beep();
+                } else {
+                    Toolkit.getDefaultToolkit().beep();
+                }
+            }
+        }
+    }
+}
