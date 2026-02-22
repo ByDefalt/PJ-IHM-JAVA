@@ -13,7 +13,7 @@ public class ComposantSwingFactory implements Factory {
     public static IAppMainController createAppMainController(ControllerContext context, ViewContext vc) {
         AppMainView view = new AppMainView(vc);
         IAppMainGraphicController graphicController = new AppMainGraphicController(vc, view);
-        return new AppMainController(context, graphicController, vc);
+        return new AppMainController(context, graphicController, ComposantSwingFactory.createLoginView(context, vc, new NavigationController(context, graphicController, vc)));
     }
 
     public static LoginView createLoginView(ControllerContext context, ViewContext vc, NavigationController navigationController) {

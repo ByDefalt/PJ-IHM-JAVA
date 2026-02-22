@@ -5,6 +5,7 @@ import com.ubo.tp.message.controller.service.IAppMainController;
 import com.ubo.tp.message.factory.ComposantSwingFactory;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.graphicController.service.IAppMainGraphicController;
+import com.ubo.tp.message.ihm.view.service.View;
 
 import java.util.Objects;
 
@@ -21,34 +22,22 @@ public class AppMainController implements IAppMainController {
 
     private final IAppMainGraphicController graphicController;
 
-    private final ViewContext viewContext;
-
     /**
      * Constructeur permettant l'injection d'une vue (utile pour tests).
      *
      * @param context           contexte regroupant les services
      * @param graphicController vue principale injectée
-     * @param viewContext       contexte pour les vues
+     * @param firstView       première vue à afficher dans la vue principale
      */
-    public AppMainController(ControllerContext context, IAppMainGraphicController graphicController, ViewContext viewContext) {
+    public AppMainController(ControllerContext context, IAppMainGraphicController graphicController, View firstView) {
         this.context = Objects.requireNonNull(context);
         this.graphicController = graphicController;
-        this.viewContext = viewContext;
 
         // Connecter le callback de la vue à la logique du contrôleur
         this.graphicController.setOnExchangeDirectorySelected(this::onExchangeDirectorySelected);
         this.graphicController.setClearSelected(this::clearSelected);
 
-        // Créer le NavigationController et passer le contexte
-        NavigationController navigationController = new NavigationController(this.context, this.graphicController, this.viewContext);
-
-        this.graphicController.setMainView(
-                ComposantSwingFactory.createLoginView(
-                        this.context,
-                        this.viewContext,
-                        navigationController
-                )
-        );
+        this.graphicController.setMainView(firstView);
 
         this.graphicController.setVisibility(true);
     }
