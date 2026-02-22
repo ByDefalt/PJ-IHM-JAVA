@@ -40,7 +40,14 @@ public class NavigationController implements INavigationController, ISessionObse
 
     @Override
     public void navigateToProfile() {
+        context.logger().info("navigateToProfile");
+        this.setMainContent(ComposantSwingFactory.createUpdateAccountView());
+    }
 
+    @Override
+    public void navigateToChat() {
+        context.logger().info("navigateToChat");
+        this.setMainContent(ComposantSwingFactory.createChatMainView());
     }
 
     @Override

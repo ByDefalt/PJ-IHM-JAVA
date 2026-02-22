@@ -61,6 +61,13 @@ public class ComposantSwingFactory implements Factory {
         return inputMessageView;
     }
 
+    public static UpdateAccountView createUpdateAccountView() {
+        UpdateAccountController updateAccountController = new UpdateAccountController(controllerContext);
+        UpdateAccountView updateAccountView = new UpdateAccountView(viewContext);
+        new UpdateAccountGraphicController(viewContext, updateAccountView, updateAccountController);
+        return updateAccountView;
+    }
+
     public static ChatMainView createChatMainView() {
         InputMessageView inputMessageView = createInputMessageView();
         ListCanalView listCanalView = createListCanalView();

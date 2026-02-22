@@ -11,5 +11,7 @@ public interface INavigationController extends Controller {
 
     void navigateToProfile();
 
+    void navigateToChat();
+
     void setMainView(Consumer<View> mainView);
 }

@@ -166,8 +166,8 @@ public class AppMainView extends JComponent implements View {
         this.connectMenu.add(deleteAccountItem);
 
         menuBar.add(fileMenu);
-        menuBar.add(helpMenu);
         menuBar.add(this.connectMenu);
+        menuBar.add(helpMenu);
 
         this.mainFrame.setJMenuBar(menuBar);
         this.viewContext.logger().debug("MenuBar créé");

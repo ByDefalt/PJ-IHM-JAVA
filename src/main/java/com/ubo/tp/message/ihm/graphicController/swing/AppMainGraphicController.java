@@ -82,6 +82,6 @@ public class AppMainGraphicController implements IAppMainGraphicController, ISes
     }
 
     public void truc() {
-        viewContext.navigationController().navigateToLogin();
+        viewContext.navigationController().navigateToProfile();
     }
 }
