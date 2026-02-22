@@ -1,6 +1,5 @@
 package com.ubo.tp.message.ihm.graphicController.swing;
 
-import com.ubo.tp.message.controller.service.INavigationController;
 import com.ubo.tp.message.core.session.ISessionObserver;
 import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.contexte.ViewContext;

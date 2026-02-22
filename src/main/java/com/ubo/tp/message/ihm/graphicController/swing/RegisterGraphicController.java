@@ -1,6 +1,5 @@
 package com.ubo.tp.message.ihm.graphicController.swing;
 
-import com.ubo.tp.message.controller.service.INavigationController;
 import com.ubo.tp.message.controller.service.IRegisterController;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.graphicController.service.GraphicController;

@@ -55,7 +55,7 @@ public class MessageAppLauncher {
         DbConnector dbConnector = new DbConnector(database);
         MessageAppMock mock = new MessageAppMock(dbConnector, dataManager);
         ISelected selected = new Selected();
-        ControllerContext controllerContext = new ControllerContext(logger, dataManager, session, selected);
+        ControllerContext controllerContext = new ControllerContext(logger, dataManager, session);
         INavigationController navigationController = new NavigationController(controllerContext);
         ViewContext viewContext = new ViewContext(logger, session, selected, navigationController);
 

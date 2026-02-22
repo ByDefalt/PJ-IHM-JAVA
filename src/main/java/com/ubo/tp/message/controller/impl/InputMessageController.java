@@ -16,7 +16,7 @@ public class InputMessageController implements IInputMessageController {
     }
 
     @Override
-    public void sendMessage(String message) {
+    public void sendMessage(UUID uuid, String message) {
         if (message == null || message.trim().isEmpty()) {
             context.logger().warn("Message vide, envoi annulé");
             return;
@@ -24,19 +24,10 @@ public class InputMessageController implements IInputMessageController {
 
         String trimmedMessage = message.trim();
         context.logger().debug("Envoi du message : " + trimmedMessage);
-        UUID recipientUuid = null;
-        if (context.selected().getSelectedChannel() != null) {
-            recipientUuid = context.selected().getSelectedChannel().getUuid();
-        } else if (context.selected().getSelectedUser() != null) {
-            recipientUuid = context.selected().getSelectedUser().getUuid();
-        } else {
-            context.logger().warn("Aucun destinataire sélectionné, envoi annulé");
-            return;
-        }
         context.dataManager().sendMessage(
                 new Message(
                         context.session().getConnectedUser(),
-                        recipientUuid,
+                        uuid,
                         trimmedMessage
                 )
         );

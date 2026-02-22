@@ -33,7 +33,6 @@ public class AppMainController implements IAppMainController {
 
         // Connecter le callback de la vue à la logique du contrôleur
         this.graphicController.setOnExchangeDirectorySelected(this::onExchangeDirectorySelected);
-        this.graphicController.setClearSelected(this::clearSelected);
 
         // Enregistrer handlers pour les actions du menu Compte
         this.graphicController.setOnDisconnect(this::onDisconnectRequested);
@@ -56,10 +55,6 @@ public class AppMainController implements IAppMainController {
 
     public IAppMainGraphicController getGraphicController() {
         return this.graphicController;
-    }
-
-    public void clearSelected() {
-        context.selected().clearSelectedChannel();
     }
 
     // ----------------------------
