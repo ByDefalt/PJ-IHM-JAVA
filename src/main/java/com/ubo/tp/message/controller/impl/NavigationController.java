@@ -6,7 +6,6 @@ import com.ubo.tp.message.core.session.ISessionObserver;
 import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.factory.ComposantSwingFactory;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
-import com.ubo.tp.message.ihm.graphicController.service.IAppMainGraphicController;
 import com.ubo.tp.message.ihm.view.service.View;
 
 import java.util.Objects;
@@ -15,12 +14,10 @@ import java.util.function.Consumer;
 public class NavigationController implements INavigationController, ISessionObserver {
 
     private final ControllerContext context;
-    private final ViewContext viewContext;
     private Consumer<View> mainView;
 
-    public NavigationController(ControllerContext context, ViewContext viewContext) {
+    public NavigationController(ControllerContext context) {
         this.context = Objects.requireNonNull(context);
-        this.viewContext = viewContext;
 
         this.context.session().addObserver(this);
     }
@@ -33,13 +30,13 @@ public class NavigationController implements INavigationController, ISessionObse
     @Override
     public void navigateToLogin() {
         context.logger().info("navigateToLogin");
-        this.setMainContent(ComposantSwingFactory.createLoginView(context, viewContext, this));
+        this.setMainContent(ComposantSwingFactory.createLoginView());
     }
 
     @Override
     public void navigateToRegister() {
         context.logger().info("navigateToRegister");
-        this.setMainContent(ComposantSwingFactory.createRegisterView(context, viewContext, this));
+        this.setMainContent(ComposantSwingFactory.createRegisterView());
     }
 
     @Override
@@ -55,7 +52,7 @@ public class NavigationController implements INavigationController, ISessionObse
     @Override
     public void notifyLogin(User connectedUser) {
         context.logger().info("notifyLogin");
-        this.setMainContent(ComposantSwingFactory.createChatMainView(context, viewContext));
+        this.setMainContent(ComposantSwingFactory.createChatMainView());
     }
 
     @Override

@@ -15,17 +15,15 @@ public class AppMainGraphicController implements IAppMainGraphicController, ISes
 
     private final ViewContext viewContext;
     private final AppMainView appMainView;
-    private final INavigationController navigationController;
     private Runnable clearSelected;
 
-    public AppMainGraphicController(ViewContext viewContext, AppMainView appMainView, INavigationController navigationController) {
+    public AppMainGraphicController(ViewContext viewContext, AppMainView appMainView) {
         this.viewContext = viewContext;
         this.appMainView = appMainView;
-        this.navigationController = navigationController;
 
         this.viewContext.session().addObserver(this);
 
-        this.navigationController.setMainView(this::setMainView);
+        this.viewContext.navigationController().setMainView(this::setMainView);
         this.setOnUpdateProfile(this::truc);
     }
 
@@ -84,7 +82,7 @@ public class AppMainGraphicController implements IAppMainGraphicController, ISes
         appMainView.setOnUpdateProfile(onUpdateProfile);
     }
 
-    public void truc(){
-        navigationController.navigateToLogin();
+    public void truc() {
+        viewContext.navigationController().navigateToLogin();
     }
 }

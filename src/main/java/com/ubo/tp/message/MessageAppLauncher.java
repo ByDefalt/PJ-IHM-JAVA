@@ -2,6 +2,8 @@ package com.ubo.tp.message;
 
 import com.ubo.tp.message.common.Constants;
 import com.ubo.tp.message.controller.contexte.ControllerContext;
+import com.ubo.tp.message.controller.impl.NavigationController;
+import com.ubo.tp.message.controller.service.INavigationController;
 import com.ubo.tp.message.core.DataManager;
 import com.ubo.tp.message.core.IDataManager;
 import com.ubo.tp.message.core.database.Database;
@@ -14,6 +16,7 @@ import com.ubo.tp.message.core.session.Session;
 import com.ubo.tp.message.datamodel.Channel;
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.datamodel.User;
+import com.ubo.tp.message.factory.ComposantSwingFactory;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.logger.LogLevel;
 import com.ubo.tp.message.logger.Logger;
@@ -53,10 +56,14 @@ public class MessageAppLauncher {
         MessageAppMock mock = new MessageAppMock(dbConnector, dataManager);
         ISelected selected = new Selected();
         ControllerContext controllerContext = new ControllerContext(logger, dataManager, session, selected);
-        ViewContext viewContext = new ViewContext(logger, session, selected);
+        INavigationController navigationController = new NavigationController(controllerContext);
+        ViewContext viewContext = new ViewContext(logger, session, selected, navigationController);
+
+        ComposantSwingFactory.setControllerContext(controllerContext);
+        ComposantSwingFactory.setViewContext(viewContext);
 
         SwingUtilities.invokeLater(() -> {
-            MessageApp messageApp = new MessageApp(controllerContext, viewContext);
+            MessageApp messageApp = new MessageApp(controllerContext);
             messageApp.init();
             messageApp.show();
             if (IS_MOCK_ENABLED) {

@@ -15,12 +15,10 @@ import java.io.File;
  */
 public class MessageApp {
     private final ControllerContext controllerContext;
-    private final ViewContext viewContext;
     protected IAppMainController mMainController;
 
-    public MessageApp(ControllerContext controllerContext, ViewContext viewContext) {
+    public MessageApp(ControllerContext controllerContext) {
         this.controllerContext = controllerContext;
-        this.viewContext = viewContext;
     }
 
     /**
@@ -54,7 +52,7 @@ public class MessageApp {
      * Initialisation de l'interface graphique.
      */
     protected void initGui() {
-        mMainController = ComposantSwingFactory.createAppMainController(this.controllerContext, this.viewContext);
+        mMainController = ComposantSwingFactory.createAppMainController();
     }
 
     /**

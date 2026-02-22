@@ -11,67 +11,77 @@ import com.ubo.tp.message.ihm.view.swing.*;
 
 public class ComposantSwingFactory implements Factory {
 
-    public static IAppMainController createAppMainController(ControllerContext context, ViewContext vc) {
-        INavigationController navigationController = new NavigationController(context, vc);
-        AppMainView view = new AppMainView(vc);
-        IAppMainGraphicController graphicController = new AppMainGraphicController(vc, view, navigationController);
-        return new AppMainController(context, graphicController, ComposantSwingFactory.createLoginView(context, vc, navigationController));
+    private static ControllerContext controllerContext;
+    private static ViewContext viewContext;
+
+    public static IAppMainController createAppMainController() {
+        AppMainView view = new AppMainView(viewContext);
+        IAppMainGraphicController graphicController = new AppMainGraphicController(viewContext, view);
+        return new AppMainController(controllerContext, graphicController, ComposantSwingFactory.createLoginView());
     }
 
-    public static LoginView createLoginView(ControllerContext context, ViewContext vc, INavigationController navigationController) {
-        LoginController loginController = new LoginController(context);
-        LoginView loginView = new LoginView(vc);
-        new LoginGraphicController(vc, loginView, loginController, navigationController);
+    public static LoginView createLoginView() {
+        LoginController loginController = new LoginController(controllerContext);
+        LoginView loginView = new LoginView(viewContext);
+        new LoginGraphicController(viewContext, loginView, loginController);
         return loginView;
     }
 
-    public static RegisterView createRegisterView(ControllerContext context, ViewContext vc, INavigationController navigationController) {
-        RegisterController registerController = new RegisterController(context);
-        RegisterView registerView = new RegisterView(vc);
-        new RegisterGraphicController(vc, registerView, registerController, navigationController);
+    public static RegisterView createRegisterView() {
+        RegisterController registerController = new RegisterController(controllerContext);
+        RegisterView registerView = new RegisterView(viewContext);
+        new RegisterGraphicController(viewContext, registerView, registerController);
         return registerView;
     }
 
-    public static ListCanalView createListCanalView(ControllerContext context, ViewContext vc) {
-        ListCanalView listCanalView = new ListCanalView(vc);
-        ListCanalGraphicController listCanalGraphicController = new ListCanalGraphicController(vc, listCanalView);
-        new ListCanalController(context, listCanalGraphicController);
+    public static ListCanalView createListCanalView() {
+        ListCanalView listCanalView = new ListCanalView(viewContext);
+        ListCanalGraphicController listCanalGraphicController = new ListCanalGraphicController(viewContext, listCanalView);
+        new ListCanalController(controllerContext, listCanalGraphicController);
         return listCanalView;
     }
 
-    public static ListMessageView createListMessageView(ControllerContext context, ViewContext vc) {
-        ListMessageView listMessageView = new ListMessageView(vc);
-        ListMessageGraphicController listMessageGraphicController = new ListMessageGraphicController(vc, listMessageView);
-        new ListMessageController(context, listMessageGraphicController);
+    public static ListMessageView createListMessageView() {
+        ListMessageView listMessageView = new ListMessageView(viewContext);
+        ListMessageGraphicController listMessageGraphicController = new ListMessageGraphicController(viewContext, listMessageView);
+        new ListMessageController(controllerContext, listMessageGraphicController);
         return listMessageView;
     }
 
-    public static ListUserView createListUserView(ControllerContext context, ViewContext vc) {
-        ListUserView listUserView = new ListUserView(vc);
-        ListUserGraphicController listUserGraphicController = new ListUserGraphicController(vc, listUserView);
-        new ListUserController(context, listUserGraphicController);
+    public static ListUserView createListUserView() {
+        ListUserView listUserView = new ListUserView(viewContext);
+        ListUserGraphicController listUserGraphicController = new ListUserGraphicController(viewContext, listUserView);
+        new ListUserController(controllerContext, listUserGraphicController);
         return listUserView;
     }
 
-    public static InputMessageView createInputMessageView(ControllerContext context, ViewContext vc) {
-        InputMessageController inputMessageController = new InputMessageController(context);
-        InputMessageView inputMessageView = new InputMessageView(vc);
-        new InputMessageGraphicController(vc, inputMessageView, inputMessageController);
+    public static InputMessageView createInputMessageView() {
+        InputMessageController inputMessageController = new InputMessageController(controllerContext);
+        InputMessageView inputMessageView = new InputMessageView(viewContext);
+        new InputMessageGraphicController(viewContext, inputMessageView, inputMessageController);
         return inputMessageView;
     }
 
-    public static ChatMainView createChatMainView(ControllerContext context, ViewContext vc) {
-        InputMessageView inputMessageView = createInputMessageView(context, vc);
-        ListCanalView listCanalView = createListCanalView(context, vc);
-        ListMessageView listMessageView = createListMessageView(context, vc);
-        ListUserView listUserView = createListUserView(context, vc);
+    public static ChatMainView createChatMainView() {
+        InputMessageView inputMessageView = createInputMessageView();
+        ListCanalView listCanalView = createListCanalView();
+        ListMessageView listMessageView = createListMessageView();
+        ListUserView listUserView = createListUserView();
 
         return new ChatMainView(
-                vc,
+                viewContext,
                 listCanalView,
                 listUserView,
                 listMessageView,
                 inputMessageView
         );
+    }
+
+    public static void setControllerContext(ControllerContext controllerContext) {
+        ComposantSwingFactory.controllerContext = controllerContext;
+    }
+
+    public static void setViewContext(ViewContext viewContext) {
+        ComposantSwingFactory.viewContext = viewContext;
     }
 }

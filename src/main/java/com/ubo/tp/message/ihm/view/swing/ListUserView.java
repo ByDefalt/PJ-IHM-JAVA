@@ -19,10 +19,9 @@ public class ListUserView extends JComponent implements View {
 
     private final JPanel usersPanel;
     private final JScrollPane scrollPane;
-    private Component glue;
-
     // Champ de recherche
     private final JTextField searchField;
+    private Component glue;
 
     public ListUserView(ViewContext viewContext) {
         this.viewContext = viewContext;

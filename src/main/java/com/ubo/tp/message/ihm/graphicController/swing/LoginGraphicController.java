@@ -1,7 +1,6 @@
 package com.ubo.tp.message.ihm.graphicController.swing;
 
 import com.ubo.tp.message.controller.service.ILoginController;
-import com.ubo.tp.message.controller.service.INavigationController;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.graphicController.service.GraphicController;
 import com.ubo.tp.message.ihm.view.swing.LoginView;
@@ -11,13 +10,11 @@ public class LoginGraphicController implements GraphicController {
     private final ViewContext viewContext;
     private final LoginView loginView;
     private final ILoginController loginController;
-    private final INavigationController navigationController;
 
-    public LoginGraphicController(ViewContext viewContext, LoginView loginView, ILoginController loginController, INavigationController navigationController) {
+    public LoginGraphicController(ViewContext viewContext, LoginView loginView, ILoginController loginController) {
         this.viewContext = viewContext;
         this.loginView = loginView;
         this.loginController = loginController;
-        this.navigationController = navigationController;
 
         createConnector();
     }
@@ -30,7 +27,7 @@ public class LoginGraphicController implements GraphicController {
 
         loginView.setOnRegisterRequested(() -> {
             if (viewContext.logger() != null) viewContext.logger().debug("Navigation vers l'inscription");
-            navigationController.navigateToRegister();
+            viewContext.navigationController().navigateToRegister();
         });
     }
 }

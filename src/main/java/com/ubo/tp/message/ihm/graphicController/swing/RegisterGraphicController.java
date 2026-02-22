@@ -11,13 +11,11 @@ public class RegisterGraphicController implements GraphicController {
     private final ViewContext viewContext;
     private final RegisterView registerView;
     private final IRegisterController registerController;
-    private final INavigationController navigationController;
 
-    public RegisterGraphicController(ViewContext viewContext, RegisterView registerView, IRegisterController registerController, INavigationController navigationController) {
+    public RegisterGraphicController(ViewContext viewContext, RegisterView registerView, IRegisterController registerController) {
         this.viewContext = viewContext;
         this.registerView = registerView;
         this.registerController = registerController;
-        this.navigationController = navigationController;
 
         registerView.setOnRegisterRequested((tag, name, password, confirmPassword) -> {
             if (viewContext.logger() != null) viewContext.logger().debug("Inscription demandée pour : " + tag);
@@ -25,7 +23,7 @@ public class RegisterGraphicController implements GraphicController {
             if (created) {
                 if (viewContext.logger() != null)
                     viewContext.logger().info("Inscription réussie, navigation vers login");
-                navigationController.navigateToLogin();
+                viewContext.navigationController().navigateToLogin();
             } else {
                 if (viewContext.logger() != null) viewContext.logger().warn("Inscription échouée pour : " + tag);
             }
@@ -33,7 +31,7 @@ public class RegisterGraphicController implements GraphicController {
 
         registerView.setOnBackToLoginRequested(() -> {
             if (viewContext.logger() != null) viewContext.logger().debug("Retour vers la connexion");
-            navigationController.navigateToLogin();
+            viewContext.navigationController().navigateToLogin();
         });
     }
 }

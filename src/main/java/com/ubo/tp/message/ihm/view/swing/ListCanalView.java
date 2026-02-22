@@ -19,11 +19,9 @@ public class ListCanalView extends JComponent implements View {
 
     private final JPanel canalsPanel;
     private final JScrollPane scrollPane;
-
-    private Component glue;
-
     // Champ de recherche
     private final JTextField searchField;
+    private Component glue;
 
     public ListCanalView(ViewContext viewContext) {
         this.viewContext = viewContext;
