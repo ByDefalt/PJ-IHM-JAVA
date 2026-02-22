@@ -7,6 +7,8 @@ import com.ubo.tp.message.ihm.view.service.View;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -21,21 +23,45 @@ public class MessageView extends JComponent implements View {
             .ofPattern("dd/MM/yyyy HH'h'mm")
             .withLocale(Locale.FRANCE);
 
+    private static final Color BG_NORMAL    = new Color(54, 57, 63);
+    private static final Color BG_HOVER     = new Color(72, 76, 84);
+    private static final Color BORDER_HOVER = new Color(90, 95, 105);
+
     private final ViewContext viewContext;
     private final Message message;
 
     private JLabel authorLabel;
     private JTextArea contentArea;
     private JLabel timeLabel;
+    private boolean hovered = false;
 
     public MessageView(ViewContext viewContext, Message message) {
         this.viewContext = viewContext;
         this.message = message;
         this.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         this.setLayout(new GridBagLayout());
-        this.setOpaque(true);
+        // Non opaque : on peint tout manuellement pour éviter les coins parasites
+        this.setOpaque(false);
 
         init(message);
+
+        // Un seul listener : tous les enfants ont contains() = false
+        // donc les événements souris remontent directement ici.
+        this.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                hovered = true;
+                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                repaint();
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                hovered = false;
+                setCursor(Cursor.getDefaultCursor());
+                repaint();
+            }
+        });
 
         if (this.viewContext.logger() != null)
             this.viewContext.logger().debug("MessageView initialisée pour '" + message.getSender() + "'");
@@ -47,14 +73,14 @@ public class MessageView extends JComponent implements View {
     }
 
     private void createBubble(String author, String content, long emissionMillis) {
-        JPanel bubble = new JPanel(new GridBagLayout());
-
-        // Fond de la bulle : List.selectionBackground (#4F545C) ou fallback
-        Color bubbleBg = UIManager.getColor("List.selectionBackground");
-        if (bubbleBg == null) bubbleBg = UIManager.getColor("Panel.background");
-        bubble.setBackground(bubbleBg);
-        bubble.setBorder(new EmptyBorder(6, 8, 6, 8));
+        JPanel bubble = new JPanel(new GridBagLayout()) {
+            @Override
+            public boolean contains(int x, int y) {
+                return false;
+            }
+        };
         bubble.setOpaque(false);
+        bubble.setBorder(new EmptyBorder(6, 8, 6, 8));
 
         GridBagConstraints gbcBubble = new GridBagConstraints(
                 1, 0, 1, 1, 1.0, 0.0,
@@ -68,33 +94,38 @@ public class MessageView extends JComponent implements View {
     }
 
     private void createHeader(JPanel bubble, String author, long emissionMillis) {
-        // Couleur auteur : texte heading blanc (#FFFFFF)
         Color authorColor = UIManager.getColor("Label.foreground");
         if (authorColor == null) authorColor = Color.WHITE;
 
-        // Couleur heure : texte muted (#72767D)
         Color timeColor = UIManager.getColor("Label.disabledForeground");
         if (timeColor == null) timeColor = new Color(114, 118, 125);
 
-        // Police de base du thème
         Font baseFont = UIManager.getFont("Label.font");
         Font authorFont = (baseFont != null) ? baseFont.deriveFont(Font.BOLD, 13f)
                 : new Font("SansSerif", Font.BOLD, 13);
         Font timeFont = (baseFont != null) ? baseFont.deriveFont(Font.PLAIN, 11f)
                 : new Font("SansSerif", Font.PLAIN, 11);
 
-        authorLabel = new JLabel(author != null ? author : "");
+        authorLabel = new JLabel(author != null ? author : "") {
+            @Override public boolean contains(int x, int y) { return false; }
+        };
         authorLabel.setForeground(authorColor);
         authorLabel.setFont(authorFont);
         authorLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
+        authorLabel.setOpaque(false);
 
-        timeLabel = new JLabel(formatTimestamp(emissionMillis));
+        timeLabel = new JLabel(formatTimestamp(emissionMillis)) {
+            @Override public boolean contains(int x, int y) { return false; }
+        };
         timeLabel.setForeground(timeColor);
         timeLabel.setFont(timeFont);
         timeLabel.setAlignmentY(Component.CENTER_ALIGNMENT);
         timeLabel.setBorder(new EmptyBorder(0, 8, 0, 0));
+        timeLabel.setOpaque(false);
 
-        JPanel headerPanel = new JPanel();
+        JPanel headerPanel = new JPanel() {
+            @Override public boolean contains(int x, int y) { return false; }
+        };
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.X_AXIS));
         headerPanel.setOpaque(false);
         headerPanel.add(authorLabel);
@@ -109,17 +140,17 @@ public class MessageView extends JComponent implements View {
     }
 
     private void createContent(JPanel bubble, String content) {
-        // Couleur du texte du message : text normal (#DCDDDE)
         Color contentColor = UIManager.getColor("TextArea.foreground");
         if (contentColor == null) contentColor = UIManager.getColor("Label.foreground");
         if (contentColor == null) contentColor = new Color(220, 221, 222);
 
-        // Police du contenu : légèrement plus grande que le label
         Font baseFont = UIManager.getFont("TextArea.font");
         Font contentFont = (baseFont != null) ? baseFont.deriveFont(Font.PLAIN, 13f)
                 : new Font("SansSerif", Font.PLAIN, 13);
 
-        contentArea = new JTextArea();
+        contentArea = new JTextArea() {
+            @Override public boolean contains(int x, int y) { return false; }
+        };
         contentArea.setEditable(false);
         contentArea.setLineWrap(true);
         contentArea.setWrapStyleWord(true);
@@ -130,7 +161,6 @@ public class MessageView extends JComponent implements View {
         contentArea.setFocusable(false);
         contentArea.setText(content != null ? content : "");
 
-        // Couleur du caret (invisible car non éditable, mais cohérent)
         Color caretColor = UIManager.getColor("TextArea.caretForeground");
         if (caretColor != null) contentArea.setCaretColor(caretColor);
 
@@ -140,6 +170,31 @@ public class MessageView extends JComponent implements View {
                 new Insets(0, 0, 0, 0), 0, 0
         );
         bubble.add(contentArea, gbcContent);
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        int arc = 12;
+        int pad = 2;
+        int w = getWidth()  - pad * 2;
+        int h = getHeight() - pad * 2;
+
+        if (hovered) {
+            g2.setColor(BG_HOVER);
+            g2.fillRoundRect(pad, pad, w, h, arc, arc);
+
+            g2.setStroke(new BasicStroke(1.2f));
+            g2.setColor(BORDER_HOVER);
+            g2.drawRoundRect(pad, pad, w - 1, h - 1, arc, arc);
+        } else {
+            g2.setColor(BG_NORMAL);
+            g2.fillRoundRect(pad, pad, w, h, arc, arc);
+        }
+
+        g2.dispose();
     }
 
     public Message getMessage() {
@@ -158,9 +213,6 @@ public class MessageView extends JComponent implements View {
         this.setMessage(message);
     }
 
-    /**
-     * Convertit un timestamp (millis) en chaîne formatée : jj/MM/aaaa HH'h'mm
-     */
     private String formatTimestamp(long millis) {
         try {
             return DATE_FORMATTER.format(
@@ -170,10 +222,5 @@ public class MessageView extends JComponent implements View {
                 this.viewContext.logger().debug("Erreur formatage date: " + e.getMessage());
             return String.valueOf(millis);
         }
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
     }
 }
