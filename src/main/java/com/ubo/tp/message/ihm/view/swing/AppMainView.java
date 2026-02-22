@@ -141,7 +141,7 @@ public class AppMainView extends JComponent implements View {
         helpMenu.add(aboutItem);
 
         // Menu Connexion — caché par défaut, affiché uniquement si connecté
-        this.connectMenu = new JMenu("Connexion");
+        this.connectMenu = new JMenu("Compte");
         this.connectMenu.setVisible(false);
 
         JMenuItem disconnectItem = new JMenuItem("Déconnexion");
@@ -151,6 +151,16 @@ public class AppMainView extends JComponent implements View {
             }
         });
         this.connectMenu.add(disconnectItem);
+        JMenuItem updateProfileItem = new JMenuItem("Modifier le profil");
+        updateProfileItem.addActionListener(e -> {
+
+        });
+        this.connectMenu.add(updateProfileItem);
+        JMenuItem deleteAccountItem = new JMenuItem("Supprimer le compte");
+        deleteAccountItem.addActionListener(e -> {
+
+        });
+        this.connectMenu.add(deleteAccountItem);
 
         menuBar.add(fileMenu);
         menuBar.add(helpMenu);
