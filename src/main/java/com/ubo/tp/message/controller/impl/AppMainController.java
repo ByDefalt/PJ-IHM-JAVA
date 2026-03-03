@@ -57,9 +57,6 @@ public class AppMainController implements IAppMainController {
         return this.graphicController;
     }
 
-    // ----------------------------
-    // Handlers pour actions Compte
-    // ----------------------------
     private void onDisconnectRequested() {
         context.logger().info("Controller: demande de déconnexion reçue");
         try {

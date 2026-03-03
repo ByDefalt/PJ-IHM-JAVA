@@ -6,9 +6,7 @@ import com.ubo.tp.message.ihm.view.service.View;
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * Vue principale type Discord : sidebar fixe + panel messages à droite.
- */
+
 public class ChatMainView extends JComponent implements View {
 
     private final ViewContext viewContext;
