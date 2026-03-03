@@ -34,6 +34,12 @@ public class MessageAppLauncher {
 
     // Peut être surchargé via la propriété système "exchange.dir"
     private static final boolean IS_MOCK_ENABLED = false;
+    /**
+     * Si true, l'UI JavaFX est lancée en plus de l'UI Swing dans le même processus.
+     * Les deux partagent alors exactement la même Database en mémoire :
+     * un message envoyé côté Swing apparaît instantanément côté JavaFX, et vice-versa.
+     */
+    private static final boolean DUAL_UI = true;
     private static final String EXCHANGE_DIRECTORY_PATH = System.getProperty("exchange.dir", "E:\\ihm");
 
     static void main(String[] args) {
@@ -56,11 +62,25 @@ public class MessageAppLauncher {
         MessageAppMock mock = new MessageAppMock(dbConnector, dataManager);
         ISelected selected = new Selected();
         ControllerContext controllerContext = new ControllerContext(logger, dataManager, session, selected);
-        INavigationController navigationController = new NavigationController(controllerContext);
+
+        ComposantSwingFactory swingFactory = new ComposantSwingFactory();
+        INavigationController navigationController = new NavigationController(controllerContext, swingFactory);
         ViewContext viewContext = new ViewContext(logger, session, selected, navigationController);
 
         ComposantSwingFactory.setControllerContext(controllerContext);
         ComposantSwingFactory.setViewContext(viewContext);
+
+        // Lancer JavaFX en mode partagé AVANT SwingUtilities.invokeLater
+        // (Application.launch() est bloquant — on le met donc sur un thread dédié)
+        if (DUAL_UI) {
+            MessageAppFx.setSharedContext(controllerContext);
+            Thread fxThread = new Thread(
+                    () -> javafx.application.Application.launch(MessageAppFx.class),
+                    "javafx-launcher"
+            );
+            fxThread.setDaemon(false);
+            fxThread.start();
+        }
 
         SwingUtilities.invokeLater(() -> {
             MessageApp messageApp = new MessageApp(controllerContext);

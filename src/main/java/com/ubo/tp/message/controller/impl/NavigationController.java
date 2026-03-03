@@ -4,7 +4,7 @@ import com.ubo.tp.message.controller.contexte.ControllerContext;
 import com.ubo.tp.message.controller.service.INavigationController;
 import com.ubo.tp.message.core.session.ISessionObserver;
 import com.ubo.tp.message.datamodel.User;
-import com.ubo.tp.message.factory.ComposantSwingFactory;
+import com.ubo.tp.message.factory.ViewFactory;
 import com.ubo.tp.message.ihm.view.service.View;
 
 import java.util.Objects;
@@ -13,11 +13,12 @@ import java.util.function.Consumer;
 public class NavigationController implements INavigationController, ISessionObserver {
 
     private final ControllerContext context;
+    private final ViewFactory viewFactory;
     private Consumer<View> mainView;
 
-    public NavigationController(ControllerContext context) {
+    public NavigationController(ControllerContext context, ViewFactory viewFactory) {
         this.context = Objects.requireNonNull(context);
-
+        this.viewFactory = Objects.requireNonNull(viewFactory);
         this.context.session().addObserver(this);
     }
 
@@ -29,25 +30,25 @@ public class NavigationController implements INavigationController, ISessionObse
     @Override
     public void navigateToLogin() {
         context.logger().info("navigateToLogin");
-        this.setMainContent(ComposantSwingFactory.createLoginView());
+        this.setMainContent(viewFactory.createLoginView());
     }
 
     @Override
     public void navigateToRegister() {
         context.logger().info("navigateToRegister");
-        this.setMainContent(ComposantSwingFactory.createRegisterView());
+        this.setMainContent(viewFactory.createRegisterView());
     }
 
     @Override
     public void navigateToProfile() {
         context.logger().info("navigateToProfile");
-        this.setMainContent(ComposantSwingFactory.createUpdateAccountView());
+        this.setMainContent(viewFactory.createUpdateAccountView());
     }
 
     @Override
     public void navigateToChat() {
         context.logger().info("navigateToChat");
-        this.setMainContent(ComposantSwingFactory.createChatMainView());
+        this.setMainContent(viewFactory.createChatMainView());
     }
 
     @Override
@@ -58,7 +59,7 @@ public class NavigationController implements INavigationController, ISessionObse
     @Override
     public void notifyLogin(User connectedUser) {
         context.logger().info("notifyLogin");
-        this.setMainContent(ComposantSwingFactory.createChatMainView());
+        this.setMainContent(viewFactory.createChatMainView());
     }
 
     @Override

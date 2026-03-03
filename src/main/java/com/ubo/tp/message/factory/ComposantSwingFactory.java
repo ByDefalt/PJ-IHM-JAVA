@@ -6,27 +6,61 @@ import com.ubo.tp.message.controller.service.IAppMainController;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.graphicController.service.IAppMainGraphicController;
 import com.ubo.tp.message.ihm.graphicController.swing.*;
+import com.ubo.tp.message.ihm.view.service.View;
 import com.ubo.tp.message.ihm.view.swing.*;
 
-public class ComposantSwingFactory implements Factory {
+public class ComposantSwingFactory implements ViewFactory {
 
     private static ControllerContext controllerContext;
     private static ViewContext viewContext;
 
-    public static IAppMainController createAppMainController() {
-        AppMainView view = new AppMainView(viewContext);
-        IAppMainGraphicController graphicController = new AppMainGraphicController(viewContext, view);
-        return new AppMainController(controllerContext, graphicController, ComposantSwingFactory.createLoginView());
+    // -------------------------------------------------------------------------
+    // Méthodes d'instance (implémentation de ViewFactory)
+    // -------------------------------------------------------------------------
+
+    @Override
+    public IAppMainController createAppMainController() {
+        return ComposantSwingFactory.createAppMainControllerStatic();
     }
 
-    public static LoginView createLoginView() {
+    @Override
+    public View createLoginView() {
+        return ComposantSwingFactory.createLoginViewStatic();
+    }
+
+    @Override
+    public View createRegisterView() {
+        return ComposantSwingFactory.createRegisterViewStatic();
+    }
+
+    @Override
+    public View createUpdateAccountView() {
+        return ComposantSwingFactory.createUpdateAccountViewStatic();
+    }
+
+    @Override
+    public View createChatMainView() {
+        return ComposantSwingFactory.createChatMainViewStatic();
+    }
+
+    // -------------------------------------------------------------------------
+    // Méthodes statiques (usage interne / NavigationController via ViewFactory)
+    // -------------------------------------------------------------------------
+
+    public static IAppMainController createAppMainControllerStatic() {
+        AppMainView view = new AppMainView(viewContext);
+        IAppMainGraphicController graphicController = new AppMainGraphicController(viewContext, view);
+        return new AppMainController(controllerContext, graphicController, createLoginViewStatic());
+    }
+
+    public static LoginView createLoginViewStatic() {
         LoginController loginController = new LoginController(controllerContext);
         LoginView loginView = new LoginView(viewContext);
         new LoginGraphicController(viewContext, loginView, loginController);
         return loginView;
     }
 
-    public static RegisterView createRegisterView() {
+    public static RegisterView createRegisterViewStatic() {
         RegisterController registerController = new RegisterController(controllerContext);
         RegisterView registerView = new RegisterView(viewContext);
         new RegisterGraphicController(viewContext, registerView, registerController);
@@ -61,14 +95,14 @@ public class ComposantSwingFactory implements Factory {
         return inputMessageView;
     }
 
-    public static UpdateAccountView createUpdateAccountView() {
+    public static UpdateAccountView createUpdateAccountViewStatic() {
         UpdateAccountController updateAccountController = new UpdateAccountController(controllerContext);
         UpdateAccountView updateAccountView = new UpdateAccountView(viewContext);
         new UpdateAccountGraphicController(viewContext, updateAccountView, updateAccountController);
         return updateAccountView;
     }
 
-    public static ChatMainView createChatMainView() {
+    public static ChatMainView createChatMainViewStatic() {
         InputMessageView inputMessageView = createInputMessageView();
         ListCanalView listCanalView = createListCanalView();
         ListMessageView listMessageView = createListMessageView();

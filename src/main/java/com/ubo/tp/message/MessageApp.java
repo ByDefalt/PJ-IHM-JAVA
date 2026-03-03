@@ -51,7 +51,7 @@ public class MessageApp {
      * Initialisation de l'interface graphique.
      */
     protected void initGui() {
-        mMainController = ComposantSwingFactory.createAppMainController();
+        mMainController = ComposantSwingFactory.createAppMainControllerStatic();
     }
 
     /**
