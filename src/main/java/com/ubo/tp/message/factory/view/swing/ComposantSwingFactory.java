@@ -1,8 +1,9 @@
-package com.ubo.tp.message.factory;
+package com.ubo.tp.message.factory.view.swing;
 
 import com.ubo.tp.message.controller.contexte.ControllerContext;
 import com.ubo.tp.message.controller.impl.*;
 import com.ubo.tp.message.controller.service.IAppMainController;
+import com.ubo.tp.message.factory.view.ViewFactory;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.graphicController.service.IAppMainGraphicController;
 import com.ubo.tp.message.ihm.graphicController.swing.*;

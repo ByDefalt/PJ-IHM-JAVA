@@ -2,7 +2,7 @@ package com.ubo.tp.message;
 
 import com.ubo.tp.message.controller.contexte.ControllerContext;
 import com.ubo.tp.message.controller.service.IAppMainController;
-import com.ubo.tp.message.factory.ComposantSwingFactory;
+import com.ubo.tp.message.factory.view.swing.ComposantSwingFactory;
 import com.ubo.tp.message.theme.DiscordTheme;
 
 import java.io.File;

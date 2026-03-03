@@ -1,6 +1,7 @@
-package com.ubo.tp.message.factory;
+package com.ubo.tp.message.factory.view;
 
 import com.ubo.tp.message.controller.service.IAppMainController;
+import com.ubo.tp.message.factory.Factory;
 import com.ubo.tp.message.ihm.view.service.View;
 
 /**

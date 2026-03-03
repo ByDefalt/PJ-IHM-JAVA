@@ -16,7 +16,7 @@ import com.ubo.tp.message.core.session.Session;
 import com.ubo.tp.message.datamodel.Channel;
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.datamodel.User;
-import com.ubo.tp.message.factory.ComposantSwingFactory;
+import com.ubo.tp.message.factory.view.swing.ComposantSwingFactory;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.logger.LogLevel;
 import com.ubo.tp.message.logger.Logger;
