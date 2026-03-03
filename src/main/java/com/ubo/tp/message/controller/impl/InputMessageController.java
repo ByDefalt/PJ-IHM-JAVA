@@ -17,9 +17,9 @@ public class InputMessageController implements IInputMessageController {
     }
 
     @Override
-    public void sendMessage(UUID uuid, String message) {
+    public void sendMessage(UUID recipientUuid, String message) {
         if (message == null || message.trim().isEmpty()) {
-            context.logger().warn("Message vide, envoi annulé");
+            if (context.logger() != null) context.logger().warn("Message vide, envoi annulé");
             return;
         }
 
@@ -33,9 +33,34 @@ public class InputMessageController implements IInputMessageController {
         context.dataManager().sendMessage(
                 new Message(
                         context.session().getConnectedUser(),
-                        uuid,
+                        recipientUuid,
                         trimmedMessage
                 )
         );
+    }
+
+    /**
+     * Résout le destinataire depuis la sélection courante (logique métier)
+     * puis délègue à sendMessage.
+     */
+    @Override
+    public void sendMessageToSelected(String text) {
+        var sel = context.selected();
+        if (sel == null) {
+            if (context.logger() != null) context.logger().warn("Aucune sélection, envoi annulé");
+            return;
+        }
+
+        if (sel.getSelectedChannel() != null) {
+            if (context.logger() != null)
+                context.logger().debug("Envoi au canal : " + sel.getSelectedChannel().getName());
+            sendMessage(sel.getSelectedChannel().getUuid(), text);
+        } else if (sel.getSelectedUser() != null) {
+            if (context.logger() != null)
+                context.logger().debug("Envoi à l'utilisateur : " + sel.getSelectedUser().getName());
+            sendMessage(sel.getSelectedUser().getUuid(), text);
+        } else {
+            if (context.logger() != null) context.logger().warn("Aucun canal ni utilisateur sélectionné, envoi annulé");
+        }
     }
 }

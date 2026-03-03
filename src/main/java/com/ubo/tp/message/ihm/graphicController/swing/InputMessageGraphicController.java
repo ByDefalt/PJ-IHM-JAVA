@@ -15,7 +15,6 @@ public class InputMessageGraphicController implements GraphicController {
         this.viewContext = viewContext;
         this.inputMessageView = inputMessageView;
         this.inputMessageController = inputMessageController;
-
         inputMessageView.setOnSendRequested(this::handleSendAction);
     }
 
@@ -25,13 +24,7 @@ public class InputMessageGraphicController implements GraphicController {
         if (message.isEmpty()) return;
 
         if (inputMessageController != null) {
-            if (viewContext.selected().getSelectedChannel() != null) {
-                viewContext.logger().debug("Envoi du message au canal : " + viewContext.selected().getSelectedChannel().getName());
-                inputMessageController.sendMessage(viewContext.selected().getSelectedChannel().getUuid(), message);
-            } else if (viewContext.selected().getSelectedUser() != null) {
-                viewContext.logger().debug("Envoi du message à l'utilisateur : " + viewContext.selected().getSelectedUser().getName());
-                inputMessageController.sendMessage(viewContext.selected().getSelectedUser().getUuid(), message);
-            }
+            inputMessageController.sendMessageToSelected(message);
         }
 
         inputMessageView.clearText();

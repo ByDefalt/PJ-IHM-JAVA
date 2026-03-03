@@ -32,7 +32,12 @@ public class ListUserController implements IListUserController, IUserDatabaseObs
             if (context.logger() != null) context.logger().debug("Ignorer l'ajout de l'utilisateur courant: " + addedUser.getName());
             return;
         }
-        this.graphicController.addUser(addedUser);
+        this.graphicController.addUser(addedUser, this::setSelected);
+    }
+
+    private void setSelected(User selectedUser) {
+        if (context.logger() != null) context.logger().debug("Sélectionner l'utilisateur : " + selectedUser);
+        context.selected().setSelectedUser(selectedUser);
     }
 
     @Override

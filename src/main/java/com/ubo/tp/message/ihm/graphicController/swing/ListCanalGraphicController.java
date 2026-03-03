@@ -11,6 +11,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class ListCanalGraphicController implements IListCanalGraphicController {
 
@@ -25,7 +26,7 @@ public class ListCanalGraphicController implements IListCanalGraphicController {
     }
 
     @Override
-    public void addCanal(Channel canal) {
+    public void addCanal(Channel canal, Consumer<Channel> consumer) {
         if (canal == null || listCanalView == null) return;
 
         boolean alreadyPresent = canalViews.stream()
@@ -41,8 +42,7 @@ public class ListCanalGraphicController implements IListCanalGraphicController {
         canalView.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (viewContext.logger() != null) viewContext.logger().debug("CanalView cliqué: " + canal.getName());
-                viewContext.selected().setSelectedChannel(canal);
+                consumer.accept(canalView.getChannel());
             }
         });
 

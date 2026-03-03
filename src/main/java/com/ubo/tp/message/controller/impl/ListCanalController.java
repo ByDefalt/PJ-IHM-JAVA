@@ -24,10 +24,15 @@ public class ListCanalController implements IListCanalController, IChannelDataba
         return graphicController;
     }
 
+    private void setSelected(Channel channel) {
+        if (context.logger() != null) context.logger().debug("Canal sélectionné : " + channel);
+        context.selected().setSelectedChannel(channel);
+    }
+
     @Override
     public void notifyChannelAdded(Channel addedChannel) {
         if (context.logger() != null) context.logger().debug("Canal ajouté : " + addedChannel);
-        this.graphicController.addCanal(addedChannel);
+        this.graphicController.addCanal(addedChannel, this::setSelected);
     }
 
     @Override

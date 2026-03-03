@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class ListUserGraphicController implements IListUserGraphicController {
 
@@ -29,7 +30,7 @@ public class ListUserGraphicController implements IListUserGraphicController {
     }
 
     @Override
-    public void addUser(User user) {
+    public void addUser(User user, Consumer<User> added) {
         if (user == null) return;
 
         var logger = viewContext.logger();
@@ -48,9 +49,7 @@ public class ListUserGraphicController implements IListUserGraphicController {
         userView.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                var l = viewContext.logger();
-                if (l != null) l.debug("UserView cliqué: " + user.getName());
-                viewContext.selected().setSelectedUser(user);
+                added.accept(userView.getUser());
             }
         });
 
