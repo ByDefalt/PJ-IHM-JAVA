@@ -65,7 +65,7 @@ public class MessageAppLauncher {
 
         ComposantSwingFactory swingFactory = new ComposantSwingFactory();
         INavigationController navigationController = new NavigationController(controllerContext, swingFactory);
-        ViewContext viewContext = new ViewContext(logger, session, selected, navigationController);
+        ViewContext viewContext = new ViewContext(logger, session, navigationController);
 
         ComposantSwingFactory.setControllerContext(controllerContext);
         ComposantSwingFactory.setViewContext(viewContext);

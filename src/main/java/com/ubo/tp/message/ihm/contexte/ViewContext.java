@@ -8,7 +8,6 @@ import com.ubo.tp.message.logger.Logger;
 public record ViewContext(
         Logger logger,
         ISession session,
-        ISelected selected,
         INavigationController navigationController
 ) {
 }

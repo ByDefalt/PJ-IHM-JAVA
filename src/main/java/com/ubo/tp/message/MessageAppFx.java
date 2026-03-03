@@ -130,7 +130,6 @@ public class MessageAppFx extends Application {
         ViewContext viewContext = new ViewContext(
                 controllerContext.logger(),
                 controllerContext.session(),
-                controllerContext.selected(),
                 navigationController
         );
         factoryHolder[0] = new ComposantJavaFXFactory(controllerContext, viewContext, primaryStage);
