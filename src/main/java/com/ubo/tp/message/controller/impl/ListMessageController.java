@@ -3,6 +3,7 @@ package com.ubo.tp.message.controller.impl;
 import com.ubo.tp.message.controller.contexte.ControllerContext;
 import com.ubo.tp.message.controller.service.IListMessageController;
 import com.ubo.tp.message.core.database.observer.IMessageDatabaseObserver;
+import com.ubo.tp.message.core.database.observer.IUserDatabaseObserver;
 import com.ubo.tp.message.core.selected.ISelectedObserver;
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.datamodel.User;
@@ -10,7 +11,7 @@ import com.ubo.tp.message.ihm.graphicController.service.IListMessageGraphicContr
 
 import java.util.*;
 
-public class ListMessageController implements IListMessageController, IMessageDatabaseObserver, ISelectedObserver {
+public class ListMessageController implements IListMessageController, IMessageDatabaseObserver, ISelectedObserver, IUserDatabaseObserver {
 
     private final ControllerContext context;
     private final IListMessageGraphicController graphicController;
@@ -107,5 +108,20 @@ public class ListMessageController implements IListMessageController, IMessageDa
         if (context.logger() != null)
             context.logger().debug("Sélection changée, messages filtrés : " + filtered.size());
         this.graphicController.selectedChanged(filtered);
+    }
+
+    @Override
+    public void notifyUserAdded(User addedUser) {
+
+    }
+
+    @Override
+    public void notifyUserDeleted(User deletedUser) {
+
+    }
+
+    @Override
+    public void notifyUserModified(User modifiedUser) {
+        
     }
 }
