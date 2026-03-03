@@ -20,7 +20,7 @@ import javafx.scene.text.FontWeight;
 public class FxCanalView extends HBox implements View {
 
     private static final Color BG_NORMAL = Color.rgb(54, 57, 63);
-    private static final Color BG_HOVER  = Color.rgb(72, 76, 84);
+    private static final Color BG_HOVER = Color.rgb(72, 76, 84);
 
     private final Channel channel;
 
@@ -37,11 +37,13 @@ public class FxCanalView extends HBox implements View {
         getChildren().add(name);
 
         setOnMouseEntered(e -> setBackground(new Background(new BackgroundFill(BG_HOVER, new CornerRadii(6), Insets.EMPTY))));
-        setOnMouseExited(e  -> setBackground(new Background(new BackgroundFill(BG_NORMAL, new CornerRadii(6), Insets.EMPTY))));
+        setOnMouseExited(e -> setBackground(new Background(new BackgroundFill(BG_NORMAL, new CornerRadii(6), Insets.EMPTY))));
 
         if (viewContext.logger() != null) viewContext.logger().debug("FxCanalView initialisée : " + channel.getName());
     }
 
-    public Channel getChannel() { return channel; }
+    public Channel getChannel() {
+        return channel;
+    }
 }
 

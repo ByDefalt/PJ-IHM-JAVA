@@ -6,7 +6,10 @@ import com.ubo.tp.message.ihm.view.service.View;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
 import javafx.scene.control.Label;
-import javafx.scene.layout.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -17,7 +20,7 @@ import javafx.scene.text.FontWeight;
 public class FxUserView extends VBox implements View {
 
     private static final Color BG_NORMAL = Color.rgb(54, 57, 63);
-    private static final Color BG_HOVER  = Color.rgb(72, 76, 84);
+    private static final Color BG_HOVER = Color.rgb(72, 76, 84);
 
     private final User user;
     private final Label nameLabel;
@@ -35,12 +38,14 @@ public class FxUserView extends VBox implements View {
         getChildren().add(nameLabel);
 
         setOnMouseEntered(e -> setBackground(new Background(new BackgroundFill(BG_HOVER, new CornerRadii(6), Insets.EMPTY))));
-        setOnMouseExited(e  -> setBackground(new Background(new BackgroundFill(BG_NORMAL, new CornerRadii(6), Insets.EMPTY))));
+        setOnMouseExited(e -> setBackground(new Background(new BackgroundFill(BG_NORMAL, new CornerRadii(6), Insets.EMPTY))));
 
         if (viewContext.logger() != null) viewContext.logger().debug("FxUserView initialisée : " + user.getName());
     }
 
-    public User getUser() { return user; }
+    public User getUser() {
+        return user;
+    }
 
     public void updateUser(User updated) {
         nameLabel.setText(updated.getName() != null ? updated.getName() : "");

@@ -19,19 +19,14 @@ import javafx.scene.text.FontWeight;
 public class FxRegisterView extends GridPane implements View {
 
     private final ViewContext viewContext;
-    private final TextField tagField              = new TextField();
-    private final TextField nameField             = new TextField();
-    private final PasswordField pwdField          = new PasswordField();
-    private final PasswordField confirmPwdField   = new PasswordField();
-    private final Button registerButton           = new Button("S'inscrire");
-    private final Button loginButton              = new Button("Se connecter");
-
-    @FunctionalInterface
-    public interface QuadConsumer { void accept(String tag, String name, String pwd, String confirm); }
-
+    private final TextField tagField = new TextField();
+    private final TextField nameField = new TextField();
+    private final PasswordField pwdField = new PasswordField();
+    private final PasswordField confirmPwdField = new PasswordField();
+    private final Button registerButton = new Button("S'inscrire");
+    private final Button loginButton = new Button("Se connecter");
     private QuadConsumer onRegisterRequested;
-    private Runnable     onBackToLoginRequested;
-
+    private Runnable onBackToLoginRequested;
     public FxRegisterView(ViewContext viewContext) {
         this.viewContext = viewContext;
         buildUI();
@@ -41,17 +36,22 @@ public class FxRegisterView extends GridPane implements View {
 
     private void buildUI() {
         setAlignment(Pos.CENTER);
-        setHgap(10); setVgap(10);
+        setHgap(10);
+        setVgap(10);
         setPadding(new Insets(20, 40, 20, 40));
 
         Label title = new Label("Inscription");
         title.setFont(Font.font("Arial", FontWeight.BOLD, 24));
         add(title, 0, 0, 2, 1);
 
-        add(new Label("Tag :"), 0, 1);              add(tagField,        1, 1);
-        add(new Label("Nom :"), 0, 2);              add(nameField,       1, 2);
-        add(new Label("Mot de passe :"), 0, 3);     add(pwdField,        1, 3);
-        add(new Label("Confirmer mdp :"), 0, 4);    add(confirmPwdField, 1, 4);
+        add(new Label("Tag :"), 0, 1);
+        add(tagField, 1, 1);
+        add(new Label("Nom :"), 0, 2);
+        add(nameField, 1, 2);
+        add(new Label("Mot de passe :"), 0, 3);
+        add(pwdField, 1, 3);
+        add(new Label("Confirmer mdp :"), 0, 4);
+        add(confirmPwdField, 1, 4);
 
         HBox buttons = new HBox(10, registerButton, loginButton);
         buttons.setAlignment(Pos.CENTER);
@@ -71,11 +71,24 @@ public class FxRegisterView extends GridPane implements View {
         });
     }
 
-    public void setOnRegisterRequested(QuadConsumer listener)  { this.onRegisterRequested = listener; }
-    public void setOnBackToLoginRequested(Runnable listener)   { this.onBackToLoginRequested = listener; }
+    public void setOnRegisterRequested(QuadConsumer listener) {
+        this.onRegisterRequested = listener;
+    }
+
+    public void setOnBackToLoginRequested(Runnable listener) {
+        this.onBackToLoginRequested = listener;
+    }
 
     public void clearFields() {
-        tagField.clear(); nameField.clear(); pwdField.clear(); confirmPwdField.clear();
+        tagField.clear();
+        nameField.clear();
+        pwdField.clear();
+        confirmPwdField.clear();
+    }
+
+    @FunctionalInterface
+    public interface QuadConsumer {
+        void accept(String tag, String name, String pwd, String confirm);
     }
 }
 

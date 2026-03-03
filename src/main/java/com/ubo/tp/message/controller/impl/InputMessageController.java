@@ -9,8 +9,8 @@ import java.util.UUID;
 
 public class InputMessageController implements IInputMessageController {
 
-    private final ControllerContext context;
     private static final int MAX_LENGTH = 200;
+    private final ControllerContext context;
 
     public InputMessageController(ControllerContext context) {
         this.context = Objects.requireNonNull(context);
@@ -25,7 +25,8 @@ public class InputMessageController implements IInputMessageController {
 
         String trimmedMessage = message.trim();
         if (trimmedMessage.length() > MAX_LENGTH) {
-            if (context.logger() != null) context.logger().warn("Message trop long (" + trimmedMessage.length() + " caractères). Maximum autorisé: " + MAX_LENGTH);
+            if (context.logger() != null)
+                context.logger().warn("Message trop long (" + trimmedMessage.length() + " caractères). Maximum autorisé: " + MAX_LENGTH);
             return;
         }
 

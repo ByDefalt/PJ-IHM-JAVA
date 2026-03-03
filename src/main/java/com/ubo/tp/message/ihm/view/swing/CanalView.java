@@ -11,18 +11,16 @@ import java.awt.event.MouseEvent;
 
 public class CanalView extends JComponent implements View {
 
+    // Couleur de fond normale (doit correspondre à celle du parent ListCanalView)
+    private static final Color BG_NORMAL = new Color(54, 57, 63);
+    // Couleur légèrement plus claire au survol
+    private static final Color BG_HOVER = new Color(72, 76, 84);
+    // Bordure subtile au survol
+    private static final Color BORDER_HOVER = new Color(90, 95, 105);
     private final ViewContext viewContext;
-
     private JLabel canalNameLabel;
     private Channel channel;
     private boolean hovered = false;
-
-    // Couleur de fond normale (doit correspondre à celle du parent ListCanalView)
-    private static final Color BG_NORMAL  = new Color(54, 57, 63);
-    // Couleur légèrement plus claire au survol
-    private static final Color BG_HOVER   = new Color(72, 76, 84);
-    // Bordure subtile au survol
-    private static final Color BORDER_HOVER = new Color(90, 95, 105);
 
     public CanalView(ViewContext viewContext, Channel channel) {
         this.viewContext = viewContext;
@@ -96,7 +94,7 @@ public class CanalView extends JComponent implements View {
 
         int arc = 12;
         int pad = 2;
-        int w = getWidth()  - pad * 2;
+        int w = getWidth() - pad * 2;
         int h = getHeight() - pad * 2;
 
         if (hovered) {

@@ -13,26 +13,19 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
-import java.util.function.Consumer;
-
 /**
  * Vue de connexion — JavaFX.
  */
 public class FxLoginView extends GridPane implements View {
 
     private final ViewContext viewContext;
-    private final TextField tagField      = new TextField();
-    private final TextField nameField     = new TextField();
-    private final PasswordField pwdField  = new PasswordField();
-    private final Button loginButton      = new Button("Se connecter");
-    private final Button registerButton   = new Button("S'inscrire");
-
-    @FunctionalInterface
-    public interface TriConsumer { void accept(String tag, String name, String pwd); }
-
+    private final TextField tagField = new TextField();
+    private final TextField nameField = new TextField();
+    private final PasswordField pwdField = new PasswordField();
+    private final Button loginButton = new Button("Se connecter");
+    private final Button registerButton = new Button("S'inscrire");
     private TriConsumer onLoginRequested;
-    private Runnable    onRegisterRequested;
-
+    private Runnable onRegisterRequested;
     public FxLoginView(ViewContext viewContext) {
         this.viewContext = viewContext;
         buildUI();
@@ -42,16 +35,20 @@ public class FxLoginView extends GridPane implements View {
 
     private void buildUI() {
         setAlignment(Pos.CENTER);
-        setHgap(10); setVgap(10);
+        setHgap(10);
+        setVgap(10);
         setPadding(new Insets(20, 40, 20, 40));
 
         Label title = new Label("Connexion");
         title.setFont(Font.font("Arial", FontWeight.BOLD, 24));
         add(title, 0, 0, 2, 1);
 
-        add(new Label("Tag :"), 0, 1);   add(tagField,      1, 1);
-        add(new Label("Nom :"), 0, 2);   add(nameField,     1, 2);
-        add(new Label("Mot de passe :"), 0, 3); add(pwdField, 1, 3);
+        add(new Label("Tag :"), 0, 1);
+        add(tagField, 1, 1);
+        add(new Label("Nom :"), 0, 2);
+        add(nameField, 1, 2);
+        add(new Label("Mot de passe :"), 0, 3);
+        add(pwdField, 1, 3);
 
         HBox buttons = new HBox(10, loginButton, registerButton);
         buttons.setAlignment(Pos.CENTER);
@@ -70,7 +67,17 @@ public class FxLoginView extends GridPane implements View {
         });
     }
 
-    public void setOnLoginRequested(TriConsumer listener)    { this.onLoginRequested = listener; }
-    public void setOnRegisterRequested(Runnable listener)    { this.onRegisterRequested = listener; }
+    public void setOnLoginRequested(TriConsumer listener) {
+        this.onLoginRequested = listener;
+    }
+
+    public void setOnRegisterRequested(Runnable listener) {
+        this.onRegisterRequested = listener;
+    }
+
+    @FunctionalInterface
+    public interface TriConsumer {
+        void accept(String tag, String name, String pwd);
+    }
 }
 

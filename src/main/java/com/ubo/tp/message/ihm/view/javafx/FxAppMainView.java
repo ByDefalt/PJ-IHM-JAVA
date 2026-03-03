@@ -49,7 +49,8 @@ public class FxAppMainView implements View {
         try {
             var url = getClass().getResource("/images/logo_20.png");
             if (url != null) stage.getIcons().add(new Image(url.toExternalForm()));
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         stage.setOnCloseRequest(e -> {
             e.consume();
@@ -76,7 +77,8 @@ public class FxAppMainView implements View {
 
     public void setVisible(boolean visible) {
         Runnable task = () -> {
-            if (visible) stage.show(); else stage.hide();
+            if (visible) stage.show();
+            else stage.hide();
         };
         if (Platform.isFxApplicationThread()) task.run();
         else Platform.runLater(task);
@@ -86,13 +88,26 @@ public class FxAppMainView implements View {
         Platform.runLater(() -> connectMenu.setVisible(visible));
     }
 
-    public Stage getStage() { return stage; }
+    public Stage getStage() {
+        return stage;
+    }
 
     // Setters callbacks
-    public void setOnExchangeDirectorySelected(Consumer<String> cb) { this.onExchangeDirectorySelected = cb; }
-    public void setOnDisconnect(Runnable cb)    { this.onDisconnect = cb; }
-    public void setOnUpdateProfile(Runnable cb) { this.onUpdateProfile = cb; }
-    public void setOnDeleteAccount(Runnable cb) { this.onDeleteAccount = cb; }
+    public void setOnExchangeDirectorySelected(Consumer<String> cb) {
+        this.onExchangeDirectorySelected = cb;
+    }
+
+    public void setOnDisconnect(Runnable cb) {
+        this.onDisconnect = cb;
+    }
+
+    public void setOnUpdateProfile(Runnable cb) {
+        this.onUpdateProfile = cb;
+    }
+
+    public void setOnDeleteAccount(Runnable cb) {
+        this.onDeleteAccount = cb;
+    }
 
     // -------------------------------------------------------------------------
     // Menu
@@ -111,11 +126,17 @@ public class FxAppMainView implements View {
 
         // Compte (caché par défaut)
         MenuItem disconnectItem = new MenuItem("Déconnexion");
-        disconnectItem.setOnAction(e -> { if (onDisconnect != null) onDisconnect.run(); });
+        disconnectItem.setOnAction(e -> {
+            if (onDisconnect != null) onDisconnect.run();
+        });
         MenuItem updateItem = new MenuItem("Modifier le profil");
-        updateItem.setOnAction(e -> { if (onUpdateProfile != null) onUpdateProfile.run(); });
+        updateItem.setOnAction(e -> {
+            if (onUpdateProfile != null) onUpdateProfile.run();
+        });
         MenuItem deleteItem = new MenuItem("Supprimer le compte");
-        deleteItem.setOnAction(e -> { if (onDeleteAccount != null) onDeleteAccount.run(); });
+        deleteItem.setOnAction(e -> {
+            if (onDeleteAccount != null) onDeleteAccount.run();
+        });
         connectMenu.getItems().addAll(disconnectItem, updateItem, deleteItem);
 
         // Aide
@@ -150,8 +171,15 @@ public class FxAppMainView implements View {
         try {
             if (viewContext.session() != null && viewContext.session().getConnectedUser() != null) {
                 new Thread(() -> {
-                    try { viewContext.session().disconnect(); } catch (Exception ignored) {}
-                    finally { Platform.runLater(() -> { stage.close(); Platform.exit(); }); }
+                    try {
+                        viewContext.session().disconnect();
+                    } catch (Exception ignored) {
+                    } finally {
+                        Platform.runLater(() -> {
+                            stage.close();
+                            Platform.exit();
+                        });
+                    }
                 }, "fx-disconnect-thread").start();
             } else {
                 stage.close();

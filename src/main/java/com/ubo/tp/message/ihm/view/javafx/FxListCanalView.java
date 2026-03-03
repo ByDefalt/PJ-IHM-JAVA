@@ -3,7 +3,6 @@ package com.ubo.tp.message.ihm.view.javafx;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.view.service.View;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
@@ -18,7 +17,7 @@ import java.util.List;
 public class FxListCanalView extends VBox implements View {
 
     private final ViewContext viewContext;
-    private final VBox canalsBox    = new VBox(4);
+    private final VBox canalsBox = new VBox(4);
     private final TextField searchField = new TextField();
     private final List<FxCanalView> allCanals = new ArrayList<>();
 

@@ -3,8 +3,8 @@ package com.ubo.tp.message.factory.view.javafx;
 import com.ubo.tp.message.controller.contexte.ControllerContext;
 import com.ubo.tp.message.controller.impl.*;
 import com.ubo.tp.message.controller.service.IAppMainController;
-import com.ubo.tp.message.factory.view.swing.ComposantSwingFactory;
 import com.ubo.tp.message.factory.view.ViewFactory;
+import com.ubo.tp.message.factory.view.swing.ComposantSwingFactory;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.graphicController.javafx.*;
 import com.ubo.tp.message.ihm.view.javafx.*;
@@ -22,8 +22,8 @@ public class ComposantJavaFXFactory implements ViewFactory {
 
     public ComposantJavaFXFactory(ControllerContext controllerContext, ViewContext viewContext, Stage primaryStage) {
         this.controllerContext = controllerContext;
-        this.viewContext       = viewContext;
-        this.primaryStage      = primaryStage;
+        this.viewContext = viewContext;
+        this.primaryStage = primaryStage;
     }
 
     // -------------------------------------------------------------------------

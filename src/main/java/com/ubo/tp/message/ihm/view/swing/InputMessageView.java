@@ -7,7 +7,6 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.*;
-import javax.swing.text.DefaultEditorKit;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
@@ -118,9 +117,20 @@ public class InputMessageView extends JComponent implements View {
                 });
             }
 
-            @Override public void insertUpdate(DocumentEvent e) { notifyChange(); }
-            @Override public void removeUpdate(DocumentEvent e)  { notifyChange(); }
-            @Override public void changedUpdate(DocumentEvent e) { notifyChange(); }
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                notifyChange();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                notifyChange();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                notifyChange();
+            }
         });
 
         // Mise en évidence de la bordure au focus
@@ -176,7 +186,9 @@ public class InputMessageView extends JComponent implements View {
         if (inputScrollPane != null) inputScrollPane.setVerticalScrollBarPolicy(policy);
     }
 
-    /** Calcule la hauteur en pixels pour un nombre de lignes donné. */
+    /**
+     * Calcule la hauteur en pixels pour un nombre de lignes donné.
+     */
     private int rowsToHeight(int rows) {
         FontMetrics fm = inputField.getFontMetrics(inputField.getFont());
         int lineH = (fm != null && fm.getHeight() > 0) ? fm.getHeight() : 20;
@@ -190,15 +202,15 @@ public class InputMessageView extends JComponent implements View {
         Color inputFg = UIManager.getColor("TextArea.foreground");
         Color caretColor = UIManager.getColor("TextArea.caretForeground");
         normalBorderColor = UIManager.getColor("TextField.borderColor");
-        focusBorderColor  = UIManager.getColor("TextField.focusedBorderColor");
+        focusBorderColor = UIManager.getColor("TextField.focusedBorderColor");
 
-        if (inputBg == null)        inputBg        = new Color(64, 68, 75);
-        if (inputFg == null)        inputFg        = new Color(220, 221, 222);
-        if (caretColor == null)     caretColor     = inputFg;
+        if (inputBg == null) inputBg = new Color(64, 68, 75);
+        if (inputFg == null) inputFg = new Color(220, 221, 222);
+        if (caretColor == null) caretColor = inputFg;
         if (normalBorderColor == null) normalBorderColor = new Color(32, 34, 37);
-        if (focusBorderColor  == null) focusBorderColor  = new Color(88, 101, 242);
+        if (focusBorderColor == null) focusBorderColor = new Color(88, 101, 242);
 
-        Font baseFont  = UIManager.getFont("TextArea.font");
+        Font baseFont = UIManager.getFont("TextArea.font");
         Font inputFont = (baseFont != null) ? baseFont.deriveFont(Font.PLAIN, 14f)
                 : new Font("SansSerif", Font.PLAIN, 14);
 
@@ -214,8 +226,7 @@ public class InputMessageView extends JComponent implements View {
         inputField.setColumns(30);
 
         // --- UI-side validation: limiter la saisie à 200 caractères ---
-        if (inputField.getDocument() instanceof AbstractDocument) {
-            AbstractDocument adoc = (AbstractDocument) inputField.getDocument();
+        if (inputField.getDocument() instanceof AbstractDocument adoc) {
             adoc.setDocumentFilter(new MaxLengthFilter(200));
         }
 
@@ -234,6 +245,7 @@ public class InputMessageView extends JComponent implements View {
                 // largeur : laisser le layout décider (on retourne 0, le fill=BOTH s'en charge)
                 return new Dimension(0, h);
             }
+
             @Override
             public Dimension getMinimumSize() {
                 return new Dimension(0, rowsToHeight(1));
@@ -278,12 +290,14 @@ public class InputMessageView extends JComponent implements View {
                         ARC, ARC));
                 g2.dispose();
             }
+
             @Override
             public Dimension getPreferredSize() {
                 // Déléguer au même calcul que InputMessageView
                 int h = rowsToHeight(currentRows);
                 return new Dimension(0, h);
             }
+
             @Override
             public Dimension getMinimumSize() {
                 return new Dimension(0, rowsToHeight(1));

@@ -23,8 +23,8 @@ public class MessageView extends JComponent implements View {
             .ofPattern("dd/MM/yyyy HH'h'mm")
             .withLocale(Locale.FRANCE);
 
-    private static final Color BG_NORMAL    = new Color(54, 57, 63);
-    private static final Color BG_HOVER     = new Color(72, 76, 84);
+    private static final Color BG_NORMAL = new Color(54, 57, 63);
+    private static final Color BG_HOVER = new Color(72, 76, 84);
     private static final Color BORDER_HOVER = new Color(90, 95, 105);
 
     private final ViewContext viewContext;
@@ -107,7 +107,10 @@ public class MessageView extends JComponent implements View {
                 : new Font("SansSerif", Font.PLAIN, 11);
 
         authorLabel = new JLabel(author != null ? author : "") {
-            @Override public boolean contains(int x, int y) { return false; }
+            @Override
+            public boolean contains(int x, int y) {
+                return false;
+            }
         };
         authorLabel.setForeground(authorColor);
         authorLabel.setFont(authorFont);
@@ -115,7 +118,10 @@ public class MessageView extends JComponent implements View {
         authorLabel.setOpaque(false);
 
         timeLabel = new JLabel(formatTimestamp(emissionMillis)) {
-            @Override public boolean contains(int x, int y) { return false; }
+            @Override
+            public boolean contains(int x, int y) {
+                return false;
+            }
         };
         timeLabel.setForeground(timeColor);
         timeLabel.setFont(timeFont);
@@ -124,7 +130,10 @@ public class MessageView extends JComponent implements View {
         timeLabel.setOpaque(false);
 
         JPanel headerPanel = new JPanel() {
-            @Override public boolean contains(int x, int y) { return false; }
+            @Override
+            public boolean contains(int x, int y) {
+                return false;
+            }
         };
         headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.X_AXIS));
         headerPanel.setOpaque(false);
@@ -149,7 +158,10 @@ public class MessageView extends JComponent implements View {
                 : new Font("SansSerif", Font.PLAIN, 13);
 
         contentArea = new JTextArea() {
-            @Override public boolean contains(int x, int y) { return false; }
+            @Override
+            public boolean contains(int x, int y) {
+                return false;
+            }
         };
         contentArea.setEditable(false);
         contentArea.setLineWrap(true);
@@ -179,7 +191,7 @@ public class MessageView extends JComponent implements View {
 
         int arc = 12;
         int pad = 2;
-        int w = getWidth()  - pad * 2;
+        int w = getWidth() - pad * 2;
         int h = getHeight() - pad * 2;
 
         if (hovered) {

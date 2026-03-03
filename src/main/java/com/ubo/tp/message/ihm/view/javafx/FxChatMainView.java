@@ -34,7 +34,7 @@ public class FxChatMainView extends BorderPane implements View {
         tabPane.setMinWidth(220);
 
         Tab canalTab = new Tab("Canaux", listCanalView);
-        Tab userTab  = new Tab("Utilisateurs", listUserView);
+        Tab userTab = new Tab("Utilisateurs", listUserView);
         tabPane.getTabs().addAll(canalTab, userTab);
 
         setLeft(tabPane);
