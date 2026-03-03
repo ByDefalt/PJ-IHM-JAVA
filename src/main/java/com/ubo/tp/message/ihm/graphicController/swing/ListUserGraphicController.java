@@ -34,12 +34,6 @@ public class ListUserGraphicController implements IListUserGraphicController {
 
         var logger = viewContext.logger();
 
-        User connected = (viewContext.session() != null) ? viewContext.session().getConnectedUser() : null;
-        if (connected != null && connected.equals(user)) {
-            if (logger != null) logger.debug("Ignorer l'ajout de l'utilisateur courant: " + user.getName());
-            return;
-        }
-
         boolean alreadyPresent = userViews.stream().anyMatch(uv -> uv.getUser().equals(user));
 
         if (alreadyPresent) {

@@ -147,23 +147,5 @@ public class ChatMainView extends JComponent implements View {
         gbc.insets = new Insets(6, 6, 6, 6);
         parent.add(comp, gbc);
     }
-
-    // --- Getters ---
-
-    public ListCanalView getListCanalView() {
-        return listCanalView;
-    }
-
-    public ListUserView getListUserView() {
-        return listUserView;
-    }
-
-    public ListMessageView getListMessageView() {
-        return listMessageView;
-    }
-
-    public InputMessageView getInputMessageView() {
-        return inputMessageView;
-    }
 }
 

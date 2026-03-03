@@ -27,6 +27,11 @@ public class ListUserController implements IListUserController, IUserDatabaseObs
     @Override
     public void notifyUserAdded(User addedUser) {
         if (context.logger() != null) context.logger().debug("Utilisateur ajouté : " + addedUser);
+        User connected = (context.session() != null) ? context.session().getConnectedUser() : null;
+        if (connected != null && connected.equals(addedUser)) {
+            if (context.logger() != null) context.logger().debug("Ignorer l'ajout de l'utilisateur courant: " + addedUser.getName());
+            return;
+        }
         this.graphicController.addUser(addedUser);
     }
 
