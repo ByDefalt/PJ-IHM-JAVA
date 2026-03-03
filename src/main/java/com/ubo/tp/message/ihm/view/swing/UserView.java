@@ -11,16 +11,14 @@ import java.awt.event.MouseEvent;
 
 public class UserView extends JComponent implements View {
 
+    private static final Color BG_NORMAL = new Color(54, 57, 63);
+    private static final Color BG_HOVER = new Color(72, 76, 84);
+    private static final Color BORDER_HOVER = new Color(90, 95, 105);
     private final ViewContext viewContext;
-
     private JLabel userNameLabel;
     private JLabel statusLabel;
     private User user;
     private boolean hovered = false;
-
-    private static final Color BG_NORMAL    = new Color(54, 57, 63);
-    private static final Color BG_HOVER     = new Color(72, 76, 84);
-    private static final Color BORDER_HOVER = new Color(90, 95, 105);
 
     public UserView(ViewContext viewContext, User user) {
         this.viewContext = viewContext;
@@ -115,7 +113,7 @@ public class UserView extends JComponent implements View {
 
         int arc = 12;
         int pad = 2;
-        int w = getWidth()  - pad * 2;
+        int w = getWidth() - pad * 2;
         int h = getHeight() - pad * 2;
 
         if (hovered) {

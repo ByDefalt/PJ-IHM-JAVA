@@ -19,35 +19,6 @@ public class ComposantSwingFactory implements ViewFactory {
     // Méthodes d'instance (implémentation de ViewFactory)
     // -------------------------------------------------------------------------
 
-    @Override
-    public IAppMainController createAppMainController() {
-        return ComposantSwingFactory.createAppMainControllerStatic();
-    }
-
-    @Override
-    public View createLoginView() {
-        return ComposantSwingFactory.createLoginViewStatic();
-    }
-
-    @Override
-    public View createRegisterView() {
-        return ComposantSwingFactory.createRegisterViewStatic();
-    }
-
-    @Override
-    public View createUpdateAccountView() {
-        return ComposantSwingFactory.createUpdateAccountViewStatic();
-    }
-
-    @Override
-    public View createChatMainView() {
-        return ComposantSwingFactory.createChatMainViewStatic();
-    }
-
-    // -------------------------------------------------------------------------
-    // Méthodes statiques (usage interne / NavigationController via ViewFactory)
-    // -------------------------------------------------------------------------
-
     public static IAppMainController createAppMainControllerStatic() {
         AppMainView view = new AppMainView(viewContext);
         IAppMainGraphicController graphicController = new AppMainGraphicController(viewContext, view);
@@ -81,6 +52,10 @@ public class ComposantSwingFactory implements ViewFactory {
         new ListMessageController(controllerContext, listMessageGraphicController);
         return listMessageView;
     }
+
+    // -------------------------------------------------------------------------
+    // Méthodes statiques (usage interne / NavigationController via ViewFactory)
+    // -------------------------------------------------------------------------
 
     public static ListUserView createListUserView() {
         ListUserView listUserView = new ListUserView(viewContext);
@@ -124,5 +99,30 @@ public class ComposantSwingFactory implements ViewFactory {
 
     public static void setViewContext(ViewContext viewContext) {
         ComposantSwingFactory.viewContext = viewContext;
+    }
+
+    @Override
+    public IAppMainController createAppMainController() {
+        return ComposantSwingFactory.createAppMainControllerStatic();
+    }
+
+    @Override
+    public View createLoginView() {
+        return ComposantSwingFactory.createLoginViewStatic();
+    }
+
+    @Override
+    public View createRegisterView() {
+        return ComposantSwingFactory.createRegisterViewStatic();
+    }
+
+    @Override
+    public View createUpdateAccountView() {
+        return ComposantSwingFactory.createUpdateAccountViewStatic();
+    }
+
+    @Override
+    public View createChatMainView() {
+        return ComposantSwingFactory.createChatMainViewStatic();
     }
 }

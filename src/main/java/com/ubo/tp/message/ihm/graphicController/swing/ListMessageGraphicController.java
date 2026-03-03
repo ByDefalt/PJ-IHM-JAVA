@@ -7,11 +7,7 @@ import com.ubo.tp.message.ihm.view.swing.ListMessageView;
 import com.ubo.tp.message.ihm.view.swing.MessageView;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.TreeSet;
+import java.util.*;
 
 public class ListMessageGraphicController implements IListMessageGraphicController {
 
@@ -36,8 +32,10 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
     // Helpers
     // -------------------------------------------------------------------------
 
-    /** Mappe une liste de Message métier vers les MessageView correspondantes,
-     *  en respectant l'ordre chronologique du TreeSet. */
+    /**
+     * Mappe une liste de Message métier vers les MessageView correspondantes,
+     * en respectant l'ordre chronologique du TreeSet.
+     */
     private ArrayList<MessageView> toViewList(List<Message> filteredMessages) {
         if (filteredMessages == null || filteredMessages.isEmpty()) return new ArrayList<>();
         // On itère sur le TreeSet (trié par date) et on ne retient que
@@ -54,7 +52,9 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
         return result;
     }
 
-    /** Reconstruit la vue avec la liste filtrée fournie par le controller métier. */
+    /**
+     * Reconstruit la vue avec la liste filtrée fournie par le controller métier.
+     */
     private void rebuildView(List<Message> filteredMessages) {
         if (listMessageView == null) return;
         ArrayList<MessageView> viewList = toViewList(filteredMessages);

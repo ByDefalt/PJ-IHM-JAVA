@@ -17,7 +17,7 @@ import java.util.List;
 public class FxListUserView extends VBox implements View {
 
     private final ViewContext viewContext;
-    private final VBox usersBox         = new VBox(4);
+    private final VBox usersBox = new VBox(4);
     private final TextField searchField = new TextField();
     private final List<FxUserView> allUsers = new ArrayList<>();
 

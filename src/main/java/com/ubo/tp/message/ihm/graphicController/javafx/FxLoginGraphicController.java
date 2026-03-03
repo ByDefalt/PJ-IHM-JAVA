@@ -15,8 +15,8 @@ public class FxLoginGraphicController implements GraphicController {
     private final ILoginController loginController;
 
     public FxLoginGraphicController(ViewContext viewContext, FxLoginView loginView, ILoginController loginController) {
-        this.viewContext     = viewContext;
-        this.loginView       = loginView;
+        this.viewContext = viewContext;
+        this.loginView = loginView;
         this.loginController = loginController;
         wire();
     }

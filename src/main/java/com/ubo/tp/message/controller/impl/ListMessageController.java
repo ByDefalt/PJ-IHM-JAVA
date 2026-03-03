@@ -8,12 +8,7 @@ import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.graphicController.service.IListMessageGraphicController;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class ListMessageController implements IListMessageController, IMessageDatabaseObserver, ISelectedObserver {
 
@@ -56,7 +51,7 @@ public class ListMessageController implements IListMessageController, IMessageDa
             if (connectedUser == null) return filtered;
 
             UUID selUuid = selectedUser.getUuid();
-            UUID meUuid  = connectedUser.getUuid();
+            UUID meUuid = connectedUser.getUuid();
 
             for (Message m : allMessages) {
                 if (m == null) continue;
@@ -106,7 +101,6 @@ public class ListMessageController implements IListMessageController, IMessageDa
 
     @Override
     public void notifySelectedChanged() {
-
 
 
         List<Message> filtered = getFilteredMessages(context.dataManager().getMessages());

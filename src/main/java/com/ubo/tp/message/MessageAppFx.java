@@ -13,8 +13,8 @@ import com.ubo.tp.message.core.selected.ISelected;
 import com.ubo.tp.message.core.selected.Selected;
 import com.ubo.tp.message.core.session.ISession;
 import com.ubo.tp.message.core.session.Session;
-import com.ubo.tp.message.factory.view.javafx.ComposantJavaFXFactory;
 import com.ubo.tp.message.factory.view.ViewFactory;
+import com.ubo.tp.message.factory.view.javafx.ComposantJavaFXFactory;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.view.service.View;
 import com.ubo.tp.message.logger.LogLevel;
@@ -100,11 +100,30 @@ public class MessageAppFx extends Application {
         INavigationController navigationController = new NavigationController(
                 controllerContext,
                 new ViewFactory() {
-                    @Override public IAppMainController createAppMainController()  { return factoryHolder[0].createAppMainController(); }
-                    @Override public View createLoginView()                         { return factoryHolder[0].createLoginView(); }
-                    @Override public View createRegisterView()                      { return factoryHolder[0].createRegisterView(); }
-                    @Override public View createUpdateAccountView()                 { return factoryHolder[0].createUpdateAccountView(); }
-                    @Override public View createChatMainView()                      { return factoryHolder[0].createChatMainView(); }
+                    @Override
+                    public IAppMainController createAppMainController() {
+                        return factoryHolder[0].createAppMainController();
+                    }
+
+                    @Override
+                    public View createLoginView() {
+                        return factoryHolder[0].createLoginView();
+                    }
+
+                    @Override
+                    public View createRegisterView() {
+                        return factoryHolder[0].createRegisterView();
+                    }
+
+                    @Override
+                    public View createUpdateAccountView() {
+                        return factoryHolder[0].createUpdateAccountView();
+                    }
+
+                    @Override
+                    public View createChatMainView() {
+                        return factoryHolder[0].createChatMainView();
+                    }
                 }
         );
 

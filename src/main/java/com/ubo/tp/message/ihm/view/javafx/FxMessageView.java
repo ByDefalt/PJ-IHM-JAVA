@@ -24,7 +24,7 @@ public class FxMessageView extends VBox implements View {
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter
             .ofPattern("dd/MM/yyyy HH'h'mm").withLocale(Locale.FRANCE);
     private static final Color BG_NORMAL = Color.rgb(54, 57, 63);
-    private static final Color BG_HOVER  = Color.rgb(72, 76, 84);
+    private static final Color BG_HOVER = Color.rgb(72, 76, 84);
 
     private final Message message;
     private final TextArea contentArea;
@@ -62,10 +62,12 @@ public class FxMessageView extends VBox implements View {
         getChildren().addAll(header, contentArea);
 
         setOnMouseEntered(e -> setBackground(new Background(new BackgroundFill(BG_HOVER, new CornerRadii(6), Insets.EMPTY))));
-        setOnMouseExited(e  -> setBackground(new Background(new BackgroundFill(BG_NORMAL, new CornerRadii(6), Insets.EMPTY))));
+        setOnMouseExited(e -> setBackground(new Background(new BackgroundFill(BG_NORMAL, new CornerRadii(6), Insets.EMPTY))));
     }
 
-    public Message getMessage() { return message; }
+    public Message getMessage() {
+        return message;
+    }
 
     public void updateContent(Message updated) {
         contentArea.setText(updated.getText());

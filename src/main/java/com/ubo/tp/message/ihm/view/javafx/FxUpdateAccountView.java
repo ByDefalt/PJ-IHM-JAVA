@@ -21,10 +21,10 @@ import java.util.function.Consumer;
 public class FxUpdateAccountView extends GridPane implements View {
 
     private final ViewContext viewContext;
-    private final TextField     tagField  = new TextField();
-    private final PasswordField pwdField  = new PasswordField();
-    private final TextField     nameField = new TextField();
-    private final Button        updateBtn = new Button("Mettre à jour");
+    private final TextField tagField = new TextField();
+    private final PasswordField pwdField = new PasswordField();
+    private final TextField nameField = new TextField();
+    private final Button updateBtn = new Button("Mettre à jour");
 
     public FxUpdateAccountView(ViewContext viewContext) {
         this.viewContext = viewContext;
@@ -34,7 +34,8 @@ public class FxUpdateAccountView extends GridPane implements View {
 
     private void buildUI() {
         setAlignment(Pos.CENTER);
-        setHgap(10); setVgap(10);
+        setHgap(10);
+        setVgap(10);
         setPadding(new Insets(20, 40, 20, 40));
 
         Label title = new Label("Mettre à jour le compte");
@@ -44,9 +45,12 @@ public class FxUpdateAccountView extends GridPane implements View {
         tagField.setEditable(false);
         pwdField.setEditable(false);
 
-        add(new Label("Tag :"), 0, 1);           add(tagField,  1, 1);
-        add(new Label("Mot de passe :"), 0, 2);  add(pwdField,  1, 2);
-        add(new Label("Nom :"), 0, 3);           add(nameField, 1, 3);
+        add(new Label("Tag :"), 0, 1);
+        add(tagField, 1, 1);
+        add(new Label("Mot de passe :"), 0, 2);
+        add(pwdField, 1, 2);
+        add(new Label("Nom :"), 0, 3);
+        add(nameField, 1, 3);
         add(updateBtn, 1, 4);
     }
 
@@ -57,7 +61,12 @@ public class FxUpdateAccountView extends GridPane implements View {
     }
 
     public void setUser(User user) {
-        if (user == null) { tagField.clear(); nameField.clear(); pwdField.clear(); return; }
+        if (user == null) {
+            tagField.clear();
+            nameField.clear();
+            pwdField.clear();
+            return;
+        }
         tagField.setText(user.getUserTag());
         nameField.setText(user.getName());
         pwdField.setText(user.getUserPassword() != null ? user.getUserPassword() : "");

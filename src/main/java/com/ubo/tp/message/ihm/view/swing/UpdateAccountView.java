@@ -23,7 +23,8 @@ public class UpdateAccountView extends JComponent implements View {
     }
 
     private void init() {
-        if (viewContext != null && viewContext.logger() != null) viewContext.logger().debug("Initialisation de UpdateAccountView");
+        if (viewContext != null && viewContext.logger() != null)
+            viewContext.logger().debug("Initialisation de UpdateAccountView");
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
@@ -36,7 +37,8 @@ public class UpdateAccountView extends JComponent implements View {
         createNameField();
         createUpdateButton();
 
-        if (viewContext != null && viewContext.logger() != null) viewContext.logger().debug("UpdateAccountView initialisée");
+        if (viewContext != null && viewContext.logger() != null)
+            viewContext.logger().debug("UpdateAccountView initialisée");
     }
 
     public void setOnUpdateRequested(Consumer<String> callback) {

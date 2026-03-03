@@ -17,8 +17,8 @@ public class FxUpdateAccountGraphicController implements GraphicController {
     public FxUpdateAccountGraphicController(ViewContext viewContext,
                                             FxUpdateAccountView updateView,
                                             IUpdateAccountController updateController) {
-        this.viewContext      = viewContext;
-        this.updateView       = updateView;
+        this.viewContext = viewContext;
+        this.updateView = updateView;
         this.updateController = updateController;
         wire();
     }

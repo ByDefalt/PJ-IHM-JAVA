@@ -22,7 +22,7 @@ public class FxListCanalGraphicController implements IListCanalGraphicController
     private final List<FxCanalView> canalViews = new ArrayList<>();
 
     public FxListCanalGraphicController(ViewContext viewContext, FxListCanalView listCanalView) {
-        this.viewContext   = viewContext;
+        this.viewContext = viewContext;
         this.listCanalView = listCanalView;
     }
 
@@ -57,7 +57,8 @@ public class FxListCanalGraphicController implements IListCanalGraphicController
     public void updateCanal(Channel canal) {
         if (canal == null) return;
         // Le nom d'un canal est immuable dans ce modèle, rien à faire
-        if (viewContext.logger() != null) viewContext.logger().debug("(FX) Canal mis à jour (no-op) : " + canal.getName());
+        if (viewContext.logger() != null)
+            viewContext.logger().debug("(FX) Canal mis à jour (no-op) : " + canal.getName());
     }
 }
 

@@ -17,7 +17,7 @@ public class FxInputMessageView extends HBox implements View {
 
     private final ViewContext viewContext;
     private final TextArea inputField = new TextArea();
-    private final Button sendButton   = new Button("Envoyer");
+    private final Button sendButton = new Button("Envoyer");
     private Runnable onSendRequested;
 
     public FxInputMessageView(ViewContext viewContext) {
@@ -49,9 +49,13 @@ public class FxInputMessageView extends HBox implements View {
         if (onSendRequested != null) onSendRequested.run();
     }
 
-    public void setOnSendRequested(Runnable listener) { this.onSendRequested = listener; }
+    public void setOnSendRequested(Runnable listener) {
+        this.onSendRequested = listener;
+    }
 
-    public String getText()   { return inputField.getText(); }
+    public String getText() {
+        return inputField.getText();
+    }
 
     public void clearText() {
         inputField.clear();

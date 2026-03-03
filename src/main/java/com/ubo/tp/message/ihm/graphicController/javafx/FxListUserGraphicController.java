@@ -22,7 +22,7 @@ public class FxListUserGraphicController implements IListUserGraphicController {
     private final List<FxUserView> userViews = new ArrayList<>();
 
     public FxListUserGraphicController(ViewContext viewContext, FxListUserView listUserView) {
-        this.viewContext  = viewContext;
+        this.viewContext = viewContext;
         this.listUserView = listUserView;
     }
 

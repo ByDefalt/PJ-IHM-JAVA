@@ -15,8 +15,8 @@ public class FxRegisterGraphicController implements GraphicController {
     private final IRegisterController registerController;
 
     public FxRegisterGraphicController(ViewContext viewContext, FxRegisterView registerView, IRegisterController registerController) {
-        this.viewContext        = viewContext;
-        this.registerView       = registerView;
+        this.viewContext = viewContext;
+        this.registerView = registerView;
         this.registerController = registerController;
         wire();
     }

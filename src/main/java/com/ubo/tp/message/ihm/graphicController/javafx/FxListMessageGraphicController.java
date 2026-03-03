@@ -18,14 +18,16 @@ public class FxListMessageGraphicController implements IListMessageGraphicContro
     private final ViewContext viewContext;
     private final FxListMessageView listMessageView;
 
-    /** Source de vérité triée chronologiquement. */
+    /**
+     * Source de vérité triée chronologiquement.
+     */
     private final TreeSet<FxMessageView> messages = new TreeSet<>(
             Comparator.comparingLong((FxMessageView mv) -> mv.getMessage().getEmissionDate())
                     .thenComparing(mv -> mv.getMessage().getUuid().toString())
     );
 
     public FxListMessageGraphicController(ViewContext viewContext, FxListMessageView listMessageView) {
-        this.viewContext     = viewContext;
+        this.viewContext = viewContext;
         this.listMessageView = listMessageView;
     }
 
