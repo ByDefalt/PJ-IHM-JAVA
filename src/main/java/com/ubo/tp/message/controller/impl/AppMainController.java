@@ -2,6 +2,8 @@ package com.ubo.tp.message.controller.impl;
 
 import com.ubo.tp.message.controller.contexte.ControllerContext;
 import com.ubo.tp.message.controller.service.IAppMainController;
+import com.ubo.tp.message.core.session.ISessionObserver;
+import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.graphicController.service.IAppMainGraphicController;
 import com.ubo.tp.message.ihm.view.service.View;
 
@@ -14,7 +16,7 @@ import java.util.Objects;
  * actions nécessaires à l'IHM (ex : sélection du répertoire d'échange).
  * </p>
  */
-public class AppMainController implements IAppMainController {
+public class AppMainController implements IAppMainController, ISessionObserver {
 
     private final ControllerContext context;
 
@@ -31,12 +33,18 @@ public class AppMainController implements IAppMainController {
         this.context = Objects.requireNonNull(context);
         this.graphicController = graphicController;
 
+        // Abonnement aux événements de session (login / logout)
+        context.session().addObserver(this);
+
         // Connecter le callback de la vue à la logique du contrôleur
         this.graphicController.setOnExchangeDirectorySelected(this::onExchangeDirectorySelected);
 
         // Enregistrer handlers pour les actions du menu Compte
         this.graphicController.setOnDisconnect(this::onDisconnectRequested);
         this.graphicController.setOnDeleteAccount(this::onDeleteAccountRequested);
+
+        // La fermeture de fenêtre est gérée ici, pas dans la vue
+        this.graphicController.setOnClose(this::onCloseRequested);
 
         this.graphicController.setMainView(firstView);
 
@@ -55,6 +63,33 @@ public class AppMainController implements IAppMainController {
 
     public IAppMainGraphicController getGraphicController() {
         return this.graphicController;
+    }
+
+    @Override
+    public void setOnClose(Runnable onClose) {
+        // Non utilisé : la fermeture est toujours gérée en interne par onCloseRequested.
+        // Ce setter est exposé pour les cas de test ou d'extension future.
+    }
+
+    private void onCloseRequested() {
+        context.logger().info("Controller: fermeture demandée");
+        try {
+            if (context.session() != null && context.session().getConnectedUser() != null) {
+                new Thread(() -> {
+                    try {
+                        context.session().disconnect();
+                    } catch (Exception ignored) {
+                    } finally {
+                        System.exit(0);
+                    }
+                }, "app-close-thread").start();
+            } else {
+                System.exit(0);
+            }
+        } catch (Exception ex) {
+            context.logger().error("Erreur lors de la fermeture", ex);
+            System.exit(1);
+        }
     }
 
     private void onDisconnectRequested() {
@@ -83,5 +118,17 @@ public class AppMainController implements IAppMainController {
         } catch (Exception ex) {
             context.logger().error("Erreur lors de la suppression du compte via controller", ex);
         }
+    }
+
+    @Override
+    public void notifyLogin(User connectedUser) {
+        context.logger().info("Session: utilisateur connecté -> " + (connectedUser != null ? connectedUser.getName() : "null"));
+        graphicController.setConnectMenuVisible(true);
+    }
+
+    @Override
+    public void notifyLogout() {
+        context.logger().info("Session: utilisateur déconnecté");
+        graphicController.setConnectMenuVisible(false);
     }
 }

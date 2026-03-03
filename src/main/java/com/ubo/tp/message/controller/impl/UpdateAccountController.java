@@ -2,6 +2,7 @@ package com.ubo.tp.message.controller.impl;
 
 import com.ubo.tp.message.controller.contexte.ControllerContext;
 import com.ubo.tp.message.controller.service.IUpdateAccountController;
+import com.ubo.tp.message.datamodel.User;
 
 import java.util.Objects;
 
@@ -30,5 +31,11 @@ public class UpdateAccountController implements IUpdateAccountController {
         // Propager la modification via le DataManager (écriture/synchronisation)
         dataManager.sendUser(user);
         return true;
+    }
+
+    @Override
+    public User getConnectedUser() {
+        if (context.session() == null) return null;
+        return context.session().getConnectedUser();
     }
 }

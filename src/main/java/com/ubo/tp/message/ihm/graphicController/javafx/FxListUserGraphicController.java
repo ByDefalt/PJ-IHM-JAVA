@@ -45,8 +45,6 @@ public class FxListUserGraphicController implements IListUserGraphicController {
     @Override
     public void removeUser(User user) {
         if (user == null) return;
-        User connected = viewContext.session() != null ? viewContext.session().getConnectedUser() : null;
-        if (connected != null && connected.equals(user)) return;
 
         Optional<FxUserView> opt = userViews.stream().filter(uv -> uv.getUser().equals(user)).findFirst();
         if (opt.isPresent()) {
@@ -59,8 +57,6 @@ public class FxListUserGraphicController implements IListUserGraphicController {
     @Override
     public void updateUser(User user) {
         if (user == null) return;
-        User connected = viewContext.session() != null ? viewContext.session().getConnectedUser() : null;
-        if (connected != null && connected.equals(user)) return;
 
         Optional<FxUserView> opt = userViews.stream().filter(uv -> uv.getUser().equals(user)).findFirst();
         if (opt.isPresent()) {

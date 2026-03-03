@@ -23,8 +23,8 @@ public class UpdateAccountGraphicController implements GraphicController {
 
     private void init() {
         // Récupérer l'utilisateur connecté et initialiser la vue
-        if (viewContext != null && viewContext.session() != null) {
-            var user = viewContext.session().getConnectedUser();
+        var user = updateAccountController.getConnectedUser();
+        if (user != null) {
             updateAccountView.setUser(user);
         }
 

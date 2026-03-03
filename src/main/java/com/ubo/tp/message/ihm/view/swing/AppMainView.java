@@ -26,6 +26,7 @@ public class AppMainView extends JComponent implements View {
     private Runnable onDisconnect;
     private Runnable onUpdateProfile;
     private Runnable onDeleteAccount;
+    private Runnable onClose;
 
     public AppMainView(ViewContext viewContext) {
         this.viewContext = viewContext;
@@ -42,27 +43,9 @@ public class AppMainView extends JComponent implements View {
             @Override
             public void windowClosing(java.awt.event.WindowEvent e) {
                 viewContext.logger().info("Fermeture de l'application demandée");
-                try {
-                    if (viewContext.session() != null && viewContext.session().getConnectedUser() != null) {
-                        viewContext.logger().info("Déconnexion en cours...");
-                        new Thread(() -> {
-                            try {
-                                viewContext.session().disconnect();
-                            } catch (Exception ex) {
-                                viewContext.logger().error("Erreur lors de la déconnexion", ex);
-                            } finally {
-                                SwingUtilities.invokeLater(() -> {
-                                    mainFrame.dispose();
-                                    System.exit(0);
-                                });
-                            }
-                        }, "disconnect-thread").start();
-                    } else {
-                        mainFrame.dispose();
-                        System.exit(0);
-                    }
-                } catch (Exception ex) {
-                    viewContext.logger().error("Erreur lors du traitement de la fermeture", ex);
+                if (onClose != null) {
+                    onClose.run();
+                } else {
                     mainFrame.dispose();
                     System.exit(0);
                 }
@@ -270,6 +253,10 @@ public class AppMainView extends JComponent implements View {
 
     public void setOnDeleteAccount(Runnable onDeleteAccount) {
         this.onDeleteAccount = onDeleteAccount;
+    }
+
+    public void setOnClose(Runnable onClose) {
+        this.onClose = onClose;
     }
 }
 

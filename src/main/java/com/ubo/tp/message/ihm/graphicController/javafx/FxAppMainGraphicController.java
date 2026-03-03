@@ -1,7 +1,5 @@
 package com.ubo.tp.message.ihm.graphicController.javafx;
 
-import com.ubo.tp.message.core.session.ISessionObserver;
-import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.graphicController.service.IAppMainGraphicController;
 import com.ubo.tp.message.ihm.view.javafx.FxAppMainView;
@@ -14,7 +12,7 @@ import java.util.function.Consumer;
 /**
  * Graphic controller de la fenêtre principale — JavaFX.
  */
-public class FxAppMainGraphicController implements IAppMainGraphicController, ISessionObserver {
+public class FxAppMainGraphicController implements IAppMainGraphicController {
 
     private final ViewContext viewContext;
     private final FxAppMainView appMainView;
@@ -24,7 +22,6 @@ public class FxAppMainGraphicController implements IAppMainGraphicController, IS
         this.viewContext = viewContext;
         this.appMainView = appMainView;
 
-        viewContext.session().addObserver(this);
         viewContext.navigationController().setMainView(this::setMainView);
         // Câbler "Modifier le profil" vers la navigation
         appMainView.setOnUpdateProfile(() -> viewContext.navigationController().navigateToProfile());
@@ -58,6 +55,11 @@ public class FxAppMainGraphicController implements IAppMainGraphicController, IS
     }
 
     @Override
+    public void setOnClose(Runnable onClose) {
+        appMainView.setOnClose(onClose);
+    }
+
+    @Override
     public void setOnDisconnect(Runnable onDisconnect) {
         appMainView.setOnDisconnect(onDisconnect);
     }
@@ -68,15 +70,10 @@ public class FxAppMainGraphicController implements IAppMainGraphicController, IS
     }
 
     @Override
-    public void notifyLogin(User connectedUser) {
-        Platform.runLater(() -> appMainView.setConnectMenuVisible(true));
-    }
-
-    @Override
-    public void notifyLogout() {
+    public void setConnectMenuVisible(boolean visible) {
         Platform.runLater(() -> {
-            appMainView.setConnectMenuVisible(false);
-            if (clearSelected != null) clearSelected.run();
+            appMainView.setConnectMenuVisible(visible);
+            if (!visible && clearSelected != null) clearSelected.run();
         });
     }
 }

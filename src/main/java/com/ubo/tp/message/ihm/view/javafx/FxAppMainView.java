@@ -29,6 +29,7 @@ public class FxAppMainView implements View {
     private Runnable onDisconnect;
     private Runnable onUpdateProfile;
     private Runnable onDeleteAccount;
+    private Runnable onClose;
 
     public FxAppMainView(ViewContext viewContext, Stage stage) {
         this.viewContext = viewContext;
@@ -109,6 +110,10 @@ public class FxAppMainView implements View {
         this.onDeleteAccount = cb;
     }
 
+    public void setOnClose(Runnable cb) {
+        this.onClose = cb;
+    }
+
     // -------------------------------------------------------------------------
     // Menu
     // -------------------------------------------------------------------------
@@ -168,24 +173,9 @@ public class FxAppMainView implements View {
 
     private void handleClose() {
         if (viewContext.logger() != null) viewContext.logger().info("Fermeture demandée (FX)");
-        try {
-            if (viewContext.session() != null && viewContext.session().getConnectedUser() != null) {
-                new Thread(() -> {
-                    try {
-                        viewContext.session().disconnect();
-                    } catch (Exception ignored) {
-                    } finally {
-                        Platform.runLater(() -> {
-                            stage.close();
-                            Platform.exit();
-                        });
-                    }
-                }, "fx-disconnect-thread").start();
-            } else {
-                stage.close();
-                Platform.exit();
-            }
-        } catch (Exception ex) {
+        if (onClose != null) {
+            onClose.run();
+        } else {
             stage.close();
             Platform.exit();
         }

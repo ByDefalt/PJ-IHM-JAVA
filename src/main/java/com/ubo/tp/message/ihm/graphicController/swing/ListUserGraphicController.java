@@ -64,13 +64,6 @@ public class ListUserGraphicController implements IListUserGraphicController {
 
         var logger = viewContext.logger();
 
-        // Ne pas tenter de supprimer l'utilisateur connecté car il n'est pas affiché
-        User connected = (viewContext.session() != null) ? viewContext.session().getConnectedUser() : null;
-        if (connected != null && connected.equals(user)) {
-            if (logger != null)
-                logger.debug("Ignorer la suppression de l'utilisateur courant (non affiché) : " + user.getName());
-            return;
-        }
 
         Optional<UserView> opt = userViews.stream().filter(uv -> uv.getUser().equals(user)).findFirst();
 
@@ -89,13 +82,6 @@ public class ListUserGraphicController implements IListUserGraphicController {
 
         var logger = viewContext.logger();
 
-        // Si l'utilisateur connecté change ses infos, on n'a rien à mettre à jour dans la liste
-        User connected = (viewContext.session() != null) ? viewContext.session().getConnectedUser() : null;
-        if (connected != null && connected.equals(user)) {
-            if (logger != null)
-                logger.debug("Ignorer la mise à jour de l'utilisateur courant (non affiché) : " + user.getName());
-            return;
-        }
 
         Optional<UserView> opt = userViews.stream().filter(uv -> uv.getUser().equals(user)).findFirst();
 

@@ -1,7 +1,5 @@
 package com.ubo.tp.message.ihm.graphicController.swing;
 
-import com.ubo.tp.message.core.session.ISessionObserver;
-import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.graphicController.service.IAppMainGraphicController;
 import com.ubo.tp.message.ihm.view.service.View;
@@ -10,7 +8,7 @@ import com.ubo.tp.message.ihm.view.swing.AppMainView;
 import javax.swing.*;
 import java.util.function.Consumer;
 
-public class AppMainGraphicController implements IAppMainGraphicController, ISessionObserver {
+public class AppMainGraphicController implements IAppMainGraphicController {
 
     private final ViewContext viewContext;
     private final AppMainView appMainView;
@@ -20,7 +18,6 @@ public class AppMainGraphicController implements IAppMainGraphicController, ISes
         this.viewContext = viewContext;
         this.appMainView = appMainView;
 
-        this.viewContext.session().addObserver(this);
 
         this.viewContext.navigationController().setMainView(this::setMainView);
         this.setOnUpdateProfile(this::truc);
@@ -57,14 +54,14 @@ public class AppMainGraphicController implements IAppMainGraphicController, ISes
     }
 
     @Override
-    public void notifyLogin(User connectedUser) {
-        appMainView.setConnectMenuVisible(true);
+    public void setOnClose(Runnable onClose) {
+        appMainView.setOnClose(onClose);
     }
 
     @Override
-    public void notifyLogout() {
-        appMainView.setConnectMenuVisible(false);
-        if (clearSelected != null) clearSelected.run();
+    public void setConnectMenuVisible(boolean visible) {
+        appMainView.setConnectMenuVisible(visible);
+        if (!visible && clearSelected != null) clearSelected.run();
     }
 
     @Override

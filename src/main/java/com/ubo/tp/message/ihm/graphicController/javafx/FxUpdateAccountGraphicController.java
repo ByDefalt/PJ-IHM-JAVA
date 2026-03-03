@@ -24,8 +24,8 @@ public class FxUpdateAccountGraphicController implements GraphicController {
     }
 
     private void wire() {
-        if (viewContext.session() != null)
-            updateView.setUser(viewContext.session().getConnectedUser());
+        var user = updateController.getConnectedUser();
+        if (user != null) updateView.setUser(user);
 
         updateView.setOnUpdateRequested(newName -> {
             if (viewContext.logger() != null) viewContext.logger().debug("(FX) Mise à jour demandée : " + newName);
