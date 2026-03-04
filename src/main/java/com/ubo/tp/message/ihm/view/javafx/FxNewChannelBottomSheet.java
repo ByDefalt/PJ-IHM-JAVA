@@ -27,34 +27,35 @@ import java.util.Set;
  */
 public class FxNewChannelBottomSheet extends StackPane {
 
-    private static final Color OVERLAY  = Color.rgb(0, 0, 0, 0.55);
+    private static final Color OVERLAY = Color.rgb(0, 0, 0, 0.55);
     private static final Color SHEET_BG = Color.rgb(32, 34, 37);
     private static final Color INPUT_BG = Color.rgb(64, 68, 75);
-    private static final Color ITEM_BG  = Color.rgb(47, 49, 54);
-    private static final Color ACCENT   = Color.rgb(88, 101, 242);
-    private static final Color MUTED    = Color.rgb(185, 187, 190);
+    private static final Color ITEM_BG = Color.rgb(47, 49, 54);
+    private static final Color ACCENT = Color.rgb(88, 101, 242);
+    private static final Color MUTED = Color.rgb(185, 187, 190);
 
     private final VBox sheet;
     private final ViewContext viewContext;
 
     // Widgets principaux
-    private final TextField nameField    = new TextField();
-    private final Label     nameError    = new Label();
-    private final CheckBox  privateCheck = new CheckBox("Canal privé");
-    private final TextField userSearch   = new TextField();
-    private final VBox      userListBox  = new VBox(4);
-    private final FlowPane  chipsPane    = new FlowPane(6, 6);
-
+    private final TextField nameField = new TextField();
+    private final Label nameError = new Label();
+    private final CheckBox privateCheck = new CheckBox("Canal privé");
+    private final TextField userSearch = new TextField();
+    private final VBox userListBox = new VBox(4);
+    private final FlowPane chipsPane = new FlowPane(6, 6);
+    private final Set<User> selectedUsers = new LinkedHashSet<>();
     private ChannelCreationCallback onConfirm;
     private List<User> availableUsers = new ArrayList<>();
-    private final Set<User> selectedUsers = new LinkedHashSet<>();
 
     public FxNewChannelBottomSheet(ViewContext viewContext) {
         this.viewContext = viewContext;
 
         setBackground(new Background(new BackgroundFill(OVERLAY, CornerRadii.EMPTY, Insets.EMPTY)));
         setAlignment(Pos.BOTTOM_CENTER);
-        setOnMouseClicked(e -> { if (e.getTarget() == this) hide(); });
+        setOnMouseClicked(e -> {
+            if (e.getTarget() == this) hide();
+        });
 
         sheet = new VBox(16);
         sheet.setBackground(new Background(new BackgroundFill(SHEET_BG, new CornerRadii(16, 16, 0, 0, false), Insets.EMPTY)));
@@ -221,7 +222,10 @@ public class FxNewChannelBottomSheet extends StackPane {
 
         row.getChildren().addAll(avatar, info, spacer, check);
 
-        row.setOnMouseEntered(ev -> { if (!selectedUsers.contains(user)) row.setBackground(new Background(new BackgroundFill(Color.rgb(64, 68, 75), new CornerRadii(6), Insets.EMPTY))); });
+        row.setOnMouseEntered(ev -> {
+            if (!selectedUsers.contains(user))
+                row.setBackground(new Background(new BackgroundFill(Color.rgb(64, 68, 75), new CornerRadii(6), Insets.EMPTY)));
+        });
         row.setOnMouseExited(ev -> row.setBackground(rowBg(selectedUsers.contains(user))));
 
         row.setOnMouseClicked(ev -> {
@@ -304,7 +308,10 @@ public class FxNewChannelBottomSheet extends StackPane {
                         new KeyValue(sheet.translateYProperty(), 400),
                         new KeyValue(sheet.opacityProperty(), 0))
         );
-        tl.setOnFinished(e -> { setVisible(false); setMouseTransparent(true); });
+        tl.setOnFinished(e -> {
+            setVisible(false);
+            setMouseTransparent(true);
+        });
         tl.play();
     }
 
@@ -320,17 +327,17 @@ public class FxNewChannelBottomSheet extends StackPane {
     private void styleInput(TextField tf) {
         tf.setStyle(
                 "-fx-background-color: rgb(64,68,75);" +
-                "-fx-text-fill: white;" +
-                "-fx-prompt-text-fill: rgba(255,255,255,0.4);" +
-                "-fx-border-color: transparent;" +
-                "-fx-background-radius: 4;" +
-                "-fx-padding: 8 12 8 12;"
+                        "-fx-text-fill: white;" +
+                        "-fx-prompt-text-fill: rgba(255,255,255,0.4);" +
+                        "-fx-border-color: transparent;" +
+                        "-fx-background-radius: 4;" +
+                        "-fx-padding: 8 12 8 12;"
         );
     }
 
     private Button makeButton(String text, String bg, String fg, String bgH, String fgH) {
         Button btn = new Button(text);
-        String base  = String.format("-fx-background-color:%s;-fx-text-fill:%s;-fx-font-size:14;-fx-background-radius:4;-fx-cursor:hand;-fx-border-color:transparent;", bg, fg);
+        String base = String.format("-fx-background-color:%s;-fx-text-fill:%s;-fx-font-size:14;-fx-background-radius:4;-fx-cursor:hand;-fx-border-color:transparent;", bg, fg);
         String hover = String.format("-fx-background-color:%s;-fx-text-fill:%s;-fx-font-size:14;-fx-background-radius:4;-fx-cursor:hand;-fx-border-color:transparent;", bgH, fgH);
         btn.setStyle(base);
         btn.setOnMouseEntered(e -> btn.setStyle(hover));

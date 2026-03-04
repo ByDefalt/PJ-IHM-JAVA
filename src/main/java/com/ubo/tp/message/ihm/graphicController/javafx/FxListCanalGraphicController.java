@@ -43,6 +43,11 @@ public class FxListCanalGraphicController implements IListCanalGraphicController
     }
 
     @Override
+    public void addCanal(Channel canal) {
+
+    }
+
+    @Override
     public void removeCanal(Channel canal) {
         if (canal == null) return;
         Optional<FxCanalView> opt = canalViews.stream().filter(cv -> cv.getChannel().equals(canal)).findFirst();
@@ -54,10 +59,15 @@ public class FxListCanalGraphicController implements IListCanalGraphicController
     }
 
     @Override
-    public void updateCanal(Channel canal) {
+    public void updateCanal(Integer index, Channel canal) {
         if (canal == null) return;
         if (viewContext.logger() != null)
             viewContext.logger().debug("(FX) Canal mis à jour (no-op) : " + canal.getName());
+    }
+
+    @Override
+    public void clearCanals() {
+
     }
 
     @Override

@@ -1,10 +1,10 @@
 package com.ubo.tp.message.controller.impl;
 
+import com.ubo.tp.message.common.Constants;
 import com.ubo.tp.message.controller.contexte.ControllerContext;
 import com.ubo.tp.message.controller.service.IListMessageController;
 import com.ubo.tp.message.core.database.observer.IMessageDatabaseObserver;
 import com.ubo.tp.message.core.database.observer.IUserDatabaseObserver;
-import com.ubo.tp.message.common.Constants;
 import com.ubo.tp.message.core.selected.ISelectedObserver;
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.datamodel.User;
@@ -96,10 +96,10 @@ public class ListMessageController implements IListMessageController, IMessageDa
     }
 
     @Override
-    public void notifyMessageModified(Message modifiedMessage) {
-        if (context.logger() != null) context.logger().debug("Message update : " + modifiedMessage);
+    public void notifyMessageModified(Message newMessage) {
+        if (context.logger() != null) context.logger().debug("Message update : nouveau=" + newMessage);
         List<Message> filtered = getFilteredMessages(context.dataManager().getMessages());
-        this.graphicController.updateMessage(modifiedMessage, filtered);
+        this.graphicController.updateMessage(newMessage, filtered);
     }
 
     @Override
@@ -122,7 +122,8 @@ public class ListMessageController implements IListMessageController, IMessageDa
     @Override
     public void notifyUserDeleted(User deletedUser) {
         if (deletedUser == null) return;
-        if (context.logger() != null) context.logger().debug("User supprimé, mise à jour des messages : " + deletedUser);
+        if (context.logger() != null)
+            context.logger().debug("User supprimé, mise à jour des messages : " + deletedUser);
 
         // Crée un "fantôme" UNKNOWN_USER qui conserve l'UUID du user supprimé
         // pour que refreshSenderInMessages trouve les bonnes MessageView
@@ -144,12 +145,11 @@ public class ListMessageController implements IListMessageController, IMessageDa
     }
 
     @Override
-    public void notifyUserModified(User modifiedUser) {
-        if (modifiedUser == null) return;
+    public void notifyUserModified(User newUser) {
+        if (newUser == null) return;
         // Le graphic controller met à jour son TreeSet interne pour tous les messages
-        // dont le sender correspond à modifiedUser, puis reconstruit l'affichage
-        // avec la filtered list propre à ce controller (session + selected).
+        // dont le sender correspond à newUser, puis reconstruit l'affichage
         List<Message> filtered = getFilteredMessages(context.dataManager().getMessages());
-        this.graphicController.refreshSenderInMessages(modifiedUser, filtered);
+        this.graphicController.refreshSenderInMessages(newUser, filtered);
     }
 }

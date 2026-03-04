@@ -27,6 +27,7 @@ public class FxRegisterView extends GridPane implements View {
     private final Button loginButton = new Button("Se connecter");
     private QuadConsumer onRegisterRequested;
     private Runnable onBackToLoginRequested;
+
     public FxRegisterView(ViewContext viewContext) {
         this.viewContext = viewContext;
         buildUI();
