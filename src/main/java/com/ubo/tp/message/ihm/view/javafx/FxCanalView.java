@@ -29,7 +29,7 @@ public class FxCanalView extends HBox implements View {
 
     private final Channel channel;
 
-    public FxCanalView(ViewContext viewContext, Channel channel, Consumer<Channel> onLeave) {
+    public FxCanalView(ViewContext viewContext, Channel channel, Consumer<Channel> onLeave, boolean isOwner) {
         this.channel = channel;
         setPadding(new Insets(6, 8, 6, 8));
         setSpacing(7);
@@ -68,12 +68,13 @@ public class FxCanalView extends HBox implements View {
         if (isPrivate && onLeave != null) {
             Label leaveBtn = new Label("✕");
             leaveBtn.setFont(Font.font("Arial", FontWeight.BOLD, 11));
-            leaveBtn.setTextFill(Color.rgb(240, 71, 71));
+            // Rouge vif pour suppression (propriétaire), rouge doux pour quitter (membre)
+            leaveBtn.setTextFill(isOwner ? Color.rgb(240, 71, 71) : Color.rgb(210, 110, 110));
             leaveBtn.setCursor(Cursor.HAND);
             leaveBtn.setOpacity(0);
             leaveBtn.setPadding(new Insets(0, 0, 0, 6));
             leaveBtn.setMouseTransparent(false);
-            Tooltip.install(leaveBtn, new Tooltip("Quitter le canal"));
+            Tooltip.install(leaveBtn, new Tooltip(isOwner ? "Supprimer le canal" : "Quitter le canal"));
             leaveBtn.setOnMouseClicked(e -> { e.consume(); onLeave.accept(channel); });
 
             getChildren().add(leaveBtn);

@@ -1,5 +1,6 @@
 package com.ubo.tp.message.controller.impl;
 
+import com.ubo.tp.message.common.Constants;
 import com.ubo.tp.message.controller.contexte.ControllerContext;
 import com.ubo.tp.message.controller.service.IListCanalController;
 import com.ubo.tp.message.core.database.observer.IChannelDatabaseObserver;
@@ -39,7 +40,7 @@ public class ListCanalController implements IListCanalController, IChannelDataba
         User me = context.session().getConnectedUser();
         List<User> result = new ArrayList<>();
         for (User u : all) {
-            if (!u.equals(me)) result.add(u);
+            if (!u.equals(me) && !u.getUuid().equals(Constants.UNKNONWN_USER_UUID)) result.add(u);
         }
         return result;
     }
@@ -66,13 +67,22 @@ public class ListCanalController implements IListCanalController, IChannelDataba
             return;
         }
 
-        // La croix n'est proposée que si : privé ET pas créateur ET je suis dans la liste
-        boolean canLeave = addedChannel.isPrivate()
-                && !addedChannel.getCreator().equals(me)
-                && addedChannel.getUsers().contains(me);
+        Consumer<Channel> onLeave = resolveLeaveAction(addedChannel, me);
+        boolean isOwner = addedChannel.isPrivate() && addedChannel.getCreator().equals(me);
+        this.graphicController.addCanal(addedChannel, this::setSelected, onLeave, isOwner);
+    }
 
-        Consumer<Channel> onLeave = canLeave ? this::leaveChannel : null;
-        this.graphicController.addCanal(addedChannel, this::setSelected, onLeave);
+    /**
+     * Détermine le callback de la croix selon le rôle de l'utilisateur :
+     * - créateur d'un canal privé → suppression du canal
+     * - simple membre d'un canal privé → quitter le canal
+     * - canal public → null (pas de croix)
+     */
+    private Consumer<Channel> resolveLeaveAction(Channel channel, User me) {
+        if (!channel.isPrivate()) return null;
+        if (channel.getCreator().equals(me)) return this::deleteChannel;
+        if (channel.getUsers().contains(me)) return this::leaveChannel;
+        return null;
     }
 
     @Override
@@ -121,6 +131,16 @@ public class ListCanalController implements IListCanalController, IChannelDataba
         }
         context.dataManager().sendChannel(newChannel);
         if (context.logger() != null) context.logger().debug("Création d'un nouveau canal : " + newChannel);
+    }
+
+    /**
+     * Supprime définitivement le canal (réservé au créateur).
+     */
+    public void deleteChannel(Channel channel) {
+        if (channel == null) return;
+        context.dataManager().deleteChannelFile(channel);
+        if (context.logger() != null)
+            context.logger().debug("Canal supprimé par son créateur : " + channel.getName());
     }
 
     /**

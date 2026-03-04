@@ -26,10 +26,12 @@ public class CanalView extends JComponent implements View {
     private JLabel leaveBtnLabel;
     private Channel channel;
     private boolean hovered = false;
+    private boolean isOwner = false;
 
-    public CanalView(ViewContext viewContext, Channel channel, Consumer<Channel> onLeave) {
+    public CanalView(ViewContext viewContext, Channel channel, Consumer<Channel> onLeave, boolean isOwner) {
         this.viewContext = viewContext;
         this.channel = channel;
+        this.isOwner = isOwner;
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(6, 8, 6, 8));
         this.setOpaque(false);
@@ -49,8 +51,10 @@ public class CanalView extends JComponent implements View {
                 repaint();
             }
             @Override public void mouseExited(MouseEvent e) {
-                Component dest = SwingUtilities.getDeepestComponentAt(CanalView.this, e.getX(), e.getY());
-                if (dest == leaveBtnLabel) return;
+                // Vérifier que la souris est vraiment sortie du composant
+                // (Swing génère mouseExited quand on entre dans un enfant)
+                Point p = e.getPoint();
+                if (contains(p)) return;
                 hovered = false;
                 setCursor(Cursor.getDefaultCursor());
                 if (leaveBtnLabel != null) leaveBtnLabel.setVisible(false);
@@ -103,11 +107,12 @@ public class CanalView extends JComponent implements View {
     private void createLeaveButton(Consumer<Channel> onLeave) {
         leaveBtnLabel = new JLabel("✕");
         leaveBtnLabel.setFont(new Font("SansSerif", Font.BOLD, 11));
-        leaveBtnLabel.setForeground(LEAVE_CLR);
+        // Rouge vif pour suppression (propriétaire), rouge doux pour quitter (membre)
+        leaveBtnLabel.setForeground(isOwner ? LEAVE_CLR : new Color(210, 110, 110));
         leaveBtnLabel.setOpaque(false);
         leaveBtnLabel.setVisible(false);
         leaveBtnLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        leaveBtnLabel.setToolTipText("Quitter le canal");
+        leaveBtnLabel.setToolTipText(isOwner ? "Supprimer le canal" : "Quitter le canal");
         leaveBtnLabel.setBorder(BorderFactory.createEmptyBorder(0, 6, 0, 0));
         leaveBtnLabel.addMouseListener(new MouseAdapter() {
             @Override public void mouseEntered(MouseEvent e) { leaveBtnLabel.setVisible(true); }

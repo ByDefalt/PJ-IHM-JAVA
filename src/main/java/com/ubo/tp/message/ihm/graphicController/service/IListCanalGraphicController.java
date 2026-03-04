@@ -10,9 +10,10 @@ public interface IListCanalGraphicController extends GraphicController {
     /**
      * @param canal    canal à ajouter
      * @param onSelect callback de sélection (clic sur le canal)
-     * @param onLeave  callback de quitter (clic sur la croix) — peut être null si non applicable
+     * @param onLeave  callback de la croix (quitter ou supprimer) — null si non applicable
+     * @param isOwner  true si l'utilisateur est le créateur (croix = supprimer), false = quitter
      */
-    void addCanal(Channel canal, Consumer<Channel> onSelect, Consumer<Channel> onLeave);
+    void addCanal(Channel canal, Consumer<Channel> onSelect, Consumer<Channel> onLeave, boolean isOwner);
 
     void removeCanal(Channel canal);
 

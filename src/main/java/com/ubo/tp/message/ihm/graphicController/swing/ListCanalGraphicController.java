@@ -26,14 +26,14 @@ public class ListCanalGraphicController implements IListCanalGraphicController {
     }
 
     @Override
-    public void addCanal(Channel canal, Consumer<Channel> onSelect, Consumer<Channel> onLeave) {
+    public void addCanal(Channel canal, Consumer<Channel> onSelect, Consumer<Channel> onLeave, boolean isOwner) {
         if (canal == null || listCanalView == null) return;
         boolean alreadyPresent = canalViews.stream().anyMatch(cv -> cv.getChannel().equals(canal));
         if (alreadyPresent) {
             if (viewContext.logger() != null) viewContext.logger().warn("Canal déjà présent, ignoré : " + canal);
             return;
         }
-        CanalView canalView = new CanalView(viewContext, canal, onLeave);
+        CanalView canalView = new CanalView(viewContext, canal, onLeave, isOwner);
         canalView.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {

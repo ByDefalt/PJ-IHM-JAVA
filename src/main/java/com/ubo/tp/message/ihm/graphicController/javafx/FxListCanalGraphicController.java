@@ -28,14 +28,14 @@ public class FxListCanalGraphicController implements IListCanalGraphicController
     }
 
     @Override
-    public void addCanal(Channel canal, Consumer<Channel> onSelect, Consumer<Channel> onLeave) {
+    public void addCanal(Channel canal, Consumer<Channel> onSelect, Consumer<Channel> onLeave, boolean isOwner) {
         if (canal == null) return;
         boolean exists = canalViews.stream().anyMatch(cv -> cv.getChannel().equals(canal));
         if (exists) {
             if (viewContext.logger() != null) viewContext.logger().warn("(FX) Canal déjà présent : " + canal.getName());
             return;
         }
-        FxCanalView view = new FxCanalView(viewContext, canal, onLeave);
+        FxCanalView view = new FxCanalView(viewContext, canal, onLeave, isOwner);
         view.setOnMouseClicked(e -> onSelect.accept(canal));
         canalViews.add(view);
         Platform.runLater(() -> listCanalView.addCanalUI(view));

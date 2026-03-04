@@ -37,7 +37,10 @@ public class UserView extends JComponent implements View {
 
         this.addMouseListener(new MouseAdapter() {
             @Override public void mouseEntered(MouseEvent e) { hovered = true;  setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); repaint(); }
-            @Override public void mouseExited(MouseEvent e)  { hovered = false; setCursor(Cursor.getDefaultCursor()); repaint(); }
+            @Override public void mouseExited(MouseEvent e)  {
+                if (contains(e.getPoint())) return; // souris encore dans le composant (entre dans un enfant)
+                hovered = false; setCursor(Cursor.getDefaultCursor()); repaint();
+            }
         });
 
         if (viewContext.logger() != null)
