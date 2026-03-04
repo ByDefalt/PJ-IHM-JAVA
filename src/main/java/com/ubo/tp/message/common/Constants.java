@@ -59,6 +59,6 @@ public class Constants {
     /**
      * Utilisateur inconnu.
      */
-    public static final User UNKNOWN_USER = new User(Constants.UNKNONWN_USER_UUID, "<Inconnu>", "--", "<Inconnu>");
+    public static final User UNKNOWN_USER = new User(Constants.UNKNONWN_USER_UUID, "<Inconnu>", "--", "<Inconnu>", false);
 
 }

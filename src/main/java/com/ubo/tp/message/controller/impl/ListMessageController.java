@@ -11,7 +11,7 @@ import com.ubo.tp.message.ihm.graphicController.service.IListMessageGraphicContr
 
 import java.util.*;
 
-public class ListMessageController implements IListMessageController, IMessageDatabaseObserver, ISelectedObserver, IUserDatabaseObserver {
+public class ListMessageController implements IListMessageController, IMessageDatabaseObserver, IUserDatabaseObserver, ISelectedObserver {
 
     private final ControllerContext context;
     private final IListMessageGraphicController graphicController;
@@ -20,7 +20,8 @@ public class ListMessageController implements IListMessageController, IMessageDa
         this.context = Objects.requireNonNull(context);
         this.graphicController = graphicController;
 
-        this.context.dataManager().addObserver(this);
+        this.context.dataManager().addObserver((IMessageDatabaseObserver) this);
+        this.context.dataManager().addObserver((IUserDatabaseObserver) this);
         this.context.selected().addObserver(this);
     }
 
@@ -102,26 +103,33 @@ public class ListMessageController implements IListMessageController, IMessageDa
 
     @Override
     public void notifySelectedChanged() {
-
-
         List<Message> filtered = getFilteredMessages(context.dataManager().getMessages());
         if (context.logger() != null)
             context.logger().debug("Sélection changée, messages filtrés : " + filtered.size());
         this.graphicController.selectedChanged(filtered);
     }
 
+    // -------------------------------------------------------------------------
+    // IUserDatabaseObserver
+    // -------------------------------------------------------------------------
+
     @Override
     public void notifyUserAdded(User addedUser) {
-
+        // Rien à faire : les messages du nouvel utilisateur arrivent via notifyMessageAdded
     }
 
     @Override
     public void notifyUserDeleted(User deletedUser) {
-
+        // Rien à faire pour la liste de messages
     }
 
     @Override
     public void notifyUserModified(User modifiedUser) {
-        
+        if (modifiedUser == null) return;
+        // Le graphic controller met à jour son TreeSet interne pour tous les messages
+        // dont le sender correspond à modifiedUser, puis reconstruit l'affichage
+        // avec la filtered list propre à ce controller (session + selected).
+        List<Message> filtered = getFilteredMessages(context.dataManager().getMessages());
+        this.graphicController.refreshSenderInMessages(modifiedUser, filtered);
     }
 }

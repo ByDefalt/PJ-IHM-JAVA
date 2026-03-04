@@ -1,6 +1,7 @@
 package com.ubo.tp.message.ihm.graphicController.javafx;
 
 import com.ubo.tp.message.datamodel.Message;
+import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.graphicController.service.IListMessageGraphicController;
 import com.ubo.tp.message.ihm.view.javafx.FxListMessageView;
@@ -77,18 +78,48 @@ public class FxListMessageGraphicController implements IListMessageGraphicContro
     @Override
     public void updateMessage(Message message, List<Message> filteredMessages) {
         if (message == null) return;
-        messages.stream().filter(mv -> mv.getMessage().equals(message)).findFirst()
-                .ifPresent(mv -> {
-                    messages.remove(mv);
-                    Platform.runLater(() -> listMessageView.updateMessageUI(mv, message));
-                    messages.add(mv);
-                });
+        // Recherche par UUID pour être robuste même si le contenu a changé
+        Optional<FxMessageView> opt = messages.stream()
+                .filter(mv -> mv.getMessage().getUuid().equals(message.getUuid()))
+                .findFirst();
+        if (opt.isPresent()) {
+            // Le champ message est final dans FxMessageView : on remplace la vue entière
+            messages.remove(opt.get());
+            messages.add(new FxMessageView(viewContext, message));
+            if (viewContext.logger() != null) viewContext.logger().debug("(FX) Message mis à jour");
+        } else {
+            if (viewContext.logger() != null) viewContext.logger().warn("(FX) Message non trouvé pour mise à jour");
+        }
         rebuildView(filteredMessages);
+    }
+
+    @Override
+    public void refreshSenderInMessages(User updatedUser, List<Message> filteredMessages) {
+        if (updatedUser == null) return;
+        // Reconstruit toutes les FxMessageView dont le sender correspond à updatedUser
+        List<FxMessageView> toReplace = messages.stream()
+                .filter(mv -> mv.getMessage().getSender() != null
+                        && mv.getMessage().getSender().getUuid().equals(updatedUser.getUuid()))
+                .toList();
+
+        for (FxMessageView mv : toReplace) {
+            Message old = mv.getMessage();
+            messages.remove(mv);
+            messages.add(new FxMessageView(viewContext, new Message(
+                    old.getUuid(), updatedUser, old.getRecipient(), old.getEmissionDate(), old.getText()
+            )));
+        }
+        if (!toReplace.isEmpty()) {
+            if (viewContext.logger() != null)
+                viewContext.logger().debug("(FX) Sender mis à jour dans " + toReplace.size() + " message(s)");
+            rebuildView(filteredMessages);
+        }
     }
 
     @Override
     public void selectedChanged(List<Message> filteredMessages) {
         rebuildView(filteredMessages);
     }
+
 }
 

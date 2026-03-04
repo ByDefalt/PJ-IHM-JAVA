@@ -39,7 +39,7 @@ public class User extends AbstractMessageAppObject implements IMessageRecipient 
      * @param name         nom affiché
      */
     public User(String userTag, String userPassword, String name) {
-        this(UUID.randomUUID(), userTag, userPassword, name);
+        this(UUID.randomUUID(), userTag, userPassword, name, false);
     }
 
     /**
@@ -50,11 +50,16 @@ public class User extends AbstractMessageAppObject implements IMessageRecipient 
      * @param userPassword mot de passe
      * @param name         nom affiché
      */
-    public User(UUID uuid, String userTag, String userPassword, String name) {
+    public User(UUID uuid, String userTag, String userPassword, String name, boolean online) {
         super(uuid);
         mUserTag = userTag;
         mUserPassword = userPassword;
         mName = name;
+        mOnline = online;
+    }
+
+    public User(UUID uuid, String userTag, String userPassword, String name) {
+        this(uuid, userTag, userPassword, name, false);
     }
 
     /**

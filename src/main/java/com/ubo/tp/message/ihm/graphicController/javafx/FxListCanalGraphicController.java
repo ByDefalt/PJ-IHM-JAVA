@@ -1,6 +1,7 @@
 package com.ubo.tp.message.ihm.graphicController.javafx;
 
 import com.ubo.tp.message.datamodel.Channel;
+import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.graphicController.service.IListCanalGraphicController;
 import com.ubo.tp.message.ihm.view.javafx.FxCanalView;
@@ -37,7 +38,6 @@ public class FxListCanalGraphicController implements IListCanalGraphicController
         FxCanalView view = new FxCanalView(viewContext, canal);
         view.setOnMouseClicked(e -> consumer.accept(canal));
         canalViews.add(view);
-
         Platform.runLater(() -> listCanalView.addCanalUI(view));
         if (viewContext.logger() != null) viewContext.logger().debug("(FX) Canal ajouté : " + canal.getName());
     }
@@ -56,9 +56,18 @@ public class FxListCanalGraphicController implements IListCanalGraphicController
     @Override
     public void updateCanal(Channel canal) {
         if (canal == null) return;
-        // Le nom d'un canal est immuable dans ce modèle, rien à faire
         if (viewContext.logger() != null)
             viewContext.logger().debug("(FX) Canal mis à jour (no-op) : " + canal.getName());
     }
-}
 
+    @Override
+    public void setupNewChannelForm(List<User> availableUsers, ChannelCreationCallback onConfirm) {
+        Platform.runLater(() -> {
+            listCanalView.setOnNewChannelConfirm(onConfirm);
+            listCanalView.setAvailableUsers(availableUsers);
+        });
+        if (viewContext.logger() != null)
+            viewContext.logger().debug("(FX) Formulaire canal configuré avec " +
+                    (availableUsers != null ? availableUsers.size() : 0) + " utilisateurs");
+    }
+}

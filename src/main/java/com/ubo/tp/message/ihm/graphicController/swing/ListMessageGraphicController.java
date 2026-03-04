@@ -1,6 +1,7 @@
 package com.ubo.tp.message.ihm.graphicController.swing;
 
 import com.ubo.tp.message.datamodel.Message;
+import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.graphicController.service.IListMessageGraphicController;
 import com.ubo.tp.message.ihm.view.swing.ListMessageView;
@@ -115,14 +116,14 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
         if (message == null || listMessageView == null) return;
 
         Runnable task = () -> {
+            // Recherche par UUID pour être robuste même si le contenu a changé
             Optional<MessageView> opt = messages.stream()
-                    .filter(mv -> mv.getMessage().equals(message))
+                    .filter(mv -> mv.getMessage().getUuid().equals(message.getUuid()))
                     .findFirst();
             if (opt.isPresent()) {
-                MessageView mv = opt.get();
-                messages.remove(mv);
-                listMessageView.updateMessageUI(mv, message);
-                messages.add(mv);
+                // Le champ message est final dans MessageView : on remplace la vue entière
+                messages.remove(opt.get());
+                messages.add(new MessageView(viewContext, message));
                 if (viewContext.logger() != null)
                     viewContext.logger().debug("Message mis à jour : " + message);
             } else {
@@ -130,6 +131,35 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
                     viewContext.logger().warn("Message non trouvé pour mise à jour : " + message);
             }
             rebuildView(filteredMessages);
+        };
+
+        if (SwingUtilities.isEventDispatchThread()) task.run();
+        else SwingUtilities.invokeLater(task);
+    }
+
+    @Override
+    public void refreshSenderInMessages(User updatedUser, List<Message> filteredMessages) {
+        if (updatedUser == null || listMessageView == null) return;
+
+        Runnable task = () -> {
+            // Reconstruit toutes les MessageView dont le sender correspond à updatedUser
+            List<MessageView> toReplace = messages.stream()
+                    .filter(mv -> mv.getMessage().getSender() != null
+                            && mv.getMessage().getSender().getUuid().equals(updatedUser.getUuid()))
+                    .toList();
+
+            for (MessageView mv : toReplace) {
+                Message old = mv.getMessage();
+                messages.remove(mv);
+                messages.add(new MessageView(viewContext, new Message(
+                        old.getUuid(), updatedUser, old.getRecipient(), old.getEmissionDate(), old.getText()
+                )));
+            }
+            if (!toReplace.isEmpty()) {
+                if (viewContext.logger() != null)
+                    viewContext.logger().debug("Sender mis à jour dans " + toReplace.size() + " message(s)");
+                rebuildView(filteredMessages);
+            }
         };
 
         if (SwingUtilities.isEventDispatchThread()) task.run();

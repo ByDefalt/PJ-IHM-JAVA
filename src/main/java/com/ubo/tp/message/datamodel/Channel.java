@@ -41,6 +41,13 @@ public class Channel extends AbstractMessageAppObject implements IMessageRecipie
         this(UUID.randomUUID(), creator, name);
     }
 
+    public Channel(User creator, String name, boolean privateChannel) {
+        super(UUID.randomUUID());
+        this.mCreator = creator;
+        this.mName = name;
+        this.mPrivate = privateChannel;
+    }
+
     /**
      * Constructeur complet avec UUID explicite.
      *
@@ -81,6 +88,14 @@ public class Channel extends AbstractMessageAppObject implements IMessageRecipie
         }
     }
 
+    public Channel(UUID messageUuid, User creator, String name, List<User> users, boolean privateChannel) {
+        this(messageUuid, creator, name);
+        mPrivate = privateChannel;
+        if (privateChannel) {
+            mUsers.addAll(users);
+        }
+    }
+
     /**
      * @return l'utilisateur source du canal.
      */
@@ -100,6 +115,10 @@ public class Channel extends AbstractMessageAppObject implements IMessageRecipie
      */
     public List<User> getUsers() {
         return new ArrayList<User>(mUsers);
+    }
+
+    public boolean isPrivate(){
+        return mPrivate;
     }
 
     /**
