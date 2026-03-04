@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class ListCanalController implements IListCanalController, IChannelDatabaseObserver, IUserDatabaseObserver {
 
@@ -25,11 +26,8 @@ public class ListCanalController implements IListCanalController, IChannelDataba
         this.context.dataManager().addObserver((IChannelDatabaseObserver) this);
         this.context.dataManager().addObserver((IUserDatabaseObserver) this);
 
-        // Configurer le formulaire avec les users actuels
         refreshFormUsers();
     }
-
-    // ── Refresh de la liste d'users dans le formulaire ───────────────────────
 
     private void refreshFormUsers() {
         List<User> usersWithoutMe = getUsersWithoutMe();
@@ -46,8 +44,6 @@ public class ListCanalController implements IListCanalController, IChannelDataba
         return result;
     }
 
-    // ── IListCanalController ─────────────────────────────────────────────────
-
     @Override
     public IListCanalGraphicController getGraphicController() {
         return graphicController;
@@ -58,12 +54,25 @@ public class ListCanalController implements IListCanalController, IChannelDataba
         context.selected().setSelectedChannel(channel);
     }
 
-    // ── IChannelDatabaseObserver ─────────────────────────────────────────────
-
     @Override
     public void notifyChannelAdded(Channel addedChannel) {
         if (context.logger() != null) context.logger().debug("Canal ajouté : " + addedChannel);
-        this.graphicController.addCanal(addedChannel, this::setSelected);
+        User me = context.session().getConnectedUser();
+
+        if (addedChannel.isPrivate()
+                && !addedChannel.getUsers().contains(me)
+                && !addedChannel.getCreator().equals(me)) {
+            if (context.logger() != null) context.logger().debug("Ignorer le canal privé qui ne m'inclut pas : " + addedChannel);
+            return;
+        }
+
+        // La croix n'est proposée que si : privé ET pas créateur ET je suis dans la liste
+        boolean canLeave = addedChannel.isPrivate()
+                && !addedChannel.getCreator().equals(me)
+                && addedChannel.getUsers().contains(me);
+
+        Consumer<Channel> onLeave = canLeave ? this::leaveChannel : null;
+        this.graphicController.addCanal(addedChannel, this::setSelected, onLeave);
     }
 
     @Override
@@ -75,10 +84,17 @@ public class ListCanalController implements IListCanalController, IChannelDataba
     @Override
     public void notifyChannelModified(Channel modifiedChannel) {
         if (context.logger() != null) context.logger().debug("Canal modifié : " + modifiedChannel);
-        this.graphicController.updateCanal(modifiedChannel);
-    }
+        User me = context.session().getConnectedUser();
 
-    // ── IUserDatabaseObserver — met à jour la liste dans le formulaire ────────
+        // Si le canal est privé et que je n'en fais plus partie → le retirer de la vue
+        if (modifiedChannel.isPrivate()
+                && !modifiedChannel.getCreator().equals(me)
+                && !modifiedChannel.getUsers().contains(me)) {
+            this.graphicController.removeCanal(modifiedChannel);
+        } else {
+            this.graphicController.updateCanal(modifiedChannel);
+        }
+    }
 
     @Override
     public void notifyUserAdded(User addedUser) {
@@ -95,16 +111,9 @@ public class ListCanalController implements IListCanalController, IChannelDataba
         refreshFormUsers();
     }
 
-    // ── Création de canal ────────────────────────────────────────────────────
-
-    public void createNewChannel(String channelName, boolean isPrivate) {
-        createNewChannel(channelName, isPrivate, new ArrayList<>());
-    }
-
     public void createNewChannel(String channelName, boolean isPrivate, List<User> invitedUsers) {
         Channel newChannel;
         if (invitedUsers != null && !invitedUsers.isEmpty()) {
-            // Canal avec liste d'utilisateurs → utilise le constructeur dédié
             List<User> members = new ArrayList<>(invitedUsers);
             newChannel = new Channel(context.session().getConnectedUser(), channelName, members);
         } else {
@@ -114,11 +123,30 @@ public class ListCanalController implements IListCanalController, IChannelDataba
         if (context.logger() != null) context.logger().debug("Création d'un nouveau canal : " + newChannel);
     }
 
-    public boolean getAllUsersWithoutMe() {
-        return context
-                .dataManager()
-                .getUsers()
-                .remove(context.session().getConnectedUser());
+    /**
+     * Retire l'utilisateur connecté de la liste des membres du canal,
+     * puis persiste le canal mis à jour.
+     * Le canal est supprimé de la vue via notifyChannelModified → removeCanal
+     * (car il ne sera plus visible pour cet utilisateur).
+     */
+    public void leaveChannel(Channel channel) {
+        if (channel == null) return;
+        User me = context.session().getConnectedUser();
+
+        List<User> newMembers = new ArrayList<>(channel.getUsers());
+        newMembers.remove(me);
+
+        // Reconstruire le canal avec la nouvelle liste
+        Channel updated = new Channel(
+                channel.getUuid(),
+                channel.getCreator(),
+                channel.getName(),
+                newMembers,
+                true
+        );
+        context.dataManager().sendChannel(updated);
+        if (context.logger() != null)
+            context.logger().debug("Quitté le canal : " + channel.getName());
     }
 }
 

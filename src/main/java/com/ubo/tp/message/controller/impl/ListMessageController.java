@@ -4,6 +4,7 @@ import com.ubo.tp.message.controller.contexte.ControllerContext;
 import com.ubo.tp.message.controller.service.IListMessageController;
 import com.ubo.tp.message.core.database.observer.IMessageDatabaseObserver;
 import com.ubo.tp.message.core.database.observer.IUserDatabaseObserver;
+import com.ubo.tp.message.common.Constants;
 import com.ubo.tp.message.core.selected.ISelectedObserver;
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.datamodel.User;
@@ -120,7 +121,26 @@ public class ListMessageController implements IListMessageController, IMessageDa
 
     @Override
     public void notifyUserDeleted(User deletedUser) {
-        // Rien à faire pour la liste de messages
+        if (deletedUser == null) return;
+        if (context.logger() != null) context.logger().debug("User supprimé, mise à jour des messages : " + deletedUser);
+
+        // Crée un "fantôme" UNKNOWN_USER qui conserve l'UUID du user supprimé
+        // pour que refreshSenderInMessages trouve les bonnes MessageView
+        User ghostUser = new User(
+                deletedUser.getUuid(),
+                Constants.UNKNOWN_USER.getUserTag(),
+                "--",
+                Constants.UNKNOWN_USER.getName(),
+                false
+        );
+
+        // 1) Remplace le sender dans toutes les bulles qui référencent ce user
+        List<Message> filtered = getFilteredMessages(context.dataManager().getMessages());
+        this.graphicController.refreshSenderInMessages(ghostUser, filtered);
+
+        // 2) Reconstruit la vue (gère le cas où la conversation affichée était avec ce user)
+        filtered = getFilteredMessages(context.dataManager().getMessages());
+        this.graphicController.selectedChanged(filtered);
     }
 
     @Override

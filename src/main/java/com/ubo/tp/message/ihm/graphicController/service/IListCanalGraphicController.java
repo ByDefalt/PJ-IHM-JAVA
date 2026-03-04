@@ -7,7 +7,12 @@ import java.util.List;
 import java.util.function.Consumer;
 
 public interface IListCanalGraphicController extends GraphicController {
-    void addCanal(Channel canal, Consumer<Channel> consumer);
+    /**
+     * @param canal    canal à ajouter
+     * @param onSelect callback de sélection (clic sur le canal)
+     * @param onLeave  callback de quitter (clic sur la croix) — peut être null si non applicable
+     */
+    void addCanal(Channel canal, Consumer<Channel> onSelect, Consumer<Channel> onLeave);
 
     void removeCanal(Channel canal);
 
