@@ -26,7 +26,6 @@ public class FxLoginView extends GridPane implements View {
     private final Button registerButton = new Button("S'inscrire");
     private TriConsumer onLoginRequested;
     private Runnable onRegisterRequested;
-
     public FxLoginView(ViewContext viewContext) {
         this.viewContext = viewContext;
         buildUI();

@@ -19,14 +19,15 @@ import javafx.scene.text.FontWeight;
  */
 public class FxUserView extends HBox implements View {
 
-    private static final Color BG_NORMAL = Color.rgb(54, 57, 63);
-    private static final Color BG_HOVER = Color.rgb(72, 76, 84);
+    private static final Color BG_NORMAL  = Color.rgb(54, 57, 63);
+    private static final Color BG_HOVER   = Color.rgb(72, 76, 84);
     private static final Color ONLINE_CLR = Color.rgb(35, 165, 90);
-    private static final Color OFFLINE_CLR = Color.rgb(116, 127, 141);
+    private static final Color OFFLINE_CLR= Color.rgb(116, 127, 141);
+
+    private User user;
     private final Label nameLabel;
     private final Label tagLabel;
     private final Circle statusDot;
-    private User user;
 
     public FxUserView(ViewContext viewContext, User user) {
         this.user = user;
@@ -72,9 +73,7 @@ public class FxUserView extends HBox implements View {
                 : null);
     }
 
-    public User getUser() {
-        return user;
-    }
+    public User getUser() { return user; }
 
     public void updateUser(User updated) {
         this.user = updated;

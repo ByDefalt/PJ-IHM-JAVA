@@ -15,13 +15,9 @@ public interface IListCanalGraphicController extends GraphicController {
      */
     void addCanal(Channel canal, Consumer<Channel> onSelect, Consumer<Channel> onLeave, boolean isOwner);
 
-    void addCanal(Channel canal);
-
     void removeCanal(Channel canal);
 
-    void updateCanal(Integer index, Channel canal);
-
-    void clearCanals();
+    void updateCanal(Channel canal);
 
     /**
      * Enregistre le callback et la liste d'utilisateurs disponibles pour le formulaire
@@ -32,9 +28,7 @@ public interface IListCanalGraphicController extends GraphicController {
      */
     void setupNewChannelForm(List<User> availableUsers, ChannelCreationCallback onConfirm);
 
-    /**
-     * Callback de création de canal : nom, privé, liste d'utilisateurs invités.
-     */
+    /** Callback de création de canal : nom, privé, liste d'utilisateurs invités. */
     @FunctionalInterface
     interface ChannelCreationCallback {
         void onCreate(String name, boolean isPrivate, List<User> invitedUsers);

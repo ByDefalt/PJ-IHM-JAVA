@@ -12,7 +12,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.geom.RoundRectangle2D;
-import java.util.function.Consumer;
 
 public class InputMessageView extends JComponent implements View {
 
@@ -22,7 +21,7 @@ public class InputMessageView extends JComponent implements View {
 
     private final ViewContext viewContext;
     private final JTextArea inputField;
-    private Consumer<String> onSendRequested;
+    private Runnable onSendRequested;
 
     private Color normalBorderColor;
     private Color focusBorderColor;
@@ -54,7 +53,7 @@ public class InputMessageView extends JComponent implements View {
     /**
      * Enregistre le callback déclenché quand l'utilisateur valide l'envoi (Entrée).
      */
-    public void setOnSendRequested(Consumer<String> onSendRequested) {
+    public void setOnSendRequested(Runnable onSendRequested) {
         this.onSendRequested = onSendRequested;
     }
 
@@ -94,7 +93,7 @@ public class InputMessageView extends JComponent implements View {
         am.put("sendMessage", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (onSendRequested != null) onSendRequested.accept(getText().trim());
+                if (onSendRequested != null) onSendRequested.run();
             }
         });
 

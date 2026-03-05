@@ -11,11 +11,11 @@ import java.awt.event.MouseEvent;
 
 public class UserView extends JComponent implements View {
 
-    private static final Color BG_NORMAL = new Color(54, 57, 63);
-    private static final Color BG_HOVER = new Color(72, 76, 84);
+    private static final Color BG_NORMAL    = new Color(54, 57, 63);
+    private static final Color BG_HOVER     = new Color(72, 76, 84);
     private static final Color BORDER_HOVER = new Color(90, 95, 105);
-    private static final Color ONLINE_CLR = new Color(35, 165, 90);
-    private static final Color OFFLINE_CLR = new Color(116, 127, 141);
+    private static final Color ONLINE_CLR   = new Color(35, 165, 90);
+    private static final Color OFFLINE_CLR  = new Color(116, 127, 141);
 
     private final ViewContext viewContext;
     private JLabel userNameLabel;
@@ -36,19 +36,10 @@ public class UserView extends JComponent implements View {
         createTagLabel();
 
         this.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                hovered = true;
-                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                repaint();
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
+            @Override public void mouseEntered(MouseEvent e) { hovered = true;  setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); repaint(); }
+            @Override public void mouseExited(MouseEvent e)  {
                 if (contains(e.getPoint())) return; // souris encore dans le composant (entre dans un enfant)
-                hovered = false;
-                setCursor(Cursor.getDefaultCursor());
-                repaint();
+                hovered = false; setCursor(Cursor.getDefaultCursor()); repaint();
             }
         });
 
@@ -58,13 +49,8 @@ public class UserView extends JComponent implements View {
 
     private void createStatusDot() {
         statusDotLabel = new JLabel() {
-            @Override
-            public boolean contains(int x, int y) {
-                return false;
-            }
-
-            @Override
-            protected void paintComponent(Graphics g) {
+            @Override public boolean contains(int x, int y) { return false; }
+            @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 Color c = user.isOnline() ? ONLINE_CLR : OFFLINE_CLR;
@@ -92,10 +78,7 @@ public class UserView extends JComponent implements View {
     private void createNameLabel() {
         Font nameFont = new Font("SansSerif", Font.BOLD, 13);
         userNameLabel = new JLabel(user.getName() != null ? user.getName() : "") {
-            @Override
-            public boolean contains(int x, int y) {
-                return false;
-            }
+            @Override public boolean contains(int x, int y) { return false; }
         };
         userNameLabel.setFont(nameFont);
         userNameLabel.setForeground(new Color(220, 221, 222));
@@ -109,10 +92,7 @@ public class UserView extends JComponent implements View {
 
     private void createTagLabel() {
         tagLabel = new JLabel("@" + user.getUserTag()) {
-            @Override
-            public boolean contains(int x, int y) {
-                return false;
-            }
+            @Override public boolean contains(int x, int y) { return false; }
         };
         tagLabel.setFont(new Font("SansSerif", Font.PLAIN, 10));
         tagLabel.setForeground(new Color(114, 118, 125));
@@ -143,9 +123,7 @@ public class UserView extends JComponent implements View {
         g2.dispose();
     }
 
-    public User getUser() {
-        return user;
-    }
+    public User getUser() { return user; }
 
     public void updateUser(User updated) {
         this.user = updated;

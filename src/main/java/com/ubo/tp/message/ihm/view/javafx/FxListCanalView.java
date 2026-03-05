@@ -26,17 +26,11 @@ public class FxListCanalView extends VBox implements View {
     private final TextField searchField = new TextField();
     private final List<FxCanalView> allCanals = new ArrayList<>();
 
-    /**
-     * Bottom-sheet de création de canal, superposée dans le StackPane parent.
-     */
+    /** Bottom-sheet de création de canal, superposée dans le StackPane parent. */
     private FxNewChannelBottomSheet bottomSheet;
-    /**
-     * Callback transmis depuis le graphic controller.
-     */
+    /** Callback transmis depuis le graphic controller. */
     private ChannelCreationCallback onNewChannelConfirm;
-    /**
-     * Utilisateurs disponibles (sans l'utilisateur connecté).
-     */
+    /** Utilisateurs disponibles (sans l'utilisateur connecté). */
     private List<User> availableUsers = new ArrayList<>();
 
     public FxListCanalView(ViewContext viewContext) {
@@ -78,16 +72,12 @@ public class FxListCanalView extends VBox implements View {
     // Bottom-sheet
     // -------------------------------------------------------------------------
 
-    /**
-     * Enregistre le callback de création de canal.
-     */
+    /** Enregistre le callback de création de canal. */
     public void setOnNewChannelConfirm(ChannelCreationCallback onConfirm) {
         this.onNewChannelConfirm = onConfirm;
     }
 
-    /**
-     * Met à jour la liste des utilisateurs disponibles pour le formulaire.
-     */
+    /** Met à jour la liste des utilisateurs disponibles pour le formulaire. */
     public void setAvailableUsers(List<User> users) {
         this.availableUsers = users != null ? new ArrayList<>(users) : new ArrayList<>();
         if (bottomSheet != null) bottomSheet.setAvailableUsers(this.availableUsers);

@@ -47,17 +47,6 @@ public class ListCanalGraphicController implements IListCanalGraphicController {
     }
 
     @Override
-    public void addCanal(Channel canal) {
-        if (viewContext.logger() != null) viewContext.logger().debug("Canal ajouté (binder) : " + canal);
-        this.addCanal(canal, this::setSelectedChannel, null, false);
-    }
-
-    private void setSelectedChannel(Channel canal) {
-        if (viewContext.logger() != null) viewContext.logger().debug("Canal sélectionné : " + canal);
-        // Délégation à la sélection globale via le ViewContext si disponible
-    }
-
-    @Override
     public void removeCanal(Channel canal) {
         if (canal == null || listCanalView == null) return;
         Optional<CanalView> opt = canalViews.stream().filter(cv -> cv.getChannel().equals(canal)).findFirst();
@@ -71,7 +60,7 @@ public class ListCanalGraphicController implements IListCanalGraphicController {
     }
 
     @Override
-    public void updateCanal(Integer index, Channel canal) {
+    public void updateCanal(Channel canal) {
         if (canal == null || listCanalView == null) return;
         Optional<CanalView> opt = canalViews.stream().filter(cv -> cv.getChannel().equals(canal)).findFirst();
         if (opt.isPresent()) {
@@ -80,11 +69,6 @@ public class ListCanalGraphicController implements IListCanalGraphicController {
         } else {
             if (viewContext.logger() != null) viewContext.logger().warn("Canal non trouvé pour mise à jour : " + canal);
         }
-    }
-
-    @Override
-    public void clearCanals() {
-
     }
 
     @Override

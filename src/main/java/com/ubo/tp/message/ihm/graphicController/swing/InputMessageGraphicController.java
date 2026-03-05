@@ -1,32 +1,32 @@
 package com.ubo.tp.message.ihm.graphicController.swing;
 
+import com.ubo.tp.message.controller.service.IInputMessageController;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
-import com.ubo.tp.message.ihm.graphicController.service.IInputMessageGraphicController;
+import com.ubo.tp.message.ihm.graphicController.service.GraphicController;
 import com.ubo.tp.message.ihm.view.swing.InputMessageView;
-import com.ubo.tp.message.observableProperty.ObservableProperty;
 
-public class InputMessageGraphicController implements IInputMessageGraphicController {
+public class InputMessageGraphicController implements GraphicController {
 
     private final ViewContext viewContext;
     private final InputMessageView inputMessageView;
+    private final IInputMessageController inputMessageController;
 
-    private final ObservableProperty<String> textProperty = new ObservableProperty<>();
-
-    public InputMessageGraphicController(ViewContext viewContext, InputMessageView inputMessageView) {
+    public InputMessageGraphicController(ViewContext viewContext, InputMessageView inputMessageView, IInputMessageController inputMessageController) {
         this.viewContext = viewContext;
         this.inputMessageView = inputMessageView;
-        inputMessageView.setOnSendRequested(this::setText);
+        this.inputMessageController = inputMessageController;
+        inputMessageView.setOnSendRequested(this::handleSendAction);
     }
 
+    private void handleSendAction() {
+        String message = inputMessageView.getText().trim();
+        if (viewContext.logger() != null) viewContext.logger().debug("Envoi demandé : " + message);
+        if (message.isEmpty()) return;
 
-    private void setText(String text) {
-        if (viewContext.logger() != null) viewContext.logger().debug("Envoi demandé : " + text);
-        if (text.isEmpty()) return;
-        textProperty.set(text);
+        if (inputMessageController != null) {
+            inputMessageController.sendMessageToSelected(message);
+        }
+
         inputMessageView.clearText();
-    }
-
-    public ObservableProperty<String> getText() {
-        return textProperty;
     }
 }

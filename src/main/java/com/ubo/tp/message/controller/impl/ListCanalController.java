@@ -8,20 +8,17 @@ import com.ubo.tp.message.core.database.observer.IUserDatabaseObserver;
 import com.ubo.tp.message.datamodel.Channel;
 import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.graphicController.service.IListCanalGraphicController;
-import com.ubo.tp.message.observableProperty.ObservableTreeSet;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 
 public class ListCanalController implements IListCanalController, IChannelDatabaseObserver, IUserDatabaseObserver {
 
     private final ControllerContext context;
     private final IListCanalGraphicController graphicController;
-
-    private final ObservableTreeSet<Channel> channels = new ObservableTreeSet<>(
-            Comparator.comparing(Channel::getName, String.CASE_INSENSITIVE_ORDER)
-                    .thenComparing(Channel::getUuid)
-    );
 
     public ListCanalController(ControllerContext context, IListCanalGraphicController graphicController) {
         this.context = Objects.requireNonNull(context);
@@ -31,15 +28,6 @@ public class ListCanalController implements IListCanalController, IChannelDataba
         this.context.dataManager().addObserver((IUserDatabaseObserver) this);
 
         refreshFormUsers();
-        loadExistingChannels();
-    }
-
-    private void loadExistingChannels() {
-        Set<Channel> existing = context.dataManager().getChannels();
-        if (existing == null) return;
-        for (Channel channel : existing) {
-            notifyChannelAdded(channel);
-        }
     }
 
     private void refreshFormUsers() {
@@ -75,19 +63,21 @@ public class ListCanalController implements IListCanalController, IChannelDataba
         if (addedChannel.isPrivate()
                 && !addedChannel.getUsers().contains(me)
                 && !addedChannel.getCreator().equals(me)) {
-            if (context.logger() != null)
-                context.logger().debug("Ignorer le canal privé qui ne m'inclut pas : " + addedChannel);
+            if (context.logger() != null) context.logger().debug("Ignorer le canal privé qui ne m'inclut pas : " + addedChannel);
             return;
         }
 
         Consumer<Channel> onLeave = resolveLeaveAction(addedChannel, me);
         boolean isOwner = addedChannel.isPrivate() && addedChannel.getCreator().equals(me);
-        //this.graphicController.addCanal(addedChannel, this::setSelected, onLeave, isOwner);
-        if(context.logger() != null) context.logger().debug("TEST : Canal ajouté à la vue : " + addedChannel);
-        this.channels.add(addedChannel);
+        this.graphicController.addCanal(addedChannel, this::setSelected, onLeave, isOwner);
     }
 
-
+    /**
+     * Détermine le callback de la croix selon le rôle de l'utilisateur :
+     * - créateur d'un canal privé → suppression du canal
+     * - simple membre d'un canal privé → quitter le canal
+     * - canal public → null (pas de croix)
+     */
     private Consumer<Channel> resolveLeaveAction(Channel channel, User me) {
         if (!channel.isPrivate()) return null;
         if (channel.getCreator().equals(me)) return this::deleteChannel;
@@ -98,27 +88,21 @@ public class ListCanalController implements IListCanalController, IChannelDataba
     @Override
     public void notifyChannelDeleted(Channel deletedChannel) {
         if (context.logger() != null) context.logger().debug("Canal supprimé : " + deletedChannel);
-        //this.graphicController.removeCanal(deletedChannel);
-        this.channels.remove(deletedChannel);
+        this.graphicController.removeCanal(deletedChannel);
     }
 
     @Override
-    public void notifyChannelModified(Channel newChannel) {
-        if (context.logger() != null) context.logger().debug("Canal modifié : nouveau=" + newChannel);
+    public void notifyChannelModified(Channel modifiedChannel) {
+        if (context.logger() != null) context.logger().debug("Canal modifié : " + modifiedChannel);
         User me = context.session().getConnectedUser();
 
         // Si le canal est privé et que je n'en fais plus partie → le retirer de la vue
-        if (newChannel.isPrivate()
-                && !newChannel.getCreator().equals(me)
-                && !newChannel.getUsers().contains(me)) {
-            this.channels.remove(newChannel);
-            if (context.logger() != null)
-                context.logger().debug("Canal privé modifié, je n'en fais plus partie, retiré de la vue : " + newChannel);
+        if (modifiedChannel.isPrivate()
+                && !modifiedChannel.getCreator().equals(me)
+                && !modifiedChannel.getUsers().contains(me)) {
+            this.graphicController.removeCanal(modifiedChannel);
         } else {
-            this.channels.remove(newChannel);
-            this.channels.add(newChannel);
-            if (context.logger() != null)
-                context.logger().debug("Canal modifié, mis à jour dans la vue : " + newChannel);
+            this.graphicController.updateCanal(modifiedChannel);
         }
     }
 
@@ -133,7 +117,7 @@ public class ListCanalController implements IListCanalController, IChannelDataba
     }
 
     @Override
-    public void notifyUserModified(User newUser) {
+    public void notifyUserModified(User modifiedUser) {
         refreshFormUsers();
     }
 
@@ -183,11 +167,6 @@ public class ListCanalController implements IListCanalController, IChannelDataba
         context.dataManager().sendChannel(updated);
         if (context.logger() != null)
             context.logger().debug("Quitté le canal : " + channel.getName());
-    }
-
-    @Override
-    public ObservableTreeSet<Channel> getChannels() {
-        return channels;
     }
 }
 

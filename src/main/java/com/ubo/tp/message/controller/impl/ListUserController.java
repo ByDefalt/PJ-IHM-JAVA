@@ -53,8 +53,8 @@ public class ListUserController implements IListUserController, IUserDatabaseObs
     }
 
     @Override
-    public void notifyUserModified(User newUser) {
-        if (context.logger() != null) context.logger().debug("Utilisateur modifié : nouveau=" + newUser);
-        this.graphicController.updateUser(newUser);
+    public void notifyUserModified(User modifiedUser) {
+        if (context.logger() != null) context.logger().debug("Utilisateur modifié : " + modifiedUser);
+        this.graphicController.updateUser(modifiedUser);
     }
 }

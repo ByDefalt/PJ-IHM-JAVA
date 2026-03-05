@@ -1,15 +1,11 @@
 package com.ubo.tp.message.factory.view.swing;
 
-import com.ubo.tp.message.binder.InputMessageBinder;
-import com.ubo.tp.message.binder.ListCanalBinder;
 import com.ubo.tp.message.controller.contexte.ControllerContext;
 import com.ubo.tp.message.controller.impl.*;
 import com.ubo.tp.message.controller.service.IAppMainController;
-import com.ubo.tp.message.controller.service.IListCanalController;
 import com.ubo.tp.message.factory.view.ViewFactory;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.graphicController.service.IAppMainGraphicController;
-import com.ubo.tp.message.ihm.graphicController.service.IListCanalGraphicController;
 import com.ubo.tp.message.ihm.graphicController.swing.*;
 import com.ubo.tp.message.ihm.view.service.View;
 import com.ubo.tp.message.ihm.view.swing.*;
@@ -46,8 +42,7 @@ public class ComposantSwingFactory implements ViewFactory {
     public static ListCanalView createListCanalView() {
         ListCanalView listCanalView = new ListCanalView(viewContext);
         ListCanalGraphicController listCanalGraphicController = new ListCanalGraphicController(viewContext, listCanalView);
-        IListCanalController canalGraphicController = new ListCanalController(controllerContext, listCanalGraphicController);
-        new ListCanalBinder(canalGraphicController, listCanalGraphicController).bind();
+        new ListCanalController(controllerContext, listCanalGraphicController);
         return listCanalView;
     }
 
@@ -72,8 +67,7 @@ public class ComposantSwingFactory implements ViewFactory {
     public static InputMessageView createInputMessageView() {
         InputMessageController inputMessageController = new InputMessageController(controllerContext);
         InputMessageView inputMessageView = new InputMessageView(viewContext);
-        InputMessageGraphicController inputMessageGraphicController = new InputMessageGraphicController(viewContext, inputMessageView);
-        new InputMessageBinder(inputMessageController, inputMessageGraphicController).bind();
+        new InputMessageGraphicController(viewContext, inputMessageView, inputMessageController);
         return inputMessageView;
     }
 

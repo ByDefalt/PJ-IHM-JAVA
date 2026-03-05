@@ -117,7 +117,7 @@ public class Channel extends AbstractMessageAppObject implements IMessageRecipie
         return new ArrayList<User>(mUsers);
     }
 
-    public boolean isPrivate() {
+    public boolean isPrivate(){
         return mPrivate;
     }
 
