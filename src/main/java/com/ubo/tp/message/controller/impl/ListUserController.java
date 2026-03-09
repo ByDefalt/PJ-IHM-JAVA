@@ -4,7 +4,7 @@ import com.ubo.tp.message.controller.contexte.ControllerContext;
 import com.ubo.tp.message.controller.service.IListUserController;
 import com.ubo.tp.message.core.database.observer.IUserDatabaseObserver;
 import com.ubo.tp.message.datamodel.User;
-import com.ubo.tp.message.ihm.graphicController.service.IListUserGraphicController;
+import com.ubo.tp.message.ihm.graphiccontroller.service.IListUserGraphicController;
 
 import java.util.Objects;
 

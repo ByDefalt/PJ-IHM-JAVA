@@ -1,8 +1,8 @@
-package com.ubo.tp.message.ihm.graphicController.swing;
+package com.ubo.tp.message.ihm.graphiccontroller.swing;
 
 import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
-import com.ubo.tp.message.ihm.graphicController.service.IListUserGraphicController;
+import com.ubo.tp.message.ihm.graphiccontroller.service.IListUserGraphicController;
 import com.ubo.tp.message.ihm.view.swing.ListUserView;
 import com.ubo.tp.message.ihm.view.swing.UserView;
 

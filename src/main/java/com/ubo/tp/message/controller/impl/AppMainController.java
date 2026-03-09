@@ -4,7 +4,7 @@ import com.ubo.tp.message.controller.contexte.ControllerContext;
 import com.ubo.tp.message.controller.service.IAppMainController;
 import com.ubo.tp.message.core.session.ISessionObserver;
 import com.ubo.tp.message.datamodel.User;
-import com.ubo.tp.message.ihm.graphicController.service.IAppMainGraphicController;
+import com.ubo.tp.message.ihm.graphiccontroller.service.IAppMainGraphicController;
 import com.ubo.tp.message.ihm.view.service.View;
 
 import java.util.Objects;

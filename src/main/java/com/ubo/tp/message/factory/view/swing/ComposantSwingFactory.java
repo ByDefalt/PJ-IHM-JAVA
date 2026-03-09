@@ -5,8 +5,8 @@ import com.ubo.tp.message.controller.impl.*;
 import com.ubo.tp.message.controller.service.IAppMainController;
 import com.ubo.tp.message.factory.view.ViewFactory;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
-import com.ubo.tp.message.ihm.graphicController.service.IAppMainGraphicController;
-import com.ubo.tp.message.ihm.graphicController.swing.*;
+import com.ubo.tp.message.ihm.graphiccontroller.service.IAppMainGraphicController;
+import com.ubo.tp.message.ihm.graphiccontroller.swing.*;
 import com.ubo.tp.message.ihm.view.service.View;
 import com.ubo.tp.message.ihm.view.swing.*;
 

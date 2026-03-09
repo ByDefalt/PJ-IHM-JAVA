@@ -26,7 +26,7 @@ public class AppMainView extends JComponent implements View {
     private Runnable onDisconnect;
     private Runnable onUpdateProfile;
     private Runnable onDeleteAccount;
-    private Runnable onClose;
+    private transient Runnable onClose;
 
     public AppMainView(ViewContext viewContext) {
         this.viewContext = viewContext;

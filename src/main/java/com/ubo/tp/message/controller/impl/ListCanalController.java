@@ -7,7 +7,7 @@ import com.ubo.tp.message.core.database.observer.IChannelDatabaseObserver;
 import com.ubo.tp.message.core.database.observer.IUserDatabaseObserver;
 import com.ubo.tp.message.datamodel.Channel;
 import com.ubo.tp.message.datamodel.User;
-import com.ubo.tp.message.ihm.graphicController.service.IListCanalGraphicController;
+import com.ubo.tp.message.ihm.graphiccontroller.service.IListCanalGraphicController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +63,8 @@ public class ListCanalController implements IListCanalController, IChannelDataba
         if (addedChannel.isPrivate()
                 && !addedChannel.getUsers().contains(me)
                 && !addedChannel.getCreator().equals(me)) {
-            if (context.logger() != null) context.logger().debug("Ignorer le canal privé qui ne m'inclut pas : " + addedChannel);
+            if (context.logger() != null)
+                context.logger().debug("Ignorer le canal privé qui ne m'inclut pas : " + addedChannel);
             return;
         }
 

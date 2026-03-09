@@ -14,12 +14,12 @@ javafx {
     version = "17.0.2"
     modules = listOf("javafx.controls", "javafx.fxml", "javafx.graphics", "javafx.base")
 }
-
+val flatlafVersion = "3.2"
 dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    implementation("com.formdev:flatlaf:3.2")
+    implementation("com.formdev:flatlaf:$flatlafVersion")
 }
 
 tasks.test {
@@ -43,4 +43,34 @@ tasks.register<JavaExec>("runAppFx") {
         "--enable-native-access=ALL-UNNAMED",
         "--add-opens", "javafx.graphics/com.sun.javafx.application=ALL-UNNAMED"
     )
+}
+
+tasks.register<Jar>("runAppJar") {
+    group = "build"
+    description = "Génère un JAR exécutable (fat jar) pour runApp"
+    archiveBaseName.set("runApp")
+    archiveVersion.set(version.toString())
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    from(sourceSets.main.get().output)
+
+    dependsOn(configurations.runtimeClasspath)
+    from({
+        configurations.runtimeClasspath.get().filter { it.exists() }.map { if (it.isDirectory) it else zipTree(it) }
+    })
+
+    manifest {
+        attributes["Main-Class"] = "com.ubo.tp.message.MessageAppLauncher"
+    }
+}
+
+tasks.register<Exec>("execRunAppJar") {
+    group = "application"
+    description = "Exécute le jar généré avec les mêmes jvmArgs que runApp"
+    dependsOn("runAppJar")
+
+    doFirst {
+        val jarFile = tasks.named<Jar>("runAppJar").get().archiveFile.get().asFile.absolutePath
+        commandLine = listOf("java", "--enable-native-access=ALL-UNNAMED", "-jar", jarFile)
+    }
 }

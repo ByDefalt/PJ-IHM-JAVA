@@ -1,7 +1,7 @@
 package com.ubo.tp.message.controller.service;
 
 import com.ubo.tp.message.datamodel.User;
-import com.ubo.tp.message.ihm.graphicController.service.IListUserGraphicController;
+import com.ubo.tp.message.ihm.graphiccontroller.service.IListUserGraphicController;
 
 public interface IListUserController extends Controller {
     IListUserGraphicController getGraphicController();

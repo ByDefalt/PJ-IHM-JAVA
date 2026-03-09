@@ -1,8 +1,8 @@
-package com.ubo.tp.message.ihm.graphicController.swing;
+package com.ubo.tp.message.ihm.graphiccontroller.swing;
 
 import com.ubo.tp.message.controller.service.IRegisterController;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
-import com.ubo.tp.message.ihm.graphicController.service.GraphicController;
+import com.ubo.tp.message.ihm.graphiccontroller.service.GraphicController;
 import com.ubo.tp.message.ihm.view.swing.RegisterView;
 
 public class RegisterGraphicController implements GraphicController {

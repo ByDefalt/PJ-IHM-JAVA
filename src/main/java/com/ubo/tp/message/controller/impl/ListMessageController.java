@@ -1,14 +1,14 @@
 package com.ubo.tp.message.controller.impl;
 
+import com.ubo.tp.message.common.Constants;
 import com.ubo.tp.message.controller.contexte.ControllerContext;
 import com.ubo.tp.message.controller.service.IListMessageController;
 import com.ubo.tp.message.core.database.observer.IMessageDatabaseObserver;
 import com.ubo.tp.message.core.database.observer.IUserDatabaseObserver;
-import com.ubo.tp.message.common.Constants;
 import com.ubo.tp.message.core.selected.ISelectedObserver;
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.datamodel.User;
-import com.ubo.tp.message.ihm.graphicController.service.IListMessageGraphicController;
+import com.ubo.tp.message.ihm.graphiccontroller.service.IListMessageGraphicController;
 
 import java.util.*;
 
@@ -122,7 +122,8 @@ public class ListMessageController implements IListMessageController, IMessageDa
     @Override
     public void notifyUserDeleted(User deletedUser) {
         if (deletedUser == null) return;
-        if (context.logger() != null) context.logger().debug("User supprimé, mise à jour des messages : " + deletedUser);
+        if (context.logger() != null)
+            context.logger().debug("User supprimé, mise à jour des messages : " + deletedUser);
 
         // Crée un "fantôme" UNKNOWN_USER qui conserve l'UUID du user supprimé
         // pour que refreshSenderInMessages trouve les bonnes MessageView

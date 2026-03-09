@@ -1,9 +1,9 @@
-package com.ubo.tp.message.ihm.graphicController.swing;
+package com.ubo.tp.message.ihm.graphiccontroller.swing;
 
 import com.ubo.tp.message.datamodel.Channel;
 import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
-import com.ubo.tp.message.ihm.graphicController.service.IListCanalGraphicController;
+import com.ubo.tp.message.ihm.graphiccontroller.service.IListCanalGraphicController;
 import com.ubo.tp.message.ihm.view.swing.CanalView;
 import com.ubo.tp.message.ihm.view.swing.ListCanalView;
 

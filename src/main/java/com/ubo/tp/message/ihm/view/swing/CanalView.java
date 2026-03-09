@@ -12,12 +12,12 @@ import java.util.function.Consumer;
 
 public class CanalView extends JComponent implements View {
 
-    private static final Color BG_NORMAL    = new Color(54, 57, 63);
-    private static final Color BG_HOVER     = new Color(72, 76, 84);
+    private static final Color BG_NORMAL = new Color(54, 57, 63);
+    private static final Color BG_HOVER = new Color(72, 76, 84);
     private static final Color BORDER_HOVER = new Color(90, 95, 105);
-    private static final Color PUBLIC_CLR   = new Color(88, 101, 242);
-    private static final Color PRIVATE_CLR  = new Color(250, 166, 26);
-    private static final Color LEAVE_CLR    = new Color(240, 71, 71);
+    private static final Color PUBLIC_CLR = new Color(88, 101, 242);
+    private static final Color PRIVATE_CLR = new Color(250, 166, 26);
+    private static final Color LEAVE_CLR = new Color(240, 71, 71);
 
     private final ViewContext viewContext;
     private JLabel prefixLabel;
@@ -44,13 +44,16 @@ public class CanalView extends JComponent implements View {
         }
 
         this.addMouseListener(new MouseAdapter() {
-            @Override public void mouseEntered(MouseEvent e) {
+            @Override
+            public void mouseEntered(MouseEvent e) {
                 hovered = true;
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 if (leaveBtnLabel != null) leaveBtnLabel.setVisible(true);
                 repaint();
             }
-            @Override public void mouseExited(MouseEvent e) {
+
+            @Override
+            public void mouseExited(MouseEvent e) {
                 // Vérifier que la souris est vraiment sortie du composant
                 // (Swing génère mouseExited quand on entre dans un enfant)
                 Point p = e.getPoint();
@@ -69,7 +72,10 @@ public class CanalView extends JComponent implements View {
     private void createPrefixLabel() {
         boolean priv = channel.isPrivate();
         prefixLabel = new JLabel(priv ? "🔒" : "#") {
-            @Override public boolean contains(int x, int y) { return false; }
+            @Override
+            public boolean contains(int x, int y) {
+                return false;
+            }
         };
         prefixLabel.setFont(new Font("SansSerif", Font.BOLD, priv ? 11 : 14));
         prefixLabel.setForeground(priv ? PRIVATE_CLR : PUBLIC_CLR);
@@ -81,7 +87,10 @@ public class CanalView extends JComponent implements View {
 
     private void createNameLabel() {
         canalNameLabel = new JLabel(channel.getName() != null ? channel.getName() : "") {
-            @Override public boolean contains(int x, int y) { return false; }
+            @Override
+            public boolean contains(int x, int y) {
+                return false;
+            }
         };
         canalNameLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
         canalNameLabel.setForeground(new Color(220, 221, 222));
@@ -94,7 +103,10 @@ public class CanalView extends JComponent implements View {
     private void createVisibilityLabel() {
         boolean priv = channel.isPrivate();
         visibilityLabel = new JLabel(priv ? "privé" : "public") {
-            @Override public boolean contains(int x, int y) { return false; }
+            @Override
+            public boolean contains(int x, int y) {
+                return false;
+            }
         };
         visibilityLabel.setFont(new Font("SansSerif", Font.PLAIN, 9));
         visibilityLabel.setForeground(priv ? PRIVATE_CLR : PUBLIC_CLR);
@@ -115,8 +127,13 @@ public class CanalView extends JComponent implements View {
         leaveBtnLabel.setToolTipText(isOwner ? "Supprimer le canal" : "Quitter le canal");
         leaveBtnLabel.setBorder(BorderFactory.createEmptyBorder(0, 6, 0, 0));
         leaveBtnLabel.addMouseListener(new MouseAdapter() {
-            @Override public void mouseEntered(MouseEvent e) { leaveBtnLabel.setVisible(true); }
-            @Override public void mouseClicked(MouseEvent e) {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                leaveBtnLabel.setVisible(true);
+            }
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
                 e.consume();
                 onLeave.accept(channel);
             }
@@ -145,7 +162,9 @@ public class CanalView extends JComponent implements View {
         g2.dispose();
     }
 
-    public Channel getChannel() { return channel; }
+    public Channel getChannel() {
+        return channel;
+    }
 
     public void updateChannel(Channel updated) {
         String oldName = this.channel != null ? this.channel.getName() : "<null>";

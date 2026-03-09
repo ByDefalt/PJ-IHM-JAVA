@@ -1,9 +1,9 @@
-package com.ubo.tp.message.ihm.graphicController.swing;
+package com.ubo.tp.message.ihm.graphiccontroller.swing;
 
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
-import com.ubo.tp.message.ihm.graphicController.service.IListMessageGraphicController;
+import com.ubo.tp.message.ihm.graphiccontroller.service.IListMessageGraphicController;
 import com.ubo.tp.message.ihm.view.swing.ListMessageView;
 import com.ubo.tp.message.ihm.view.swing.MessageView;
 

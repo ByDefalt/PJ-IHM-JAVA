@@ -6,7 +6,7 @@ import com.ubo.tp.message.controller.service.IAppMainController;
 import com.ubo.tp.message.factory.view.ViewFactory;
 import com.ubo.tp.message.factory.view.swing.ComposantSwingFactory;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
-import com.ubo.tp.message.ihm.graphicController.javafx.*;
+import com.ubo.tp.message.ihm.graphiccontroller.javafx.*;
 import com.ubo.tp.message.ihm.view.javafx.*;
 import com.ubo.tp.message.ihm.view.service.View;
 import javafx.stage.Stage;

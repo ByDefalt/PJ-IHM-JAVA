@@ -3,7 +3,7 @@ package com.ubo.tp.message.ihm.view.swing;
 import com.ubo.tp.message.datamodel.Channel;
 import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
-import com.ubo.tp.message.ihm.graphicController.service.IListCanalGraphicController.ChannelCreationCallback;
+import com.ubo.tp.message.ihm.graphiccontroller.service.IListCanalGraphicController.ChannelCreationCallback;
 import com.ubo.tp.message.ihm.view.service.View;
 
 import javax.swing.*;
@@ -22,11 +22,11 @@ import java.util.Set;
  */
 public class ListCanalView extends JComponent implements View {
 
-    private static final Color BG       = new Color(54, 57, 63);
+    private static final Color BG = new Color(54, 57, 63);
     private static final Color BG_INPUT = new Color(64, 68, 75);
-    private static final Color BG_ITEM  = new Color(47, 49, 54);
-    private static final Color ACCENT   = new Color(88, 101, 242);
-    private static final Color MUTED    = new Color(185, 187, 190);
+    private static final Color BG_ITEM = new Color(47, 49, 54);
+    private static final Color ACCENT = new Color(88, 101, 242);
+    private static final Color MUTED = new Color(185, 187, 190);
 
     private final ViewContext viewContext;
     private final JPanel canalsPanel;
@@ -34,9 +34,13 @@ public class ListCanalView extends JComponent implements View {
     private final JTextField searchField;
     private Component glue;
 
-    /** Callback déclenché à la confirmation du formulaire de création de canal. */
+    /**
+     * Callback déclenché à la confirmation du formulaire de création de canal.
+     */
     private ChannelCreationCallback onNewChannelConfirm;
-    /** Utilisateurs disponibles (sans l'utilisateur connecté). */
+    /**
+     * Utilisateurs disponibles (sans l'utilisateur connecté).
+     */
     private List<User> availableUsers = new ArrayList<>();
 
     public ListCanalView(ViewContext viewContext) {
@@ -47,7 +51,7 @@ public class ListCanalView extends JComponent implements View {
         this.setOpaque(true);
 
         canalsPanel = createCanalsPanel();
-        scrollPane  = createScrollPane(canalsPanel);
+        scrollPane = createScrollPane(canalsPanel);
         searchField = createSearchField();
 
         addScrollPaneToThis();
@@ -63,8 +67,15 @@ public class ListCanalView extends JComponent implements View {
         contextMenu.add(newChannelItem);
 
         MouseAdapter rightClick = new MouseAdapter() {
-            @Override public void mousePressed(MouseEvent e)  { if (e.isPopupTrigger()) contextMenu.show(e.getComponent(), e.getX(), e.getY()); }
-            @Override public void mouseReleased(MouseEvent e) { if (e.isPopupTrigger()) contextMenu.show(e.getComponent(), e.getX(), e.getY()); }
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger()) contextMenu.show(e.getComponent(), e.getX(), e.getY());
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) contextMenu.show(e.getComponent(), e.getX(), e.getY());
+            }
         };
         this.addMouseListener(rightClick);
         canalsPanel.addMouseListener(rightClick);
@@ -98,9 +109,9 @@ public class ListCanalView extends JComponent implements View {
 
         // ── Dialog ──
         JDialog dialog;
-        if (owner instanceof Frame)       dialog = new JDialog((Frame)  owner, "Créer un canal", true);
+        if (owner instanceof Frame) dialog = new JDialog((Frame) owner, "Créer un canal", true);
         else if (owner instanceof Dialog) dialog = new JDialog((Dialog) owner, "Créer un canal", true);
-        else                              dialog = new JDialog((Frame)   null,  "Créer un canal", true);
+        else dialog = new JDialog((Frame) null, "Créer un canal", true);
 
         dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         dialog.getContentPane().setBackground(BG);
@@ -194,9 +205,20 @@ public class ListCanalView extends JComponent implements View {
             rebuildRef[0].run();
 
             userSearchField.getDocument().addDocumentListener(new DocumentListener() {
-                @Override public void insertUpdate(DocumentEvent e)  { rebuildRef[0].run(); }
-                @Override public void removeUpdate(DocumentEvent e)  { rebuildRef[0].run(); }
-                @Override public void changedUpdate(DocumentEvent e) { rebuildRef[0].run(); }
+                @Override
+                public void insertUpdate(DocumentEvent e) {
+                    rebuildRef[0].run();
+                }
+
+                @Override
+                public void removeUpdate(DocumentEvent e) {
+                    rebuildRef[0].run();
+                }
+
+                @Override
+                public void changedUpdate(DocumentEvent e) {
+                    rebuildRef[0].run();
+                }
             });
         }
 
@@ -213,8 +235,14 @@ public class ListCanalView extends JComponent implements View {
         createBtn.setFont(new Font("Arial", Font.BOLD, 13));
         createBtn.addActionListener(e -> {
             String raw = nameField.getText().trim().toLowerCase().replaceAll("\\s+", "-");
-            if (raw.isEmpty()) { errorLabel.setText("Le nom ne peut pas être vide."); return; }
-            if (!raw.matches("[a-z0-9\\-_]+")) { errorLabel.setText("Lettres, chiffres, tirets, underscores uniquement."); return; }
+            if (raw.isEmpty()) {
+                errorLabel.setText("Le nom ne peut pas être vide.");
+                return;
+            }
+            if (!raw.matches("[a-z0-9\\-_]+")) {
+                errorLabel.setText("Lettres, chiffres, tirets, underscores uniquement.");
+                return;
+            }
             if (onNewChannelConfirm != null) {
                 onNewChannelConfirm.onCreate(raw, privateCheck.isSelected(), new ArrayList<>(selectedUsers));
             }
@@ -233,7 +261,9 @@ public class ListCanalView extends JComponent implements View {
         dialog.setVisible(true);
     }
 
-    /** Construit une ligne utilisateur cliquable. */
+    /**
+     * Construit une ligne utilisateur cliquable.
+     */
     private JPanel buildUserRow(User u, boolean selected,
                                 Set<User> selectedUsers,
                                 JPanel chipsPanel,
@@ -283,13 +313,18 @@ public class ListCanalView extends JComponent implements View {
 
         // Hover
         row.addMouseListener(new MouseAdapter() {
-            @Override public void mouseEntered(MouseEvent e) {
+            @Override
+            public void mouseEntered(MouseEvent e) {
                 if (!selectedUsers.contains(u)) row.setBackground(new Color(64, 68, 75));
             }
-            @Override public void mouseExited(MouseEvent e) {
+
+            @Override
+            public void mouseExited(MouseEvent e) {
                 row.setBackground(selectedUsers.contains(u) ? new Color(88, 101, 242, 60) : BG_ITEM);
             }
-            @Override public void mouseClicked(MouseEvent e) {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
                 if (selectedUsers.contains(u)) selectedUsers.remove(u);
                 else selectedUsers.add(u);
                 refreshChipsPanel(chipsPanel, selectedUsers, rebuildRef);
@@ -300,7 +335,9 @@ public class ListCanalView extends JComponent implements View {
         return row;
     }
 
-    /** Reconstruit les chips des utilisateurs sélectionnés. */
+    /**
+     * Reconstruit les chips des utilisateurs sélectionnés.
+     */
     private void refreshChipsPanel(JPanel chipsPanel, Set<User> selectedUsers, Runnable[] rebuildRef) {
         chipsPanel.removeAll();
         for (User u : selectedUsers) {
@@ -317,7 +354,8 @@ public class ListCanalView extends JComponent implements View {
             x.setFont(new Font("Arial", Font.BOLD, 10));
             x.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             x.addMouseListener(new MouseAdapter() {
-                @Override public void mouseClicked(MouseEvent e) {
+                @Override
+                public void mouseClicked(MouseEvent e) {
                     selectedUsers.remove(u);
                     refreshChipsPanel(chipsPanel, selectedUsers, rebuildRef);
                     rebuildRef[0].run();
@@ -338,19 +376,28 @@ public class ListCanalView extends JComponent implements View {
 
     public void addCanalUI(CanalView canalView, int row) {
         if (canalView == null) return;
-        if (!SwingUtilities.isEventDispatchThread()) { SwingUtilities.invokeLater(() -> addCanalUI(canalView, row)); return; }
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> addCanalUI(canalView, row));
+            return;
+        }
         canalsPanel.remove(glue);
         canalsPanel.add(canalView, canalConstraints(row));
         glue = Box.createVerticalGlue();
         canalsPanel.add(glue, glueConstraints(row + 1));
         canalsPanel.revalidate();
         canalsPanel.repaint();
-        SwingUtilities.invokeLater(() -> { JScrollBar bar = scrollPane.getVerticalScrollBar(); if (bar != null) bar.setValue(bar.getMaximum()); });
+        SwingUtilities.invokeLater(() -> {
+            JScrollBar bar = scrollPane.getVerticalScrollBar();
+            if (bar != null) bar.setValue(bar.getMaximum());
+        });
         if (this.viewContext.logger() != null) this.viewContext.logger().debug("CanalView ajoutée (row=" + row + ")");
     }
 
     public void rebuildUI(List<CanalView> ordered) {
-        if (!SwingUtilities.isEventDispatchThread()) { SwingUtilities.invokeLater(() -> rebuildUI(ordered)); return; }
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> rebuildUI(ordered));
+            return;
+        }
         canalsPanel.removeAll();
         int row = 0;
         for (CanalView cv : ordered) canalsPanel.add(cv, canalConstraints(row++));
@@ -362,11 +409,15 @@ public class ListCanalView extends JComponent implements View {
     }
 
     public void updateCanalUI(CanalView view, Channel channel) {
-        if (!SwingUtilities.isEventDispatchThread()) { SwingUtilities.invokeLater(() -> updateCanalUI(view, channel)); return; }
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> updateCanalUI(view, channel));
+            return;
+        }
         view.updateChannel(channel);
         canalsPanel.revalidate();
         canalsPanel.repaint();
-        if (this.viewContext.logger() != null) this.viewContext.logger().debug("CanalView mise à jour pour: " + channel);
+        if (this.viewContext.logger() != null)
+            this.viewContext.logger().debug("CanalView mise à jour pour: " + channel);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -400,24 +451,36 @@ public class ListCanalView extends JComponent implements View {
 
     private GridBagConstraints canalConstraints(int row) {
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0; gbc.gridy = row; gbc.gridwidth = 1; gbc.gridheight = 1;
-        gbc.weightx = 1.0; gbc.weighty = 0.0;
-        gbc.fill = GridBagConstraints.HORIZONTAL; gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.gridwidth = 1;
+        gbc.gridheight = 1;
+        gbc.weightx = 1.0;
+        gbc.weighty = 0.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new Insets(4, 4, 4, 4);
         return gbc;
     }
 
     private GridBagConstraints glueConstraints(int row) {
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0; gbc.gridy = row; gbc.gridwidth = 1; gbc.gridheight = 1;
-        gbc.weightx = 1.0; gbc.weighty = 1.0;
-        gbc.fill = GridBagConstraints.BOTH; gbc.anchor = GridBagConstraints.NORTH;
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        gbc.gridwidth = 1;
+        gbc.gridheight = 1;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.anchor = GridBagConstraints.NORTH;
         gbc.insets = new Insets(0, 0, 0, 0);
         return gbc;
     }
 
     @Override
-    protected void paintComponent(Graphics g) { super.paintComponent(g); }
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+    }
 
     private JTextField createSearchField() {
         JTextField tf = new JTextField();
@@ -429,16 +492,30 @@ public class ListCanalView extends JComponent implements View {
                 BorderFactory.createLineBorder(new Color(32, 34, 37)),
                 BorderFactory.createEmptyBorder(4, 6, 4, 6)));
         tf.getDocument().addDocumentListener(new DocumentListener() {
-            @Override public void insertUpdate(DocumentEvent e)  { applyFilter(tf.getText()); }
-            @Override public void removeUpdate(DocumentEvent e)  { applyFilter(tf.getText()); }
-            @Override public void changedUpdate(DocumentEvent e) { applyFilter(tf.getText()); }
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                applyFilter(tf.getText());
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                applyFilter(tf.getText());
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                applyFilter(tf.getText());
+            }
         });
         return tf;
     }
 
     private void applyFilter(String query) {
         String q = (query == null) ? "" : query.trim().toLowerCase();
-        if (!SwingUtilities.isEventDispatchThread()) { SwingUtilities.invokeLater(() -> applyFilter(query)); return; }
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> applyFilter(query));
+            return;
+        }
         for (Component c : canalsPanel.getComponents()) {
             if (c instanceof CanalView) c.setVisible(matches((CanalView) c, q));
         }

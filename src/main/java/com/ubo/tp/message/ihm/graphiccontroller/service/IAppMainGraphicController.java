@@ -1,4 +1,4 @@
-package com.ubo.tp.message.ihm.graphicController.service;
+package com.ubo.tp.message.ihm.graphiccontroller.service;
 
 import com.ubo.tp.message.ihm.view.service.View;
 

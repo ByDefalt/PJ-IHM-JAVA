@@ -1,7 +1,7 @@
-package com.ubo.tp.message.ihm.graphicController.javafx;
+package com.ubo.tp.message.ihm.graphiccontroller.javafx;
 
 import com.ubo.tp.message.ihm.contexte.ViewContext;
-import com.ubo.tp.message.ihm.graphicController.service.IAppMainGraphicController;
+import com.ubo.tp.message.ihm.graphiccontroller.service.IAppMainGraphicController;
 import com.ubo.tp.message.ihm.view.javafx.FxAppMainView;
 import com.ubo.tp.message.ihm.view.service.View;
 import javafx.application.Platform;
