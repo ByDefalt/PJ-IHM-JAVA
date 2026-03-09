@@ -53,6 +53,8 @@ jobs:
 
       - name: Upload runApp JAR to Release
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ${{ env.JAR_PATH }}
@@ -61,6 +63,8 @@ jobs:
 
       - name: Upload source archive to Release
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: source-${{ github.ref_name }}.zip

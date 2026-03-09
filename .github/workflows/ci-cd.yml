@@ -99,6 +99,8 @@ jobs:
       - name: Upload runApp JAR to fallback Release
         if: github.ref == 'refs/heads/main' && github.event_name == 'push' && env.RELEASE_PAT == ''
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release_fallback.outputs.upload_url }}
           asset_path: ${{ env.JAR_PATH }}
@@ -108,6 +110,8 @@ jobs:
       - name: Upload source archive to fallback Release
         if: github.ref == 'refs/heads/main' && github.event_name == 'push' && env.RELEASE_PAT == ''
         uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release_fallback.outputs.upload_url }}
           asset_path: source-v${{ github.run_number }}.zip
