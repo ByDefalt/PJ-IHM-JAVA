@@ -4,8 +4,16 @@ import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.datamodel.User;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public interface IListMessageGraphicController extends GraphicController {
+
+    /**
+     * Enregistre le callback appelé quand l'utilisateur clique sur 🗑 dans une MessageView,
+     * ainsi que l'UUID de l'utilisateur connecté (seuls ses messages affichent le bouton).
+     * Doit être appelé une fois avant tout addMessage.
+     */
+    void setOnDeleteMessage(Consumer<Message> onDelete, java.util.UUID connectedUserUuid);
 
     /**
      * Ajoute un message et reconstruit l'affichage avec la liste filtrée fournie

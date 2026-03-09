@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import java.util.function.Consumer;
 
 /**
  * Composant représentant un seul message (bulle) — style simple inspiré de Discord.
@@ -33,25 +34,31 @@ public class MessageView extends JComponent implements View {
     private JLabel authorLabel;
     private JTextArea contentArea;
     private JLabel timeLabel;
+    private JLabel deleteBtn;
     private boolean hovered = false;
+    private final boolean canDelete;
 
     public MessageView(ViewContext viewContext, Message message) {
-        this.viewContext = viewContext;
-        this.message = message;
+        this(viewContext, message, null, false);
+    }
+
+    public MessageView(ViewContext viewContext, Message message,
+                       Consumer<Message> onDelete, boolean canDelete) {
+        this.viewContext  = viewContext;
+        this.message      = message;
+        this.canDelete    = canDelete;
         this.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         this.setLayout(new GridBagLayout());
-        // Non opaque : on peint tout manuellement pour éviter les coins parasites
         this.setOpaque(false);
 
-        init(message);
+        init(message, onDelete);
 
-        // Un seul listener : tous les enfants ont contains() = false
-        // donc les événements souris remontent directement ici.
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
                 hovered = true;
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                if (canDelete && deleteBtn != null) deleteBtn.setVisible(true);
                 repaint();
             }
 
@@ -59,6 +66,7 @@ public class MessageView extends JComponent implements View {
             public void mouseExited(MouseEvent e) {
                 hovered = false;
                 setCursor(Cursor.getDefaultCursor());
+                if (deleteBtn != null) deleteBtn.setVisible(false);
                 repaint();
             }
         });
@@ -67,9 +75,34 @@ public class MessageView extends JComponent implements View {
             this.viewContext.logger().debug("MessageView initialisée pour '" + message.getSender() + "'");
     }
 
-    private void init(Message message) {
+    private void init(Message message, Consumer<Message> onDelete) {
         String authorName = (message.getSender() != null) ? message.getSender().getName() : "";
         createBubble(authorName, message.getText(), message.getEmissionDate());
+        if (canDelete && onDelete != null) createDeleteButton(onDelete);
+    }
+
+    private void createDeleteButton(Consumer<Message> onDelete) {
+        deleteBtn = new JLabel("\uD83D\uDDD1") {
+            @Override public boolean contains(int x, int y) { return true; }
+        };
+        deleteBtn.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        deleteBtn.setForeground(new Color(240, 71, 71));
+        deleteBtn.setOpaque(false);
+        deleteBtn.setVisible(false);
+        deleteBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        deleteBtn.setToolTipText("Supprimer le message");
+        deleteBtn.setBorder(BorderFactory.createEmptyBorder(2, 6, 2, 6));
+        deleteBtn.addMouseListener(new MouseAdapter() {
+            @Override public void mouseEntered(MouseEvent e) { deleteBtn.setVisible(true); }
+            @Override public void mouseClicked(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) { e.consume(); onDelete.accept(message); }
+            }
+        });
+        // Colonne 2, ligne 0 — à droite du bubble
+        this.add(deleteBtn, new GridBagConstraints(
+                2, 0, 1, 1, 0.0, 0.0,
+                GridBagConstraints.NORTHEAST, GridBagConstraints.NONE,
+                new Insets(4, 4, 4, 4), 0, 0));
     }
 
     private void createBubble(String author, String content, long emissionMillis) {

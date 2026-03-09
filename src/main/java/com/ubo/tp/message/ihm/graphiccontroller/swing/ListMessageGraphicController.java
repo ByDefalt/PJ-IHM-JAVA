@@ -9,11 +9,14 @@ import com.ubo.tp.message.ihm.view.swing.MessageView;
 
 import javax.swing.*;
 import java.util.*;
+import java.util.function.Consumer;
 
 public class ListMessageGraphicController implements IListMessageGraphicController {
 
     private final ViewContext viewContext;
     private final ListMessageView listMessageView;
+    private Consumer<Message> onDeleteMessage;
+    private UUID deletableSenderUuid;
 
     /**
      * Source de vérité : toutes les MessageView connues, triées chronologiquement.
@@ -65,9 +68,20 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
             viewContext.logger().debug("Vue reconstruite avec " + viewList.size() + " message(s)");
     }
 
+    private Consumer<Message> resolveDeleteCallback(Message message) {
+        if (onDeleteMessage == null || message.getSender() == null || deletableSenderUuid == null) return null;
+        return message.getSender().getUuid().equals(deletableSenderUuid) ? onDeleteMessage : null;
+    }
+
     // -------------------------------------------------------------------------
     // IListMessageGraphicController
     // -------------------------------------------------------------------------
+
+    @Override
+    public void setOnDeleteMessage(Consumer<Message> onDelete, UUID connectedUserUuid) {
+        this.onDeleteMessage = onDelete;
+        this.deletableSenderUuid = connectedUserUuid;
+    }
 
     @Override
     public void addMessage(Message message, List<Message> filteredMessages) {
@@ -77,7 +91,8 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
             boolean alreadyPresent = messages.stream()
                     .anyMatch(mv -> mv.getMessage().equals(message));
             if (!alreadyPresent) {
-                messages.add(new MessageView(viewContext, message));
+                Consumer<Message> cb = resolveDeleteCallback(message);
+                messages.add(new MessageView(viewContext, message, cb, cb != null));
                 if (viewContext.logger() != null)
                     viewContext.logger().debug("Message ajouté : " + message);
             }
@@ -123,7 +138,8 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
             if (opt.isPresent()) {
                 // Le champ message est final dans MessageView : on remplace la vue entière
                 messages.remove(opt.get());
-                messages.add(new MessageView(viewContext, message));
+                Consumer<Message> cb = resolveDeleteCallback(message);
+                messages.add(new MessageView(viewContext, message, cb, cb != null));
                 if (viewContext.logger() != null)
                     viewContext.logger().debug("Message mis à jour : " + message);
             } else {
@@ -151,9 +167,9 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
             for (MessageView mv : toReplace) {
                 Message old = mv.getMessage();
                 messages.remove(mv);
-                messages.add(new MessageView(viewContext, new Message(
-                        old.getUuid(), updatedUser, old.getRecipient(), old.getEmissionDate(), old.getText()
-                )));
+                Message updated = new Message(old.getUuid(), updatedUser, old.getRecipient(), old.getEmissionDate(), old.getText());
+                Consumer<Message> cb = resolveDeleteCallback(updated);
+                messages.add(new MessageView(viewContext, updated, cb, cb != null));
             }
             if (!toReplace.isEmpty()) {
                 if (viewContext.logger() != null)

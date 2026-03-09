@@ -9,6 +9,7 @@ import com.ubo.tp.message.ihm.view.javafx.FxMessageView;
 import javafx.application.Platform;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * Graphic controller de la liste des messages — JavaFX.
@@ -18,6 +19,8 @@ public class FxListMessageGraphicController implements IListMessageGraphicContro
 
     private final ViewContext viewContext;
     private final FxListMessageView listMessageView;
+    private Consumer<Message> onDeleteMessage;
+    private java.util.UUID deletableSenderUuid;
 
     /**
      * Source de vérité triée chronologiquement.
@@ -58,14 +61,33 @@ public class FxListMessageGraphicController implements IListMessageGraphicContro
     // -------------------------------------------------------------------------
 
     @Override
+    public void setOnDeleteMessage(Consumer<Message> onDelete, java.util.UUID connectedUserUuid) {
+        this.onDeleteMessage = onDelete;
+        this.deletableSenderUuid = connectedUserUuid;
+    }
+
+    @Override
     public void addMessage(Message message, List<Message> filteredMessages) {
         if (message == null) return;
         boolean exists = messages.stream().anyMatch(mv -> mv.getMessage().equals(message));
         if (!exists) {
-            messages.add(new FxMessageView(viewContext, message));
+            // canDelete géré par le controller métier via setOnDeleteMessage :
+            // si onDeleteMessage != null c'est que ce message peut être supprimé par cet utilisateur
+            Consumer<Message> deleteCallback = resolveDeleteCallback(message);
+            messages.add(new FxMessageView(viewContext, message, deleteCallback, deleteCallback != null));
             if (viewContext.logger() != null) viewContext.logger().debug("(FX) Message ajouté");
         }
         rebuildView(filteredMessages);
+    }
+
+    /** Retourne le callback de suppression si l'auteur du message correspond au filtre enregistré, null sinon. */
+    private Consumer<Message> resolveDeleteCallback(Message message) {
+        if (onDeleteMessage == null || message.getSender() == null) return null;
+        // Le controller métier a défini onDeleteMessage = deleteForCurrentUser
+        // On stocke aussi l'UUID de l'utilisateur connecté pour filtrer
+        return deletableSenderUuid != null
+                && message.getSender().getUuid().equals(deletableSenderUuid)
+                ? onDeleteMessage : null;
     }
 
     @Override
@@ -78,14 +100,13 @@ public class FxListMessageGraphicController implements IListMessageGraphicContro
     @Override
     public void updateMessage(Message message, List<Message> filteredMessages) {
         if (message == null) return;
-        // Recherche par UUID pour être robuste même si le contenu a changé
         Optional<FxMessageView> opt = messages.stream()
                 .filter(mv -> mv.getMessage().getUuid().equals(message.getUuid()))
                 .findFirst();
         if (opt.isPresent()) {
-            // Le champ message est final dans FxMessageView : on remplace la vue entière
             messages.remove(opt.get());
-            messages.add(new FxMessageView(viewContext, message));
+            Consumer<Message> cb = resolveDeleteCallback(message);
+            messages.add(new FxMessageView(viewContext, message, cb, cb != null));
             if (viewContext.logger() != null) viewContext.logger().debug("(FX) Message mis à jour");
         } else {
             if (viewContext.logger() != null) viewContext.logger().warn("(FX) Message non trouvé pour mise à jour");

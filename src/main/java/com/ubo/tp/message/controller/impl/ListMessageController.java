@@ -24,6 +24,20 @@ public class ListMessageController implements IListMessageController, IMessageDa
         this.context.dataManager().addObserver((IMessageDatabaseObserver) this);
         this.context.dataManager().addObserver((IUserDatabaseObserver) this);
         this.context.selected().addObserver(this);
+
+        // Enregistrer le callback de suppression avec l'UUID de l'utilisateur connecté
+        User me = context.session() != null ? context.session().getConnectedUser() : null;
+        if (me != null) {
+            graphicController.setOnDeleteMessage(this::deleteMessage, me.getUuid());
+        }
+    }
+
+    /** Supprime un message via le dataManager. */
+    private void deleteMessage(Message message) {
+        if (message == null) return;
+        context.dataManager().deleteMessageFile(message);
+        if (context.logger() != null)
+            context.logger().debug("Message supprimé par l'utilisateur : " + message.getUuid());
     }
 
     @Override
