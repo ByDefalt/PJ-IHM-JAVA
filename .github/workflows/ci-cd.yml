@@ -82,6 +82,14 @@ jobs:
         if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.RELEASE_PAT == ''
         run: ./gradlew runAppJar --no-daemon --console=plain
 
+      - name: Detect runApp JAR path (fallback)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.RELEASE_PAT == ''
+        run: |
+          set -e
+          JAR=$(ls build/libs/runApp*.jar | head -n1)
+          echo "Found JAR: $JAR"
+          echo "JAR_PATH=$JAR" >> $GITHUB_ENV
+
       - name: Prepare source archive (fallback)
         if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.RELEASE_PAT == ''
         run: git archive --format=zip --output=source-v${{ github.run_number }}.zip HEAD
@@ -91,7 +99,7 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release_fallback.outputs.upload_url }}
-          asset_path: build/libs/runApp*.jar
+          asset_path: ${{ env.JAR_PATH }}
           asset_name: ${{ github.repository }}-v${{ github.run_number }}.jar
           asset_content_type: application/java-archive
 
