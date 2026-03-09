@@ -4,8 +4,10 @@ import com.ubo.tp.message.common.Constants;
 import com.ubo.tp.message.controller.contexte.ControllerContext;
 import com.ubo.tp.message.controller.service.IListCanalController;
 import com.ubo.tp.message.core.database.observer.IChannelDatabaseObserver;
+import com.ubo.tp.message.core.database.observer.IMessageDatabaseObserver;
 import com.ubo.tp.message.core.database.observer.IUserDatabaseObserver;
 import com.ubo.tp.message.datamodel.Channel;
+import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.graphiccontroller.service.IListCanalGraphicController;
 import com.ubo.tp.message.ihm.graphiccontroller.service.IListCanalGraphicController.ChannelEditCallback;
@@ -14,8 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
-public class ListCanalController implements IListCanalController, IChannelDatabaseObserver, IUserDatabaseObserver {
+public class ListCanalController implements IListCanalController, IChannelDatabaseObserver, IUserDatabaseObserver, IMessageDatabaseObserver {
 
     private final ControllerContext context;
     private final IListCanalGraphicController graphicController;
@@ -26,6 +29,7 @@ public class ListCanalController implements IListCanalController, IChannelDataba
 
         this.context.dataManager().addObserver((IChannelDatabaseObserver) this);
         this.context.dataManager().addObserver((IUserDatabaseObserver) this);
+        this.context.dataManager().addObserver((IMessageDatabaseObserver) this);
 
         refreshFormUsers();
     }
@@ -53,6 +57,8 @@ public class ListCanalController implements IListCanalController, IChannelDataba
     private void setSelected(Channel channel) {
         if (context.logger() != null) context.logger().debug("Canal sélectionné : " + channel);
         context.selected().setSelectedChannel(channel);
+        // Effacer le badge du canal sélectionné
+        graphicController.clearUnread(channel);
     }
 
     @Override
@@ -191,5 +197,31 @@ public class ListCanalController implements IListCanalController, IChannelDataba
         context.dataManager().sendChannel(updated);
         if (context.logger() != null)
             context.logger().debug("Utilisateur retiré du canal " + channel.getName() + " : " + user.getName());
+    }
+
+    @Override
+    public void notifyMessageAdded(Message addedMessage) {
+        if (addedMessage == null) return;
+
+        // Trouver le canal destinataire du message
+        Channel selectedChannel = context.selected().getSelectedChannel();
+        UUID recipientUuid = addedMessage.getRecipient();
+
+        // Si le message est dans le canal actuellement sélectionné → pas de badge
+        if (selectedChannel != null && selectedChannel.getUuid().equals(recipientUuid)) return;
+
+        // Trouver le canal correspondant dans la base et incrémenter son badge
+        context.dataManager().getChannels().stream()
+                .filter(c -> c.getUuid().equals(recipientUuid))
+                .findFirst()
+                .ifPresent(graphicController::incrementUnread);
+    }
+
+    @Override
+    public void notifyMessageDeleted(Message deletedMessage) {
+    }
+
+    @Override
+    public void notifyMessageModified(Message modifiedMessage) {
     }
 }

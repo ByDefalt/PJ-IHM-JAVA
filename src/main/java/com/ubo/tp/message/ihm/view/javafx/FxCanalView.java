@@ -31,6 +31,8 @@ public class FxCanalView extends HBox implements View {
     private static final Color PRIVATE_CLR = Color.rgb(250, 166, 26);
 
     private Channel channel;
+    private int unreadCount = 0;
+    private Label unreadBadge;
 
     public FxCanalView(ViewContext viewContext, Channel channel,
                        ChannelEditCallback onEdit, boolean isOwner, Supplier<List<User>> allUsersSupplier) {
@@ -68,6 +70,21 @@ public class FxCanalView extends HBox implements View {
                 new CornerRadii(4), Insets.EMPTY)));
 
         getChildren().addAll(badge, nameLabel, spacer, visibilityTag);
+
+        // Badge messages non lus (caché par défaut)
+        unreadBadge = new Label("0");
+        unreadBadge.setFont(Font.font("Arial", FontWeight.BOLD, 9));
+        unreadBadge.setTextFill(Color.WHITE);
+        unreadBadge.setMouseTransparent(false);
+        unreadBadge.setVisible(false);
+        unreadBadge.setMinWidth(16);
+        unreadBadge.setMinHeight(16);
+        unreadBadge.setAlignment(Pos.CENTER);
+        unreadBadge.setPadding(new Insets(1, 4, 1, 4));
+        unreadBadge.setBackground(new Background(new BackgroundFill(
+                Color.rgb(240, 71, 71), new CornerRadii(8), Insets.EMPTY)));
+        unreadBadge.setOnMouseClicked(e -> { e.consume(); clearUnread(); });
+        getChildren().add(unreadBadge);
 
         if (isPrivate && onEdit != null) {
             Label editBtn = new Label("\u270F");
@@ -178,5 +195,19 @@ public class FxCanalView extends HBox implements View {
     /** Met à jour le canal stocké (membres, nom) sans recréer la vue. */
     public void updateChannel(Channel updated) {
         this.channel = updated;
+    }
+
+    /** Incrémente le compteur de messages non lus et affiche le badge. */
+    public void incrementUnread() {
+        unreadCount++;
+        String text = unreadCount > 99 ? "99+" : String.valueOf(unreadCount);
+        unreadBadge.setText(text);
+        unreadBadge.setVisible(true);
+    }
+
+    /** Remet le compteur à zéro et masque le badge. */
+    public void clearUnread() {
+        unreadCount = 0;
+        unreadBadge.setVisible(false);
     }
 }

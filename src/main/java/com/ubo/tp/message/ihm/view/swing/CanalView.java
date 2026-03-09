@@ -29,6 +29,7 @@ public class CanalView extends JComponent implements View {
     private Channel channel;
     private boolean hovered = false;
     private final boolean isOwner;
+    private int unreadCount = 0;
 
     public CanalView(ViewContext viewContext, Channel channel,
                      ChannelEditCallback onEdit, boolean isOwner, Supplier<List<User>> allUsersSupplier) {
@@ -244,7 +245,35 @@ public class CanalView extends JComponent implements View {
             g2.setColor(BG_NORMAL);
             g2.fillRoundRect(pad, pad, w, h, arc, arc);
         }
+
+        // Badge messages non lus
+        if (unreadCount > 0) {
+            String text = unreadCount > 99 ? "99+" : String.valueOf(unreadCount);
+            g2.setFont(new Font("SansSerif", Font.BOLD, 9));
+            FontMetrics fm = g2.getFontMetrics();
+            int tw = fm.stringWidth(text);
+            int diameter = Math.max(tw + 8, 16);
+            int bx = getWidth() - diameter - 4;
+            int by = (getHeight() - diameter) / 2;
+            g2.setColor(new Color(240, 71, 71));
+            g2.fillOval(bx, by, diameter, diameter);
+            g2.setColor(Color.WHITE);
+            g2.drawString(text, bx + (diameter - tw) / 2, by + fm.getAscent() + (diameter - fm.getHeight()) / 2);
+        }
+
         g2.dispose();
+    }
+
+    /** Incrémente le compteur de messages non lus et redessine. */
+    public void incrementUnread() {
+        unreadCount++;
+        repaint();
+    }
+
+    /** Remet le compteur à zéro et redessine. */
+    public void clearUnread() {
+        unreadCount = 0;
+        repaint();
     }
 
     public Channel getChannel() { return channel; }

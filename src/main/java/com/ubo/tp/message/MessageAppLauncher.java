@@ -125,7 +125,7 @@ public class MessageAppLauncher {
         Message m2 = new Message(UUID.randomUUID(), user2, channel1.getUuid(), 124, "Bonjour de " + user2.getName());
         Message m3 = new Message(UUID.randomUUID(), user3, channel1.getUuid(), 1708425600, "Bonjour de " + user3.getName());
         Message m4 = new Message(UUID.randomUUID(), user4, channel1.getUuid(), 1708425600, "Bonjour de " + user4.getName());
-        Message m5 = new Message(UUID.randomUUID(), user4, user1.getUuid(), 1708425600, "Bonjour de " + user4.getName());
+        Message m5 = new Message(UUID.randomUUID(), user4, user1.getUuid(), 999999999, "Bonjour de " + user4.getName());
 
         dataManager.sendMessage(m1);
         dataManager.sendMessage(m2);

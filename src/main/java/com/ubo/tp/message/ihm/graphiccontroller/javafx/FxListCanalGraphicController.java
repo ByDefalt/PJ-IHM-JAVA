@@ -70,6 +70,20 @@ public class FxListCanalGraphicController implements IListCanalGraphicController
     }
 
     @Override
+    public void incrementUnread(Channel canal) {
+        if (canal == null) return;
+        canalViews.stream().filter(cv -> cv.getChannel().equals(canal)).findFirst()
+                .ifPresent(view -> Platform.runLater(view::incrementUnread));
+    }
+
+    @Override
+    public void clearUnread(Channel canal) {
+        if (canal == null) return;
+        canalViews.stream().filter(cv -> cv.getChannel().equals(canal)).findFirst()
+                .ifPresent(view -> Platform.runLater(view::clearUnread));
+    }
+
+    @Override
     public void setupNewChannelForm(List<User> availableUsers, ChannelCreationCallback onConfirm) {
         Platform.runLater(() -> {
             listCanalView.setOnNewChannelConfirm(onConfirm);

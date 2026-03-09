@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import javax.swing.SwingUtilities;
 
 public class ListCanalGraphicController implements IListCanalGraphicController {
 
@@ -73,6 +74,20 @@ public class ListCanalGraphicController implements IListCanalGraphicController {
         } else {
             if (viewContext.logger() != null) viewContext.logger().warn("Canal non trouvé pour mise à jour : " + canal);
         }
+    }
+
+    @Override
+    public void incrementUnread(Channel canal) {
+        if (canal == null) return;
+        canalViews.stream().filter(cv -> cv.getChannel().equals(canal)).findFirst()
+                .ifPresent(cv -> SwingUtilities.invokeLater(cv::incrementUnread));
+    }
+
+    @Override
+    public void clearUnread(Channel canal) {
+        if (canal == null) return;
+        canalViews.stream().filter(cv -> cv.getChannel().equals(canal)).findFirst()
+                .ifPresent(cv -> SwingUtilities.invokeLater(cv::clearUnread));
     }
 
     @Override

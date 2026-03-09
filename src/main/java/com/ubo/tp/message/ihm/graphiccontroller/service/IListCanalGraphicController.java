@@ -21,6 +21,12 @@ public interface IListCanalGraphicController extends GraphicController {
 
     void updateCanal(Channel canal);
 
+    /** Incrémente le badge de messages non lus sur la vue du canal donné. */
+    void incrementUnread(Channel canal);
+
+    /** Remet à zéro le badge de messages non lus sur la vue du canal donné. */
+    void clearUnread(Channel canal);
+
     /**
      * Enregistre le callback et la liste d'utilisateurs disponibles pour le formulaire
      * de création de canal. Le formulaire s'ouvre via le menu contextuel clic droit.
