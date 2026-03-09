@@ -47,6 +47,24 @@ jobs:
           name: app-jar
           path: build/libs/*.jar
 
+      - name: Create and push tag (for automatic release)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        env:
+          TAG_NAME: v${{ github.run_number }}
+        run: |
+          echo "Preparing to create tag $TAG_NAME"
+          # Configure git user for the push
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Create an annotated tag and push it to origin
+          git tag -a "$TAG_NAME" -m "Automated tag $TAG_NAME by GitHub Actions"
+          git push origin "refs/tags/$TAG_NAME"
+
+      - name: Show pushed tags (debug)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: git ls-remote --tags origin || true
+
   release:
     name: Create Release on tag
     needs: build
