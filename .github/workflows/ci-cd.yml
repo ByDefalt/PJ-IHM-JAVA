@@ -15,6 +15,8 @@ jobs:
   build:
     name: Build and test
     runs-on: ubuntu-latest
+    env:
+      RELEASE_PAT: ${{ secrets.RELEASE_PAT }}
     strategy:
       matrix:
         java: [17]
@@ -48,7 +50,7 @@ jobs:
 
       # Try to create a tag by pushing with a Personal Access Token (will trigger other workflows)
       - name: Create and push tag using PAT (triggers other workflows)
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.RELEASE_PAT != ''
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && env.RELEASE_PAT != ''
         env:
           TAG_NAME: v${{ github.run_number }}
           REPO_PAT: ${{ secrets.RELEASE_PAT }}
@@ -66,7 +68,7 @@ jobs:
 
       # Fallback: if no PAT is configured, create a Release directly with GITHUB_TOKEN
       - name: Create Release (fallback when no PAT)
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.RELEASE_PAT == ''
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && env.RELEASE_PAT == ''
         id: create_release_fallback
         uses: actions/create-release@v1
         with:
@@ -79,11 +81,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build runAppJar for fallback release
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.RELEASE_PAT == ''
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && env.RELEASE_PAT == ''
         run: ./gradlew runAppJar --no-daemon --console=plain
 
       - name: Detect runApp JAR path (fallback)
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.RELEASE_PAT == ''
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && env.RELEASE_PAT == ''
         run: |
           set -e
           JAR=$(ls build/libs/runApp*.jar | head -n1)
@@ -91,11 +93,11 @@ jobs:
           echo "JAR_PATH=$JAR" >> $GITHUB_ENV
 
       - name: Prepare source archive (fallback)
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.RELEASE_PAT == ''
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && env.RELEASE_PAT == ''
         run: git archive --format=zip --output=source-v${{ github.run_number }}.zip HEAD
 
       - name: Upload runApp JAR to fallback Release
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.RELEASE_PAT == ''
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && env.RELEASE_PAT == ''
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release_fallback.outputs.upload_url }}
@@ -104,7 +106,7 @@ jobs:
           asset_content_type: application/java-archive
 
       - name: Upload source archive to fallback Release
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.RELEASE_PAT == ''
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && env.RELEASE_PAT == ''
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release_fallback.outputs.upload_url }}
