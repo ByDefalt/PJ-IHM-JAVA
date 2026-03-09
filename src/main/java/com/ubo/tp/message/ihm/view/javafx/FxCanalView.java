@@ -1,35 +1,39 @@
 package com.ubo.tp.message.ihm.view.javafx;
 
 import com.ubo.tp.message.datamodel.Channel;
+import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
+import com.ubo.tp.message.ihm.graphiccontroller.service.IListCanalGraphicController.ChannelEditCallback;
 import com.ubo.tp.message.ihm.view.service.View;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
-import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
-import java.util.function.Consumer;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * Représentation visuelle d'un canal — JavaFX.
- * Affiche # (public) ou 🔒 (privé) avec un badge coloré.
- * Une croix rouge apparaît au survol si l'utilisateur peut quitter le canal.
+ * Un bouton edit apparait au survol pour acceder aux options du canal.
  */
 public class FxCanalView extends HBox implements View {
 
-    private static final Color BG_NORMAL = Color.rgb(54, 57, 63);
-    private static final Color BG_HOVER = Color.rgb(72, 76, 84);
-    private static final Color PUBLIC_CLR = Color.rgb(88, 101, 242);
+    private static final Color BG_NORMAL   = Color.rgb(54, 57, 63);
+    private static final Color BG_HOVER    = Color.rgb(72, 76, 84);
+    private static final Color PUBLIC_CLR  = Color.rgb(88, 101, 242);
     private static final Color PRIVATE_CLR = Color.rgb(250, 166, 26);
 
-    private final Channel channel;
+    private Channel channel;
 
-    public FxCanalView(ViewContext viewContext, Channel channel, Consumer<Channel> onLeave, boolean isOwner) {
+    public FxCanalView(ViewContext viewContext, Channel channel,
+                       ChannelEditCallback onEdit, boolean isOwner, Supplier<List<User>> allUsersSupplier) {
         this.channel = channel;
         setPadding(new Insets(6, 8, 6, 8));
         setSpacing(7);
@@ -65,30 +69,31 @@ public class FxCanalView extends HBox implements View {
 
         getChildren().addAll(badge, nameLabel, spacer, visibilityTag);
 
-        if (isPrivate && onLeave != null) {
-            Label leaveBtn = new Label("✕");
-            leaveBtn.setFont(Font.font("Arial", FontWeight.BOLD, 11));
-            // Rouge vif pour suppression (propriétaire), rouge doux pour quitter (membre)
-            leaveBtn.setTextFill(isOwner ? Color.rgb(240, 71, 71) : Color.rgb(210, 110, 110));
-            leaveBtn.setCursor(Cursor.HAND);
-            leaveBtn.setOpacity(0);
-            leaveBtn.setPadding(new Insets(0, 0, 0, 6));
-            leaveBtn.setMouseTransparent(false);
-            Tooltip.install(leaveBtn, new Tooltip(isOwner ? "Supprimer le canal" : "Quitter le canal"));
-            leaveBtn.setOnMouseClicked(e -> {
+        if (isPrivate && onEdit != null) {
+            Label editBtn = new Label("\u270F");
+            editBtn.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+            editBtn.setTextFill(Color.rgb(180, 180, 200));
+            editBtn.setCursor(Cursor.HAND);
+            editBtn.setOpacity(0);
+            editBtn.setPadding(new Insets(0, 0, 0, 6));
+            editBtn.setMouseTransparent(false);
+            Tooltip.install(editBtn, new Tooltip("Options du canal"));
+
+            editBtn.setOnMouseClicked(e -> {
                 e.consume();
-                onLeave.accept(channel);
+                // Evaluer la liste fraîche au moment du clic
+                showEditMenu(editBtn, onEdit, isOwner, allUsersSupplier.get());
             });
 
-            getChildren().add(leaveBtn);
+            getChildren().add(editBtn);
 
             setOnMouseEntered(e -> {
                 setBackground(new Background(new BackgroundFill(BG_HOVER, new CornerRadii(6), Insets.EMPTY)));
-                leaveBtn.setOpacity(1);
+                editBtn.setOpacity(1);
             });
             setOnMouseExited(e -> {
                 setBackground(new Background(new BackgroundFill(BG_NORMAL, new CornerRadii(6), Insets.EMPTY)));
-                leaveBtn.setOpacity(0);
+                editBtn.setOpacity(0);
             });
         } else {
             setOnMouseEntered(e -> setBackground(new Background(new BackgroundFill(BG_HOVER, new CornerRadii(6), Insets.EMPTY))));
@@ -98,7 +103,80 @@ public class FxCanalView extends HBox implements View {
         if (viewContext.logger() != null) viewContext.logger().debug("FxCanalView initialisée : " + channel.getName());
     }
 
+    private void showEditMenu(Label anchor, ChannelEditCallback onEdit,
+                              boolean isOwner, List<User> allUsers) {
+        ContextMenu menu = new ContextMenu();
+
+        // ── Quitter / Supprimer ──────────────────────────────────────────
+        if (isOwner) {
+            MenuItem deleteItem = new MenuItem("🗑  Supprimer le canal");
+            deleteItem.setStyle("-fx-text-fill: #f04747;");
+            deleteItem.setOnAction(ev -> {
+                Alert confirm = new Alert(Alert.AlertType.CONFIRMATION,
+                        "Supprimer définitivement le canal « " + channel.getName() + " » ?",
+                        ButtonType.YES, ButtonType.NO);
+                confirm.setTitle("Confirmation");
+                confirm.setHeaderText(null);
+                Optional<ButtonType> result = confirm.showAndWait();
+                if (result.isPresent() && result.get() == ButtonType.YES)
+                    onEdit.onDelete(channel);
+            });
+            menu.getItems().add(deleteItem);
+        } else {
+            MenuItem leaveItem = new MenuItem("🚪  Quitter le canal");
+            leaveItem.setStyle("-fx-text-fill: #dc9650;");
+            leaveItem.setOnAction(ev -> onEdit.onLeave(channel));
+            menu.getItems().add(leaveItem);
+        }
+
+        // ── Gestion des membres (propriétaire seulement) ─────────────────
+        if (isOwner) {
+            menu.getItems().add(new SeparatorMenuItem());
+
+            // Ajouter un membre
+            List<User> currentMembers = channel.getUsers();
+            List<User> addable = (allUsers == null) ? Collections.emptyList() :
+                    allUsers.stream().filter(u -> !currentMembers.contains(u)).toList();
+
+            Menu addMenu = new Menu("➕  Ajouter un membre");
+            if (addable.isEmpty()) {
+                MenuItem none = new MenuItem("(aucun utilisateur disponible)");
+                none.setDisable(true);
+                addMenu.getItems().add(none);
+            } else {
+                for (User u : addable) {
+                    MenuItem item = new MenuItem(u.getName() + " (@" + u.getUserTag() + ")");
+                    item.setOnAction(ev -> onEdit.onAddUser(channel, u));
+                    addMenu.getItems().add(item);
+                }
+            }
+            menu.getItems().add(addMenu);
+
+            // Retirer un membre
+            Menu removeMenu = new Menu("➖  Retirer un membre");
+            if (currentMembers.isEmpty()) {
+                MenuItem none = new MenuItem("(aucun membre)");
+                none.setDisable(true);
+                removeMenu.getItems().add(none);
+            } else {
+                for (User u : currentMembers) {
+                    MenuItem item = new MenuItem(u.getName() + " (@" + u.getUserTag() + ")");
+                    item.setOnAction(ev -> onEdit.onRemoveUser(channel, u));
+                    removeMenu.getItems().add(item);
+                }
+            }
+            menu.getItems().add(removeMenu);
+        }
+
+        menu.show(anchor, javafx.geometry.Side.BOTTOM, 0, 0);
+    }
+
     public Channel getChannel() {
         return channel;
+    }
+
+    /** Met à jour le canal stocké (membres, nom) sans recréer la vue. */
+    public void updateChannel(Channel updated) {
+        this.channel = updated;
     }
 }

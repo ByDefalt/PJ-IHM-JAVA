@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class ListCanalGraphicController implements IListCanalGraphicController {
 
@@ -26,18 +27,21 @@ public class ListCanalGraphicController implements IListCanalGraphicController {
     }
 
     @Override
-    public void addCanal(Channel canal, Consumer<Channel> onSelect, Consumer<Channel> onLeave, boolean isOwner) {
+    public void addCanal(Channel canal, Consumer<Channel> onSelect,
+                         ChannelEditCallback onEdit, boolean isOwner, Supplier<List<User>> allUsersSupplier) {
         if (canal == null || listCanalView == null) return;
         boolean alreadyPresent = canalViews.stream().anyMatch(cv -> cv.getChannel().equals(canal));
         if (alreadyPresent) {
             if (viewContext.logger() != null) viewContext.logger().warn("Canal déjà présent, ignoré : " + canal);
             return;
         }
-        CanalView canalView = new CanalView(viewContext, canal, onLeave, isOwner);
+        CanalView canalView = new CanalView(viewContext, canal, onEdit, isOwner, allUsersSupplier);
         canalView.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                onSelect.accept(canalView.getChannel());
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    onSelect.accept(canalView.getChannel());
+                }
             }
         });
         int row = canalViews.size();

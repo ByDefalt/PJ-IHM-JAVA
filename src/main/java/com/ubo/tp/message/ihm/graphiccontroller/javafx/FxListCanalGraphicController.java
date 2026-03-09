@@ -7,11 +7,13 @@ import com.ubo.tp.message.ihm.graphiccontroller.service.IListCanalGraphicControl
 import com.ubo.tp.message.ihm.view.javafx.FxCanalView;
 import com.ubo.tp.message.ihm.view.javafx.FxListCanalView;
 import javafx.application.Platform;
+import javafx.scene.input.MouseButton;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Graphic controller de la liste des canaux — JavaFX.
@@ -28,15 +30,16 @@ public class FxListCanalGraphicController implements IListCanalGraphicController
     }
 
     @Override
-    public void addCanal(Channel canal, Consumer<Channel> onSelect, Consumer<Channel> onLeave, boolean isOwner) {
+    public void addCanal(Channel canal, Consumer<Channel> onSelect,
+                         ChannelEditCallback onEdit, boolean isOwner, Supplier<List<User>> allUsersSupplier) {
         if (canal == null) return;
         boolean exists = canalViews.stream().anyMatch(cv -> cv.getChannel().equals(canal));
         if (exists) {
             if (viewContext.logger() != null) viewContext.logger().warn("(FX) Canal déjà présent : " + canal.getName());
             return;
         }
-        FxCanalView view = new FxCanalView(viewContext, canal, onLeave, isOwner);
-        view.setOnMouseClicked(e -> onSelect.accept(canal));
+        FxCanalView view = new FxCanalView(viewContext, canal, onEdit, isOwner, allUsersSupplier);
+        view.setOnMouseClicked(e -> { if (e.getButton() == MouseButton.PRIMARY) onSelect.accept(view.getChannel()); });
         canalViews.add(view);
         Platform.runLater(() -> listCanalView.addCanalUI(view));
         if (viewContext.logger() != null) viewContext.logger().debug("(FX) Canal ajouté : " + canal.getName());
@@ -56,8 +59,14 @@ public class FxListCanalGraphicController implements IListCanalGraphicController
     @Override
     public void updateCanal(Channel canal) {
         if (canal == null) return;
-        if (viewContext.logger() != null)
-            viewContext.logger().debug("(FX) Canal mis à jour (no-op) : " + canal.getName());
+        Optional<FxCanalView> opt = canalViews.stream().filter(cv -> cv.getChannel().equals(canal)).findFirst();
+        if (opt.isPresent()) {
+            FxCanalView view = opt.get();
+            Platform.runLater(() -> view.updateChannel(canal));
+            if (viewContext.logger() != null) viewContext.logger().debug("(FX) Canal mis à jour : " + canal.getName());
+        } else {
+            if (viewContext.logger() != null) viewContext.logger().warn("(FX) Canal non trouvé pour mise à jour : " + canal.getName());
+        }
     }
 
     @Override

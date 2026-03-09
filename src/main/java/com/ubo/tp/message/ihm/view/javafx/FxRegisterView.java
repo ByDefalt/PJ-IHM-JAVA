@@ -12,6 +12,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.paint.Color;
 
 /**
  * Vue d'inscription — JavaFX.
@@ -43,16 +44,35 @@ public class FxRegisterView extends GridPane implements View {
 
         Label title = new Label("Inscription");
         title.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+        title.setTextFill(Color.rgb(220,221,222));
         add(title, 0, 0, 2, 1);
 
-        add(new Label("Tag :"), 0, 1);
+        Label tagLabel = new Label("Tag :");
+        tagLabel.setTextFill(Color.rgb(220,221,222));
+        add(tagLabel, 0, 1);
+        tagField.setStyle("-fx-text-fill: #DCDCDC; -fx-prompt-text-fill: #9AA0A6;");
         add(tagField, 1, 1);
-        add(new Label("Nom :"), 0, 2);
+
+        Label nameLabel = new Label("Nom :");
+        nameLabel.setTextFill(Color.rgb(220,221,222));
+        add(nameLabel, 0, 2);
+        nameField.setStyle("-fx-text-fill: #DCDCDC; -fx-prompt-text-fill: #9AA0A6;");
         add(nameField, 1, 2);
-        add(new Label("Mot de passe :"), 0, 3);
+
+        Label pwdLabel = new Label("Mot de passe :");
+        pwdLabel.setTextFill(Color.rgb(220,221,222));
+        add(pwdLabel, 0, 3);
+        pwdField.setStyle("-fx-text-fill: #DCDCDC; -fx-prompt-text-fill: #9AA0A6;");
         add(pwdField, 1, 3);
-        add(new Label("Confirmer mdp :"), 0, 4);
+
+        Label confirmLabel = new Label("Confirmer mdp :");
+        confirmLabel.setTextFill(Color.rgb(220,221,222));
+        add(confirmLabel, 0, 4);
+        confirmPwdField.setStyle("-fx-text-fill: #DCDCDC; -fx-prompt-text-fill: #9AA0A6;");
         add(confirmPwdField, 1, 4);
+
+        registerButton.setStyle("-fx-text-fill: #DCDCDC;");
+        loginButton.setStyle("-fx-text-fill: #DCDCDC;");
 
         HBox buttons = new HBox(10, registerButton, loginButton);
         buttons.setAlignment(Pos.CENTER);
@@ -92,4 +112,3 @@ public class FxRegisterView extends GridPane implements View {
         void accept(String tag, String name, String pwd, String confirm);
     }
 }
-
