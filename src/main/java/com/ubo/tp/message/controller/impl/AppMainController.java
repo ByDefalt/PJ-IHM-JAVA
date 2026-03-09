@@ -65,21 +65,17 @@ public class AppMainController implements IAppMainController, ISessionObserver {
         return this.graphicController;
     }
 
-    @Override
-    public void setOnClose(Runnable onClose) {
-        // Non utilisé : la fermeture est toujours gérée en interne par onCloseRequested.
-        // Ce setter est exposé pour les cas de test ou d'extension future.
-    }
-
     private void onCloseRequested() {
         context.logger().info("Controller: fermeture demandée");
         try {
             if (context.session() != null && context.session().getConnectedUser() != null) {
                 new Thread(() -> {
                     try {
+                        context.session().getConnectedUser().setOnline(false);
+                        context.dataManager().sendUser(context.session().getConnectedUser());
                         context.session().disconnect();
-                    } catch (Exception ignored) {
-                    } finally {
+                        System.exit(0);
+                    } catch (Exception _) {
                         System.exit(0);
                     }
                 }, "app-close-thread").start();
@@ -96,6 +92,8 @@ public class AppMainController implements IAppMainController, ISessionObserver {
         context.logger().info("Controller: demande de déconnexion reçue");
         try {
             if (context.session() != null && context.session().getConnectedUser() != null) {
+                context.session().getConnectedUser().setOnline(false);
+                context.dataManager().sendUser(context.session().getConnectedUser());
                 context.session().disconnect();
             }
         } catch (Exception ex) {

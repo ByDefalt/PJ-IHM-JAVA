@@ -48,7 +48,7 @@ public abstract class AbstractMessageAppObject extends Observable {
     public boolean equals(Object other) {
         boolean equals = false;
 
-        if (other != null && other instanceof AbstractMessageAppObject) {
+        if (other instanceof AbstractMessageAppObject) {
             equals = (this.getUuid().equals(((AbstractMessageAppObject) other).getUuid()));
         }
 
