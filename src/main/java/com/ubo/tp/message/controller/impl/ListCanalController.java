@@ -106,12 +106,16 @@ public class ListCanalController implements IListCanalController, IChannelDataba
         if (context.logger() != null) context.logger().debug("Canal modifié : " + modifiedChannel);
         User me = context.session().getConnectedUser();
 
-        // Si le canal est privé et que je n'en fais plus partie → le retirer de la vue
         if (modifiedChannel.isPrivate()
                 && !modifiedChannel.getCreator().equals(me)
                 && !modifiedChannel.getUsers().contains(me)) {
             this.graphicController.removeCanal(modifiedChannel);
         } else {
+            boolean isOwner = modifiedChannel.isPrivate() && modifiedChannel.getCreator().equals(me);
+            IListCanalGraphicController.ChannelEditCallback onEdit = modifiedChannel.isPrivate() ?
+                    buildEditCallback(modifiedChannel, me, isOwner) : null;
+            this.graphicController.addCanal(modifiedChannel, this::setSelected, onEdit, isOwner, this::getUsersWithoutMe);
+
             this.graphicController.updateCanal(modifiedChannel);
         }
     }
