@@ -20,6 +20,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     implementation("com.formdev:flatlaf:$flatlafVersion")
+    implementation("com.sshtools:two-slices:0.9.4")
 }
 
 tasks.test {
