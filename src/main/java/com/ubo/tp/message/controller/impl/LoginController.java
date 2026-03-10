@@ -8,10 +8,10 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Implémentation simple du {@link ILoginController}.
+ * Contrôleur de connexion utilisateur.
  * <p>
- * Délègue essentiellement la navigation entre les vues (login -> register)
- * et consigne les actions dans le logger.
+ * Valide les paramètres fournis par l'IHM et effectue la connexion via le DataManager
+ * et la session applicative.
  * </p>
  */
 public class LoginController implements ILoginController {
@@ -19,20 +19,30 @@ public class LoginController implements ILoginController {
     private final ControllerContext context;
 
     /**
-     * Crée un LoginController.
+     * Crée un {@code LoginController}.
      *
-     * @param context contexte regroupant les services nécessaires
+     * @param context contexte partagé
      */
     public LoginController(ControllerContext context) {
         this.context = Objects.requireNonNull(context);
         if (this.context.logger() != null) this.context.logger().debug("LoginController created");
     }
 
+    /**
+     * Handler appelé lorsqu'on clique sur le bouton de connexion.
+     *
+     * @param tag      identifiant utilisateur
+     * @param name     nom de l'utilisateur
+     * @param password mot de passe
+     */
     @Override
     public void onLoginButtonClicked(String tag, String name, String password) {
         login(tag, name, password);
     }
 
+    /**
+     * Logique de connexion : validation et mise à jour de l'état utilisateur.
+     */
     public void login(String tag, String name, String password) {
         context.logger().debug("LoginController: onLoginButtonClicked called");
         Optional<User> userOpt = validateLogin(tag, name, password);
@@ -48,6 +58,9 @@ public class LoginController implements ILoginController {
         }
     }
 
+    /**
+     * Valide les paramètres de connexion et renvoie l'utilisateur correspondant si trouvé.
+     */
     public Optional<User> validateLogin(String tag, String name, String password) {
         if (tag == null || name == null || password == null || tag.isEmpty() || name.isEmpty() || password.isEmpty()) {
             context.logger().warn("LoginController: validateLogin - missing fields");

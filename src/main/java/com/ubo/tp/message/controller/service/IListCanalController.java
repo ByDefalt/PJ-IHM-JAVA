@@ -1,7 +1,10 @@
 package com.ubo.tp.message.controller.service;
 
-import com.ubo.tp.message.ihm.graphiccontroller.service.IListCanalGraphicController;
-
+/**
+ * Interface pour le contrôleur de la liste des canaux.
+ * <p>
+ * Définit le contrat pour les contrôleurs gérant les channels/canaux.
+ * </p>
+ */
 public interface IListCanalController extends Controller {
-    IListCanalGraphicController getGraphicController();
 }

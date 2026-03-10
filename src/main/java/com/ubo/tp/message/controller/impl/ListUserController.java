@@ -9,11 +9,21 @@ import com.ubo.tp.message.ihm.graphiccontroller.service.IListUserGraphicControll
 
 import java.util.Objects;
 
+/**
+ * Contrôleur gérant la liste des utilisateurs affichée dans l'IHM.
+ * <p>
+ * Écoute les changements dans la base d'utilisateurs et la base de messages
+ * pour mettre à jour la vue correspondante via le {@link IListUserGraphicController}.
+ * </p>
+ */
 public class ListUserController implements IListUserController, IUserDatabaseObserver, IMessageDatabaseObserver {
 
     private final ControllerContext context;
     private final IListUserGraphicController graphicController;
 
+    /**
+     * Crée un {@code ListUserController}.
+     */
     public ListUserController(ControllerContext context, IListUserGraphicController listUserView) {
         this.context = Objects.requireNonNull(context);
         this.graphicController = listUserView;
@@ -21,17 +31,18 @@ public class ListUserController implements IListUserController, IUserDatabaseObs
         this.context.dataManager().addObserver((IMessageDatabaseObserver) this);
     }
 
-    @Override
-    public IListUserGraphicController getGraphicController() {
-        return graphicController;
-    }
-
+    /**
+     * Indique si l'objet User fourni correspond à l'utilisateur connecté.
+     */
     @Override
     public boolean isCurrentUser(User user) {
         if (user == null || context.session() == null) return false;
         return user.equals(context.session().getConnectedUser());
     }
 
+    /**
+     * Appelé lorsqu'un utilisateur est ajouté à la base.
+     */
     @Override
     public void notifyUserAdded(User addedUser) {
         handleNotifyUserAddedLogic(addedUser);
@@ -52,6 +63,9 @@ public class ListUserController implements IListUserController, IUserDatabaseObs
         context.selected().setSelectedUser(selectedUser);
     }
 
+    /**
+     * Appelé lorsqu'un utilisateur est supprimé.
+     */
     @Override
     public void notifyUserDeleted(User deletedUser) {
         handleNotifyUserDeletedLogic(deletedUser);
@@ -62,6 +76,9 @@ public class ListUserController implements IListUserController, IUserDatabaseObs
         this.graphicController.removeUser(deletedUser);
     }
 
+    /**
+     * Appelé lorsqu'un utilisateur est modifié.
+     */
     @Override
     public void notifyUserModified(User modifiedUser) {
         handleNotifyUserModifiedLogic(modifiedUser);
@@ -72,6 +89,9 @@ public class ListUserController implements IListUserController, IUserDatabaseObs
         this.graphicController.updateUser(modifiedUser);
     }
 
+    /**
+     * Réagit à l'ajout d'un message pour incrémenter un badge si nécessaire.
+     */
     @Override
     public void notifyMessageAdded(com.ubo.tp.message.datamodel.Message addedMessage) {
         handleNotifyMessageAddedLogic(addedMessage);
@@ -79,27 +99,20 @@ public class ListUserController implements IListUserController, IUserDatabaseObs
 
     private void handleNotifyMessageAddedLogic(com.ubo.tp.message.datamodel.Message addedMessage) {
         if (addedMessage == null) return;
-        // if the message is to a user (private conversation)
         if (addedMessage.getRecipient() == null) return;
-        // recipient could be a user UUID; if it's equal to connected user's UUID, ignore
         if (context.session() == null || context.session().getConnectedUser() == null) return;
 
-        // If currently selected user is the recipient or sender conversing with the recipient, don't badge
         var sel = context.selected();
         User selectedUser = sel != null ? sel.getSelectedUser() : null;
 
-        // If selection is the same user conversation, skip
         if (selectedUser != null && addedMessage.getRecipient().equals(selectedUser.getUuid())) return;
 
-        // If recipient is the connected user (incoming to me) and sender is another user: increment on sender
         if (addedMessage.getRecipient().equals(context.session().getConnectedUser().getUuid())) {
             User sender = addedMessage.getSender();
             if (sender != null) {
                 this.graphicController.incrementUnread(sender);
             }
         }
-
-        // Otherwise, if the recipient is some other user's UUID, we ignore (we only badge messages to me)
     }
 
     @Override
@@ -108,7 +121,6 @@ public class ListUserController implements IListUserController, IUserDatabaseObs
     }
 
     private void handleNotifyMessageDeletedLogic(com.ubo.tp.message.datamodel.Message deletedMessage) {
-        // no action
         if (deletedMessage != null && context.logger() != null) context.logger().debug("Message supprimé : " + deletedMessage);
     }
 
@@ -118,7 +130,6 @@ public class ListUserController implements IListUserController, IUserDatabaseObs
     }
 
     private void handleNotifyMessageModifiedLogic(com.ubo.tp.message.datamodel.Message modifiedMessage) {
-        // no action
         if (modifiedMessage != null && context.logger() != null) context.logger().debug("Message modifié : " + modifiedMessage);
     }
 }

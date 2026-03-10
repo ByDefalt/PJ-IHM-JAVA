@@ -1,14 +1,14 @@
 package com.ubo.tp.message.controller.service;
 
 import com.ubo.tp.message.datamodel.Message;
-import com.ubo.tp.message.ihm.graphiccontroller.service.IListMessageGraphicController;
 
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Interface pour le contrôleur gérant les messages affichés.
+ */
 public interface IListMessageController extends Controller {
-
-    IListMessageGraphicController getGraphicController();
 
     /**
      * Filtre une collection de messages selon la sélection courante

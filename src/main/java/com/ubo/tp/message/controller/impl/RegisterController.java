@@ -8,10 +8,10 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Implémentation du contrôleur d'enregistrement d'utilisateur.
+ * Contrôleur d'enregistrement d'un nouvel utilisateur.
  * <p>
- * Pour l'instant le contrôleur se contente de logger l'action. À terme il
- * devra valider les données, créer l'utilisateur via IDataManager et naviguer.
+ * Valide les données reçues depuis l'IHM et interagit avec le DataManager pour
+ * créer l'utilisateur si nécessaire.
  * </p>
  */
 public class RegisterController implements IRegisterController {
@@ -19,20 +19,28 @@ public class RegisterController implements IRegisterController {
     private final ControllerContext context;
 
     /**
-     * Constructeur du RegisterController.
+     * Crée un {@code RegisterController}.
      *
-     * @param context contexte regroupant les services nécessaires
+     * @param context contexte partagé pour accéder aux services
      */
     public RegisterController(ControllerContext context) {
         this.context = Objects.requireNonNull(context);
         if (this.context.logger() != null) this.context.logger().debug("RegisterController created");
     }
 
+    /**
+     * Handler déclenché par l'IHM lors du clic sur le bouton d'inscription.
+     *
+     * @return {@code true} si l'enregistrement a réussi, {@code false} sinon
+     */
     @Override
     public boolean onRegisterButtonClicked(String tag, String name, String password, String confirmPassword) {
         return register(tag, name, password, confirmPassword);
     }
 
+    /**
+     * Valide les données et crée l'utilisateur si la validation est OK.
+     */
     public boolean register(String tag, String name, String password, String confirmPassword) {
         context.logger().debug("RegisterController: onRegisterButtonClicked called");
         context.logger().info("Registering user with tag: " + tag + ", name: " + name + ", password: " + password + ", confirmPassword: " + confirmPassword);
@@ -45,6 +53,9 @@ public class RegisterController implements IRegisterController {
         return createUserIfNotExist(tag, name, password, confirmPassword);
     }
 
+    /**
+     * Crée un utilisateur si celui-ci n'existe pas déjà.
+     */
     public boolean createUserIfNotExist(String tag, String name, String password, String confirmPassword) {
         context.logger().debug("RegisterController: addUser called");
         context.logger().info("Adding user with tag: " + tag + ", name: " + name + ", password: " + password + ", confirmPassword: " + confirmPassword);
@@ -60,6 +71,9 @@ public class RegisterController implements IRegisterController {
         }
     }
 
+    /**
+     * Valide les champs d'inscription.
+     */
     public boolean validateUserData(String tag, String name, String password, String confirmPassword) {
         if (tag == null || tag.isEmpty()) {
             context.logger().warn("Validation failed: tag is empty");

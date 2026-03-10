@@ -7,15 +7,31 @@ import com.ubo.tp.message.datamodel.Message;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Contrôleur gérant l'envoi de messages depuis l'IHM.
+ * <p>
+ * Vérifie la validité du texte (non vide, longueur maximale) et construit
+ * l'entité Message avant de la transmettre au DataManager.
+ * </p>
+ */
 public class InputMessageController implements IInputMessageController {
 
     private static final int MAX_LENGTH = 200;
     private final ControllerContext context;
 
+    /**
+     * Crée un {@code InputMessageController}.
+     */
     public InputMessageController(ControllerContext context) {
         this.context = Objects.requireNonNull(context);
     }
 
+    /**
+     * Envoie un message vers l'UUID destinataire fourni.
+     *
+     * @param recipientUuid UUID du destinataire (canal ou utilisateur)
+     * @param message       texte du message
+     */
     @Override
     public void sendMessage(UUID recipientUuid, String message) {
         handleSendMessageLogic(recipientUuid, message);
@@ -45,8 +61,7 @@ public class InputMessageController implements IInputMessageController {
     }
 
     /**
-     * Résout le destinataire depuis la sélection courante (logique métier)
-     * puis délègue à sendMessage.
+     * Résout le destinataire depuis la sélection courante puis délègue à sendMessage.
      */
     @Override
     public void sendMessageToSelected(String text) {

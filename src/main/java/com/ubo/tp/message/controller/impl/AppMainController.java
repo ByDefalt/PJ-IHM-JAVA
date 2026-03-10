@@ -10,10 +10,10 @@ import com.ubo.tp.message.ihm.view.service.View;
 import java.util.Objects;
 
 /**
- * Contrôleur pour la vue principale de l'application.
+ * Contrôleur principal de l'application (contexte IHM global).
  * <p>
- * Ce contrôleur orchestre l'initialisation de la vue principale et expose les
- * actions nécessaires à l'IHM (ex : sélection du répertoire d'échange).
+ * Expose les actions du menu principal (choix de répertoire, déconnexion,
+ * suppression de compte, fermeture), et réagit aux événements de session.
  * </p>
  */
 public class AppMainController implements IAppMainController, ISessionObserver {
@@ -23,11 +23,7 @@ public class AppMainController implements IAppMainController, ISessionObserver {
     private final IAppMainGraphicController graphicController;
 
     /**
-     * Constructeur permettant l'injection d'une vue (utile pour tests).
-     *
-     * @param context           contexte regroupant les services
-     * @param graphicController vue principale injectée
-     * @param firstView         première vue à afficher dans la vue principale
+     * Crée un {@code AppMainController} et connecte les callbacks de la vue.
      */
     public AppMainController(ControllerContext context, IAppMainGraphicController graphicController, View firstView) {
         this.context = Objects.requireNonNull(context);
@@ -60,19 +56,35 @@ public class AppMainController implements IAppMainController, ISessionObserver {
         handleOnExchangeDirectorySelectedLogic(directoryPath);
     }
 
+    /**
+     * Logique interne pour traiter le répertoire d'échange sélectionné.
+     *
+     * @param directoryPath chemin sélectionné
+     */
     private void handleOnExchangeDirectorySelectedLogic(String directoryPath) {
         context.logger().info("Controller: répertoire sélectionné -> " + directoryPath);
         context.dataManager().setExchangeDirectory(directoryPath);
     }
 
+    /**
+     * Retourne le contrôleur graphique principal.
+     *
+     * @return contrôleur graphique principal
+     */
     public IAppMainGraphicController getGraphicController() {
         return this.graphicController;
     }
 
+    /**
+     * Callback déclenché par la vue lors d'une demande de fermeture de l'application.
+     */
     private void onCloseRequested() {
         handleOnCloseRequestedLogic();
     }
 
+    /**
+     * Logique interne gérant la fermeture de l'application (déconnexion asynchrone si nécessaire).
+     */
     private void handleOnCloseRequestedLogic() {
         context.logger().info("Controller: fermeture demandée");
         try {
@@ -97,10 +109,16 @@ public class AppMainController implements IAppMainController, ISessionObserver {
         }
     }
 
+    /**
+     * Callback déclenché par la vue pour demander une déconnexion.
+     */
     private void onDisconnectRequested() {
         handleOnDisconnectRequestedLogic();
     }
 
+    /**
+     * Logique interne de déconnexion : met l'utilisateur hors-ligne et déconnecte la session.
+     */
     private void handleOnDisconnectRequestedLogic() {
         context.logger().info("Controller: demande de déconnexion reçue");
         try {
@@ -114,10 +132,16 @@ public class AppMainController implements IAppMainController, ISessionObserver {
         }
     }
 
+    /**
+     * Callback déclenché par la vue pour demander la suppression du compte.
+     */
     private void onDeleteAccountRequested() {
         handleOnDeleteAccountRequestedLogic();
     }
 
+    /**
+     * Logique interne pour la suppression du compte courant.
+     */
     private void handleOnDeleteAccountRequestedLogic() {
         context.logger().info("Controller: demande de suppression du compte reçue");
         try {
@@ -126,7 +150,6 @@ public class AppMainController implements IAppMainController, ISessionObserver {
                 boolean deleted = context.dataManager().deleteUserFile(user);
                 context.logger().info("Suppression du compte effectuée? " + deleted);
                 if (deleted) {
-                    // après suppression, déco
                     context.session().disconnect();
                 }
             }
@@ -135,21 +158,37 @@ public class AppMainController implements IAppMainController, ISessionObserver {
         }
     }
 
+    /**
+     * Réagit à la connexion d'un utilisateur à la session.
+     *
+     * @param connectedUser utilisateur connecté
+     */
     @Override
     public void notifyLogin(User connectedUser) {
         handleNotifyLoginLogic(connectedUser);
     }
 
+    /**
+     * Logique interne exécutée lors d'une connexion de session.
+     *
+     * @param connectedUser utilisateur connecté
+     */
     private void handleNotifyLoginLogic(User connectedUser) {
         context.logger().info("Session: utilisateur connecté -> " + (connectedUser != null ? connectedUser.getName() : "null"));
         graphicController.setConnectMenuVisible(true);
     }
 
+    /**
+     * Réagit à la déconnexion de la session.
+     */
     @Override
     public void notifyLogout() {
         handleNotifyLogoutLogic();
     }
 
+    /**
+     * Logique interne exécutée lors d'une déconnexion de session.
+     */
     private void handleNotifyLogoutLogic() {
         context.logger().info("Session: utilisateur déconnecté");
         graphicController.setConnectMenuVisible(false);
