@@ -31,39 +31,53 @@ public class ListUserGraphicController implements IListUserGraphicController {
 
     @Override
     public void addUser(User user, Consumer<User> added) {
+        handleAddUser(user, added);
+    }
+
+    private void handleAddUser(User user, Consumer<User> added) {
         if (user == null) return;
 
         var logger = viewContext.logger();
 
-        boolean alreadyPresent = userViews.stream().anyMatch(uv -> uv.getUser().equals(user));
-
-        if (alreadyPresent) {
+        if (isAlreadyPresent(user)) {
             if (logger != null) logger.warn("User déjà présent, ignoré : " + user.getName());
             return;
         }
 
-        UserView userView = new UserView(viewContext, user);
+        UserView userView = createUserView(user);
+        registerSelection(userView, added);
         int row = userViews.size();
         userViews.add(userView);
-
-        userView.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                added.accept(userView.getUser());
-            }
-        });
-
         listUserView.addUserUI(userView, row);
 
         if (logger != null) logger.debug("User ajouté : " + user.getName());
     }
 
+    private boolean isAlreadyPresent(User user) {
+        return userViews.stream().anyMatch(uv -> uv.getUser().equals(user));
+    }
+
+    private UserView createUserView(User user) {
+        return new UserView(viewContext, user);
+    }
+
+    private void registerSelection(UserView userView, Consumer<User> onSelect) {
+        userView.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                onSelect.accept(userView.getUser());
+            }
+        });
+    }
+
     @Override
     public void removeUser(User user) {
+        handleRemoveUser(user);
+    }
+
+    private void handleRemoveUser(User user) {
         if (user == null) return;
-
         var logger = viewContext.logger();
-
 
         Optional<UserView> opt = userViews.stream().filter(uv -> uv.getUser().equals(user)).findFirst();
 
@@ -78,10 +92,12 @@ public class ListUserGraphicController implements IListUserGraphicController {
 
     @Override
     public void updateUser(User user) {
+        handleUpdateUser(user);
+    }
+
+    private void handleUpdateUser(User user) {
         if (user == null) return;
-
         var logger = viewContext.logger();
-
 
         Optional<UserView> opt = userViews.stream().filter(uv -> uv.getUser().equals(user)).findFirst();
 
@@ -95,6 +111,10 @@ public class ListUserGraphicController implements IListUserGraphicController {
 
     @Override
     public void incrementUnread(User user) {
+        handleIncrementUnread(user);
+    }
+
+    private void handleIncrementUnread(User user) {
         if (user == null) return;
         Optional<UserView> opt = userViews.stream().filter(uv -> uv.getUser().equals(user)).findFirst();
         if (opt.isPresent()) {
@@ -107,6 +127,10 @@ public class ListUserGraphicController implements IListUserGraphicController {
 
     @Override
     public void clearUnread(User user) {
+        handleClearUnread(user);
+    }
+
+    private void handleClearUnread(User user) {
         if (user == null) return;
         Optional<UserView> opt = userViews.stream().filter(uv -> uv.getUser().equals(user)).findFirst();
         if (opt.isPresent()) {

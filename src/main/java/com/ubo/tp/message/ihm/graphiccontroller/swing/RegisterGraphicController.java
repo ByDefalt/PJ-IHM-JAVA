@@ -16,21 +16,28 @@ public class RegisterGraphicController implements GraphicController {
         this.registerView = registerView;
         this.registerController = registerController;
 
-        registerView.setOnRegisterRequested((tag, name, password, confirmPassword) -> {
-            if (viewContext.logger() != null) viewContext.logger().debug("Inscription demandée pour : " + tag);
-            boolean created = registerController.onRegisterButtonClicked(tag, name, password, confirmPassword);
-            if (created) {
-                if (viewContext.logger() != null)
-                    viewContext.logger().info("Inscription réussie, navigation vers login");
-                viewContext.navigationController().navigateToLogin();
-            } else {
-                if (viewContext.logger() != null) viewContext.logger().warn("Inscription échouée pour : " + tag);
-            }
-        });
+        createConnector();
+    }
 
-        registerView.setOnBackToLoginRequested(() -> {
-            if (viewContext.logger() != null) viewContext.logger().debug("Retour vers la connexion");
+    private void createConnector() {
+        registerView.setOnRegisterRequested(this::handleRegisterRequested);
+        registerView.setOnBackToLoginRequested(this::handleBackToLoginRequested);
+    }
+
+    private void handleRegisterRequested(String tag, String name, String password, String confirmPassword) {
+        if (viewContext.logger() != null) viewContext.logger().debug("Inscription demandée pour : " + tag);
+        boolean created = registerController.onRegisterButtonClicked(tag, name, password, confirmPassword);
+        if (created) {
+            if (viewContext.logger() != null)
+                viewContext.logger().info("Inscription réussie, navigation vers login");
             viewContext.navigationController().navigateToLogin();
-        });
+        } else {
+            if (viewContext.logger() != null) viewContext.logger().warn("Inscription échouée pour : " + tag);
+        }
+    }
+
+    private void handleBackToLoginRequested() {
+        if (viewContext.logger() != null) viewContext.logger().debug("Retour vers la connexion");
+        viewContext.navigationController().navigateToLogin();
     }
 }

@@ -22,14 +22,17 @@ public class FxLoginGraphicController implements GraphicController {
     }
 
     private void wire() {
-        loginView.setOnLoginRequested((tag, name, pwd) -> {
-            if (viewContext.logger() != null) viewContext.logger().debug("(FX) Connexion demandée : " + tag);
-            loginController.onLoginButtonClicked(tag, name, pwd);
-        });
-        loginView.setOnRegisterRequested(() -> {
-            if (viewContext.logger() != null) viewContext.logger().debug("(FX) Navigation vers inscription");
-            viewContext.navigationController().navigateToRegister();
-        });
+        loginView.setOnLoginRequested(this::handleLoginRequested);
+        loginView.setOnRegisterRequested(this::handleRegisterRequested);
+    }
+
+    private void handleLoginRequested(String tag, String name, String pwd) {
+        if (viewContext.logger() != null) viewContext.logger().debug("(FX) Connexion demandée : " + tag);
+        loginController.onLoginButtonClicked(tag, name, pwd);
+    }
+
+    private void handleRegisterRequested() {
+        if (viewContext.logger() != null) viewContext.logger().debug("(FX) Navigation vers inscription");
+        viewContext.navigationController().navigateToRegister();
     }
 }
-

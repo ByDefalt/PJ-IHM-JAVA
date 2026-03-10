@@ -22,20 +22,23 @@ public class FxRegisterGraphicController implements GraphicController {
     }
 
     private void wire() {
-        registerView.setOnRegisterRequested((tag, name, pwd, confirm) -> {
-            if (viewContext.logger() != null) viewContext.logger().debug("(FX) Inscription demandée : " + tag);
-            boolean ok = registerController.onRegisterButtonClicked(tag, name, pwd, confirm);
-            if (ok) {
-                if (viewContext.logger() != null) viewContext.logger().info("(FX) Inscription réussie");
-                viewContext.navigationController().navigateToLogin();
-            } else {
-                if (viewContext.logger() != null) viewContext.logger().warn("(FX) Inscription échouée : " + tag);
-            }
-        });
-        registerView.setOnBackToLoginRequested(() -> {
-            if (viewContext.logger() != null) viewContext.logger().debug("(FX) Retour vers connexion");
+        registerView.setOnRegisterRequested(this::handleRegisterRequested);
+        registerView.setOnBackToLoginRequested(this::handleBackToLoginRequested);
+    }
+
+    private void handleRegisterRequested(String tag, String name, String pwd, String confirm) {
+        if (viewContext.logger() != null) viewContext.logger().debug("(FX) Inscription demandée : " + tag);
+        boolean ok = registerController.onRegisterButtonClicked(tag, name, pwd, confirm);
+        if (ok) {
+            if (viewContext.logger() != null) viewContext.logger().info("(FX) Inscription réussie");
             viewContext.navigationController().navigateToLogin();
-        });
+        } else {
+            if (viewContext.logger() != null) viewContext.logger().warn("(FX) Inscription échouée : " + tag);
+        }
+    }
+
+    private void handleBackToLoginRequested() {
+        if (viewContext.logger() != null) viewContext.logger().debug("(FX) Retour vers connexion");
+        viewContext.navigationController().navigateToLogin();
     }
 }
-

@@ -11,8 +11,6 @@ public interface IAppMainGraphicController extends GraphicController {
 
     void setMainView(View component);
 
-    void setClearSelected(Runnable clearSelected);
-
     void setOnDisconnect(Runnable onDisconnect);
 
     void setOnDeleteAccount(Runnable onDeleteAccount);

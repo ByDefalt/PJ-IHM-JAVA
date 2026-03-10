@@ -23,58 +23,96 @@ public class FxAppMainGraphicController implements IAppMainGraphicController {
         this.appMainView = appMainView;
 
         viewContext.navigationController().setMainView(this::setMainView);
-        // Câbler "Modifier le profil" vers la navigation
-        appMainView.setOnUpdateProfile(() -> viewContext.navigationController().navigateToProfile());
+        // Câbler "Modifier le profil" vers la navigation via handler
+        appMainView.setOnUpdateProfile(this::handleUpdateProfileRequested);
+    }
+
+    public void setClearSelected(Runnable clearSelected) {
+        handleSetClearSelected(clearSelected);
+    }
+
+    private void handleSetClearSelected(Runnable clearSelected) {
+        this.clearSelected = clearSelected;
+    }
+
+    private void runOnFx(Runnable r) {
+        if (Platform.isFxApplicationThread()) r.run();
+        else Platform.runLater(r);
     }
 
     @Override
     public void setVisibility(boolean visible) {
+        handleSetVisibility(visible);
+    }
+
+    private void handleSetVisibility(boolean visible) {
         Runnable task = () -> {
             if (viewContext.logger() != null)
                 viewContext.logger().debug("(FX) Visibilité fenêtre : " + visible);
             appMainView.setVisible(visible);
         };
-        if (Platform.isFxApplicationThread()) task.run();
-        else Platform.runLater(task);
+        runOnFx(task);
     }
 
     @Override
     public void setOnExchangeDirectorySelected(Consumer<String> onExchangeDirectorySelected) {
+        handleSetOnExchangeDirectorySelected(onExchangeDirectorySelected);
+    }
+
+    private void handleSetOnExchangeDirectorySelected(Consumer<String> onExchangeDirectorySelected) {
         appMainView.setOnExchangeDirectorySelected(onExchangeDirectorySelected);
     }
 
     @Override
     public void setMainView(View component) {
+        handleSetMainView(component);
+    }
+
+    private void handleSetMainView(View component) {
         if (component == null) return;
         appMainView.setContent((Node) component);
     }
 
     @Override
-    public void setClearSelected(Runnable clearSelected) {
-        this.clearSelected = clearSelected;
+    public void setOnClose(Runnable onClose) {
+        handleSetOnClose(onClose);
     }
 
-    @Override
-    public void setOnClose(Runnable onClose) {
+    private void handleSetOnClose(Runnable onClose) {
         appMainView.setOnClose(onClose);
     }
 
     @Override
     public void setOnDisconnect(Runnable onDisconnect) {
+        handleSetOnDisconnect(onDisconnect);
+    }
+
+    private void handleSetOnDisconnect(Runnable onDisconnect) {
         appMainView.setOnDisconnect(onDisconnect);
     }
 
     @Override
     public void setOnDeleteAccount(Runnable onDeleteAccount) {
+        handleSetOnDeleteAccount(onDeleteAccount);
+    }
+
+    private void handleSetOnDeleteAccount(Runnable onDeleteAccount) {
         appMainView.setOnDeleteAccount(onDeleteAccount);
     }
 
     @Override
     public void setConnectMenuVisible(boolean visible) {
-        Platform.runLater(() -> {
+        handleSetConnectMenuVisible(visible);
+    }
+
+    private void handleSetConnectMenuVisible(boolean visible) {
+        runOnFx(() -> {
             appMainView.setConnectMenuVisible(visible);
             if (!visible && clearSelected != null) clearSelected.run();
         });
     }
-}
 
+    private void handleUpdateProfileRequested() {
+        viewContext.navigationController().navigateToProfile();
+    }
+}

@@ -32,39 +32,63 @@ public class FxListCanalGraphicController implements IListCanalGraphicController
     @Override
     public void addCanal(Channel canal, Consumer<Channel> onSelect,
                          ChannelEditCallback onEdit, boolean isOwner, Supplier<List<User>> allUsersSupplier) {
+        handleAddCanal(canal, onSelect, onEdit, isOwner, allUsersSupplier);
+    }
+
+    private void handleAddCanal(Channel canal, Consumer<Channel> onSelect,
+                                ChannelEditCallback onEdit, boolean isOwner, Supplier<List<User>> allUsersSupplier) {
         if (canal == null) return;
-        boolean exists = canalViews.stream().anyMatch(cv -> cv.getChannel().equals(canal));
-        if (exists) {
+        if (exists(canal)) {
             if (viewContext.logger() != null) viewContext.logger().warn("(FX) Canal déjà présent : " + canal.getName());
             return;
         }
-        FxCanalView view = new FxCanalView(viewContext, canal, onEdit, isOwner, allUsersSupplier);
+        FxCanalView view = createCanalView(canal, onEdit, isOwner, allUsersSupplier);
+        registerSelection(view, onSelect);
+        canalViews.add(view);
+        runOnFx(() -> listCanalView.addCanalUI(view));
+        if (viewContext.logger() != null) viewContext.logger().debug("(FX) Canal ajouté : " + canal.getName());
+    }
+
+    private boolean exists(Channel canal) {
+        return canalViews.stream().anyMatch(cv -> cv.getChannel().equals(canal));
+    }
+
+    private FxCanalView createCanalView(Channel canal, ChannelEditCallback onEdit, boolean isOwner, Supplier<List<User>> allUsersSupplier) {
+        return new FxCanalView(viewContext, canal, onEdit, isOwner, allUsersSupplier);
+    }
+
+    private void registerSelection(FxCanalView view, Consumer<Channel> onSelect) {
         view.setOnMouseClicked(e -> {
             if (e.getButton() == MouseButton.PRIMARY) onSelect.accept(view.getChannel());
         });
-        canalViews.add(view);
-        Platform.runLater(() -> listCanalView.addCanalUI(view));
-        if (viewContext.logger() != null) viewContext.logger().debug("(FX) Canal ajouté : " + canal.getName());
     }
 
     @Override
     public void removeCanal(Channel canal) {
+        handleRemoveCanal(canal);
+    }
+
+    private void handleRemoveCanal(Channel canal) {
         if (canal == null) return;
         Optional<FxCanalView> opt = canalViews.stream().filter(cv -> cv.getChannel().equals(canal)).findFirst();
-        if (opt.isPresent()) {
-            canalViews.remove(opt.get());
-            Platform.runLater(() -> listCanalView.rebuildUI(new ArrayList<>(canalViews)));
+        opt.ifPresent(v -> {
+            canalViews.remove(v);
+            runOnFx(() -> listCanalView.rebuildUI(new ArrayList<>(canalViews)));
             if (viewContext.logger() != null) viewContext.logger().debug("(FX) Canal supprimé : " + canal.getName());
-        }
+        });
     }
 
     @Override
     public void updateCanal(Channel canal) {
+        handleUpdateCanal(canal);
+    }
+
+    private void handleUpdateCanal(Channel canal) {
         if (canal == null) return;
         Optional<FxCanalView> opt = canalViews.stream().filter(cv -> cv.getChannel().equals(canal)).findFirst();
         if (opt.isPresent()) {
             FxCanalView view = opt.get();
-            Platform.runLater(() -> view.updateChannel(canal));
+            runOnFx(() -> view.updateChannel(canal));
             if (viewContext.logger() != null) viewContext.logger().debug("(FX) Canal mis à jour : " + canal.getName());
         } else {
             if (viewContext.logger() != null)
@@ -74,26 +98,42 @@ public class FxListCanalGraphicController implements IListCanalGraphicController
 
     @Override
     public void incrementUnread(Channel canal) {
+        handleIncrementUnread(canal);
+    }
+
+    private void handleIncrementUnread(Channel canal) {
         if (canal == null) return;
         canalViews.stream().filter(cv -> cv.getChannel().equals(canal)).findFirst()
-                .ifPresent(view -> Platform.runLater(view::incrementUnread));
+                .ifPresent(view -> runOnFx(view::incrementUnread));
     }
 
     @Override
     public void clearUnread(Channel canal) {
+        handleClearUnread(canal);
+    }
+
+    private void handleClearUnread(Channel canal) {
         if (canal == null) return;
         canalViews.stream().filter(cv -> cv.getChannel().equals(canal)).findFirst()
-                .ifPresent(view -> Platform.runLater(view::clearUnread));
+                .ifPresent(view -> runOnFx(view::clearUnread));
     }
 
     @Override
     public void setupNewChannelForm(List<User> availableUsers, ChannelCreationCallback onConfirm) {
-        Platform.runLater(() -> {
+        handleSetupNewChannelForm(availableUsers, onConfirm);
+    }
+
+    private void handleSetupNewChannelForm(List<User> availableUsers, ChannelCreationCallback onConfirm) {
+        runOnFx(() -> {
             listCanalView.setOnNewChannelConfirm(onConfirm);
             listCanalView.setAvailableUsers(availableUsers);
         });
         if (viewContext.logger() != null)
-            viewContext.logger().debug("(FX) Formulaire canal configuré avec " +
-                    (availableUsers != null ? availableUsers.size() : 0) + " utilisateurs");
+            viewContext.logger().debug("(FX) Formulaire canal configuré avec " + (availableUsers != null ? availableUsers.size() : 0) + " utilisateurs");
+    }
+
+    private void runOnFx(Runnable r) {
+        if (Platform.isFxApplicationThread()) r.run();
+        else Platform.runLater(r);
     }
 }

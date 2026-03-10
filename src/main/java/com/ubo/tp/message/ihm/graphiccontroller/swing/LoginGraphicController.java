@@ -19,15 +19,18 @@ public class LoginGraphicController implements GraphicController {
         createConnector();
     }
 
-    void createConnector() {
-        loginView.setOnLoginRequested((tag, name, password) -> {
-            if (viewContext.logger() != null) viewContext.logger().debug("Connexion demandée pour : " + tag);
-            loginController.onLoginButtonClicked(tag, name, password);
-        });
+    private void createConnector() {
+        loginView.setOnLoginRequested(this::handleLoginRequested);
+        loginView.setOnRegisterRequested(this::handleRegisterRequested);
+    }
 
-        loginView.setOnRegisterRequested(() -> {
-            if (viewContext.logger() != null) viewContext.logger().debug("Navigation vers l'inscription");
-            viewContext.navigationController().navigateToRegister();
-        });
+    private void handleLoginRequested(String tag, String name, String password) {
+        if (viewContext.logger() != null) viewContext.logger().debug("Connexion demandée pour : " + tag);
+        loginController.onLoginButtonClicked(tag, name, password);
+    }
+
+    private void handleRegisterRequested() {
+        if (viewContext.logger() != null) viewContext.logger().debug("Navigation vers l'inscription");
+        viewContext.navigationController().navigateToRegister();
     }
 }

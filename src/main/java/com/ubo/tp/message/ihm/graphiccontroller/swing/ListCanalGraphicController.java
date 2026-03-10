@@ -30,13 +30,34 @@ public class ListCanalGraphicController implements IListCanalGraphicController {
     @Override
     public void addCanal(Channel canal, Consumer<Channel> onSelect,
                          ChannelEditCallback onEdit, boolean isOwner, Supplier<List<User>> allUsersSupplier) {
+        handleAddCanal(canal, onSelect, onEdit, isOwner, allUsersSupplier);
+    }
+
+    private void handleAddCanal(Channel canal, Consumer<Channel> onSelect,
+                                ChannelEditCallback onEdit, boolean isOwner, Supplier<List<User>> allUsersSupplier) {
         if (canal == null || listCanalView == null) return;
-        boolean alreadyPresent = canalViews.stream().anyMatch(cv -> cv.getChannel().equals(canal));
-        if (alreadyPresent) {
-            if (viewContext.logger() != null) viewContext.logger().warn("Canal déjà présent, ignoré : " + canal);
+        if (isAlreadyPresent(canal)) {
+            logWarn("Canal déjà présent, ignoré: ", canal);
             return;
         }
-        CanalView canalView = new CanalView(viewContext, canal, onEdit, isOwner, allUsersSupplier);
+
+        CanalView canalView = createCanalView(canal, onEdit, isOwner, allUsersSupplier);
+        registerSelection(canalView, onSelect);
+        int row = canalViews.size();
+        canalViews.add(canalView);
+        listCanalView.addCanalUI(canalView, row);
+        logDebug("Canal ajouté : ", canal);
+    }
+
+    private boolean isAlreadyPresent(Channel canal) {
+        return canalViews.stream().anyMatch(cv -> cv.getChannel().equals(canal));
+    }
+
+    private CanalView createCanalView(Channel canal, ChannelEditCallback onEdit, boolean isOwner, Supplier<List<User>> allUsersSupplier) {
+        return new CanalView(viewContext, canal, onEdit, isOwner, allUsersSupplier);
+    }
+
+    private void registerSelection(CanalView canalView, Consumer<Channel> onSelect) {
         canalView.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -45,39 +66,56 @@ public class ListCanalGraphicController implements IListCanalGraphicController {
                 }
             }
         });
-        int row = canalViews.size();
-        canalViews.add(canalView);
-        listCanalView.addCanalUI(canalView, row);
-        if (viewContext.logger() != null) viewContext.logger().debug("Canal ajouté : " + canal);
+    }
+
+    private void logWarn(String msg, Channel canal) {
+        if (viewContext.logger() != null) viewContext.logger().warn(msg + canal);
+    }
+
+    private void logDebug(String msg, Channel canal) {
+        if (viewContext.logger() != null) viewContext.logger().debug(msg + canal);
     }
 
     @Override
     public void removeCanal(Channel canal) {
+        handleRemoveCanal(canal);
+    }
+
+    private void handleRemoveCanal(Channel canal) {
         if (canal == null || listCanalView == null) return;
         Optional<CanalView> opt = canalViews.stream().filter(cv -> cv.getChannel().equals(canal)).findFirst();
         if (opt.isPresent()) {
             canalViews.remove(opt.get());
             listCanalView.rebuildUI(canalViews);
-            if (viewContext.logger() != null) viewContext.logger().debug("Canal supprimé : " + canal);
+            logDebug("Canal supprimé : ", canal);
         } else {
-            if (viewContext.logger() != null) viewContext.logger().warn("Canal non trouvé, pas supprimé : " + canal);
+            logWarn("Canal non trouvé, pas supprimé : ", canal);
         }
     }
 
     @Override
     public void updateCanal(Channel canal) {
+        handleUpdateCanal(canal);
+    }
+
+    private void handleUpdateCanal(Channel canal) {
         if (canal == null || listCanalView == null) return;
         Optional<CanalView> opt = canalViews.stream().filter(cv -> cv.getChannel().equals(canal)).findFirst();
         if (opt.isPresent()) {
-            listCanalView.updateCanalUI(opt.get(), canal);
-            if (viewContext.logger() != null) viewContext.logger().debug("Canal mis à jour : " + canal);
+            CanalView existing = opt.get();
+            listCanalView.updateCanalUI(existing, canal);
+            logDebug("Canal mis à jour : ", canal);
         } else {
-            if (viewContext.logger() != null) viewContext.logger().warn("Canal non trouvé pour mise à jour : " + canal);
+            logWarn("Canal non trouvé pour mise à jour : ", canal);
         }
     }
 
     @Override
     public void incrementUnread(Channel canal) {
+        handleIncrementUnread(canal);
+    }
+
+    private void handleIncrementUnread(Channel canal) {
         if (canal == null) return;
         canalViews.stream().filter(cv -> cv.getChannel().equals(canal)).findFirst()
                 .ifPresent(cv -> SwingUtilities.invokeLater(cv::incrementUnread));
@@ -85,6 +123,10 @@ public class ListCanalGraphicController implements IListCanalGraphicController {
 
     @Override
     public void clearUnread(Channel canal) {
+        handleClearUnread(canal);
+    }
+
+    private void handleClearUnread(Channel canal) {
         if (canal == null) return;
         canalViews.stream().filter(cv -> cv.getChannel().equals(canal)).findFirst()
                 .ifPresent(cv -> SwingUtilities.invokeLater(cv::clearUnread));
@@ -92,10 +134,13 @@ public class ListCanalGraphicController implements IListCanalGraphicController {
 
     @Override
     public void setupNewChannelForm(List<User> availableUsers, ChannelCreationCallback onConfirm) {
+        handleSetupNewChannelForm(availableUsers, onConfirm);
+    }
+
+    private void handleSetupNewChannelForm(List<User> availableUsers, ChannelCreationCallback onConfirm) {
         listCanalView.setAvailableUsers(availableUsers);
         listCanalView.setOnNewChannelConfirm(onConfirm);
         if (viewContext.logger() != null)
-            viewContext.logger().debug("Formulaire canal configuré (Swing) avec " +
-                    (availableUsers != null ? availableUsers.size() : 0) + " utilisateurs");
+            viewContext.logger().debug("Formulaire canal configuré (Swing) avec " + (availableUsers != null ? availableUsers.size() : 0) + " utilisateurs");
     }
 }

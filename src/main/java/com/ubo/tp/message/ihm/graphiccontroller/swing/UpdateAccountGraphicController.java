@@ -22,21 +22,30 @@ public class UpdateAccountGraphicController implements GraphicController {
     }
 
     private void init() {
+        handleInitView();
+        registerCallbacks();
+    }
+
+    private void handleInitView() {
         // Récupérer l'utilisateur connecté et initialiser la vue
         var user = updateAccountController.getConnectedUser();
         if (user != null) {
             updateAccountView.setUser(user);
         }
+    }
 
+    private void registerCallbacks() {
         // Brancher le callback UI vers le contrôleur métier
-        updateAccountView.setOnUpdateRequested(newName -> {
-            if (viewContext != null && viewContext.logger() != null) {
-                viewContext.logger().debug("Mise à jour demandée (nouveau nom): " + newName);
-                boolean update = updateAccountController.onUpdateNameClicked(newName);
-                if (update) {
-                    viewContext.navigationController().navigateToChat();
-                }
+        updateAccountView.setOnUpdateRequested(this::handleUpdateRequested);
+    }
+
+    private void handleUpdateRequested(String newName) {
+        if (viewContext != null && viewContext.logger() != null) {
+            viewContext.logger().debug("Mise à jour demandée (nouveau nom): " + newName);
+            boolean update = updateAccountController.onUpdateNameClicked(newName);
+            if (update) {
+                viewContext.navigationController().navigateToChat();
             }
-        });
+        }
     }
 }

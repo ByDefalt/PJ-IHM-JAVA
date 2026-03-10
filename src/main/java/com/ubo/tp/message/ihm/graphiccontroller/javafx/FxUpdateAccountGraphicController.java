@@ -24,14 +24,18 @@ public class FxUpdateAccountGraphicController implements GraphicController {
     }
 
     private void wire() {
+        handleInitView();
+        updateView.setOnUpdateRequested(this::handleUpdateRequested);
+    }
+
+    private void handleInitView() {
         var user = updateController.getConnectedUser();
         if (user != null) updateView.setUser(user);
+    }
 
-        updateView.setOnUpdateRequested(newName -> {
-            if (viewContext.logger() != null) viewContext.logger().debug("(FX) Mise à jour demandée : " + newName);
-            boolean ok = updateController.onUpdateNameClicked(newName);
-            if (ok) viewContext.navigationController().navigateToChat();
-        });
+    private void handleUpdateRequested(String newName) {
+        if (viewContext.logger() != null) viewContext.logger().debug("(FX) Mise à jour demandée : " + newName);
+        boolean ok = updateController.onUpdateNameClicked(newName);
+        if (ok) viewContext.navigationController().navigateToChat();
     }
 }
-

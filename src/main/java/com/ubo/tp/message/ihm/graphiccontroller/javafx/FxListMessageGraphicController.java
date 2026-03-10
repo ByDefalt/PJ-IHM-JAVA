@@ -34,10 +34,7 @@ public class FxListMessageGraphicController implements IListMessageGraphicContro
         this.listMessageView = listMessageView;
     }
 
-    // -------------------------------------------------------------------------
     // Helpers
-    // -------------------------------------------------------------------------
-
     private List<FxMessageView> toViewList(List<Message> filtered) {
         if (filtered == null || filtered.isEmpty()) return Collections.emptyList();
         Set<Message> set = new HashSet<>(filtered);
@@ -48,19 +45,26 @@ public class FxListMessageGraphicController implements IListMessageGraphicContro
         return result;
     }
 
+    private void runOnFx(Runnable r) {
+        if (Platform.isFxApplicationThread()) r.run();
+        else Platform.runLater(r);
+    }
+
     private void rebuildView(List<Message> filtered) {
         List<FxMessageView> ordered = toViewList(filtered);
-        Platform.runLater(() -> listMessageView.rebuildUI(ordered));
+        runOnFx(() -> listMessageView.rebuildUI(ordered));
         if (viewContext.logger() != null)
             viewContext.logger().debug("(FX) Vue messages reconstruite : " + ordered.size());
     }
 
-    // -------------------------------------------------------------------------
     // IListMessageGraphicController
-    // -------------------------------------------------------------------------
 
     @Override
     public void setOnDeleteMessage(Consumer<Message> onDelete, java.util.UUID connectedUserUuid) {
+        handleSetOnDeleteMessage(onDelete, connectedUserUuid);
+    }
+
+    private void handleSetOnDeleteMessage(Consumer<Message> onDelete, java.util.UUID connectedUserUuid) {
         this.onDeleteMessage = onDelete;
         this.deletableSenderUuid = connectedUserUuid;
         if (viewContext != null && viewContext.logger() != null) {
@@ -70,11 +74,13 @@ public class FxListMessageGraphicController implements IListMessageGraphicContro
 
     @Override
     public void addMessage(Message message, List<Message> filteredMessages) {
+        handleAddMessage(message, filteredMessages);
+    }
+
+    private void handleAddMessage(Message message, List<Message> filteredMessages) {
         if (message == null) return;
         boolean exists = messages.stream().anyMatch(mv -> mv.getMessage().equals(message));
         if (!exists) {
-            // canDelete géré par le controller métier via setOnDeleteMessage :
-            // si onDeleteMessage != null c'est que ce message peut être supprimé par cet utilisateur
             Consumer<Message> deleteCallback = resolveDeleteCallback(message);
             messages.add(new FxMessageView(viewContext, message, () -> resolveDeleteCallback(message), deleteCallback != null));
             if (viewContext.logger() != null) viewContext.logger().debug("(FX) Message ajouté");
@@ -82,20 +88,17 @@ public class FxListMessageGraphicController implements IListMessageGraphicContro
         rebuildView(filteredMessages);
     }
 
-    /**
-     * Retourne le callback de suppression si l'auteur du message correspond au filtre enregistré, null sinon.
-     */
     private Consumer<Message> resolveDeleteCallback(Message message) {
         if (onDeleteMessage == null || message.getSender() == null) return null;
-        // Le controller métier a défini onDeleteMessage = deleteForCurrentUser
-        // On stocke aussi l'UUID de l'utilisateur connecté pour filtrer
-        return deletableSenderUuid != null
-                && message.getSender().getUuid().equals(deletableSenderUuid)
-                ? onDeleteMessage : null;
+        return java.util.Objects.equals(message.getSender().getUuid(), deletableSenderUuid) ? onDeleteMessage : null;
     }
 
     @Override
     public void removeMessage(Message message, List<Message> filteredMessages) {
+        handleRemoveMessage(message, filteredMessages);
+    }
+
+    private void handleRemoveMessage(Message message, List<Message> filteredMessages) {
         if (message == null) return;
         messages.removeIf(mv -> mv.getMessage().equals(message));
         rebuildView(filteredMessages);
@@ -103,6 +106,10 @@ public class FxListMessageGraphicController implements IListMessageGraphicContro
 
     @Override
     public void updateMessage(Message message, List<Message> filteredMessages) {
+        handleUpdateMessage(message, filteredMessages);
+    }
+
+    private void handleUpdateMessage(Message message, List<Message> filteredMessages) {
         if (message == null) return;
         Optional<FxMessageView> opt = messages.stream()
                 .filter(mv -> mv.getMessage().getUuid().equals(message.getUuid()))
@@ -120,8 +127,11 @@ public class FxListMessageGraphicController implements IListMessageGraphicContro
 
     @Override
     public void refreshSenderInMessages(User updatedUser, List<Message> filteredMessages) {
+        handleRefreshSenderInMessages(updatedUser, filteredMessages);
+    }
+
+    private void handleRefreshSenderInMessages(User updatedUser, List<Message> filteredMessages) {
         if (updatedUser == null) return;
-        // Reconstruit toutes les FxMessageView dont le sender correspond à updatedUser
         List<FxMessageView> toReplace = messages.stream()
                 .filter(mv -> mv.getMessage().getSender() != null
                         && mv.getMessage().getSender().getUuid().equals(updatedUser.getUuid()))
@@ -143,6 +153,10 @@ public class FxListMessageGraphicController implements IListMessageGraphicContro
 
     @Override
     public void selectedChanged(List<Message> filteredMessages) {
+        handleSelectedChanged(filteredMessages);
+    }
+
+    private void handleSelectedChanged(List<Message> filteredMessages) {
         rebuildView(filteredMessages);
     }
 
