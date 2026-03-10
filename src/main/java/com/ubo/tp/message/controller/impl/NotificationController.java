@@ -49,7 +49,13 @@ public class NotificationController implements INotificationController, IMessage
             context.logger().debug("Utilisateur mentionné dans un message");
             sendOsNotification(
                     "Nouvelle mention",
-                    "@" + context.session().getConnectedUser().getUserTag() + " a été mentionné"
+                    "Vous avez été mentionné"
+            );
+        } else if (addedMessage.getRecipient().equals(context.session().getConnectedUser().getUuid())) {
+            context.logger().debug("Vous avez reçu un message privé");
+            sendOsNotification(
+                    "Nouveau message privé",
+                    "Vous avez reçu un message privé de " + addedMessage.getSender().getUserTag()
             );
         }
     }
