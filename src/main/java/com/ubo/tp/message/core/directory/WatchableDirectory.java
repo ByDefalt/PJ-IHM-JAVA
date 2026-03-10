@@ -153,83 +153,139 @@ public class WatchableDirectory implements IWatchableDirectory {
      * </p>
      */
     protected void startPolling() {
-        mWatchingThread = new Thread(() -> {
-            try {
-                // Attente avant la prochaine vérification
-                Thread.sleep(POLLING_TIME);
+        // If already running, don't start another watcher
+        if (mWatchingThread != null && mWatchingThread.isAlive()) return;
 
-                // Vérification des changements
-                watchDirectory();
+        // Start a virtual thread that loops until interrupted
+        mWatchingThread = Thread.ofVirtual().name("watchable-dir", 0).start(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    Thread.sleep(POLLING_TIME);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
 
-                // Relancement automatique
-                startPolling();
-            } catch (InterruptedException e) {
-                System.err.println("Surveillance du répertoire interrompue.");
+                try {
+                    watchDirectory();
+                } catch (Exception t) {
+                    // Catch Throwable to avoid silent thread death; log and continue
+                    System.err.println("Erreur lors de la surveillance du répertoire: " + t.getMessage());
+                    t.printStackTrace(System.err);
+                }
             }
+            // Thread termine proprement
         });
-
-        mWatchingThread.start();
     }
 
     /**
      * Effectue une étape de surveillance : détecte nouveaux, supprimés et
-     * modifiés puis notifie les observers.
+     * modifiés puis notifie-les observers.
      * <p>
-     * Méthode protégée car elle est appelée par le thread interne. Ne doit pas
+     * Méthode protégée, car elle est appelée par le thread interne. Ne doit pas
      * être appelée directement depuis d'autres threads sans synchronisation.
      * </p>
      */
     protected void watchDirectory() {
-        if (mDirectory != null) {
-            File[] files = mDirectory.listFiles();
-            if (files == null) return;
+        if (mDirectory == null) return;
+        Set<File> presentFiles = listPresentFiles();
+        processSnapshot(presentFiles);
+    }
 
-            Set<File> presentFiles = new HashSet<>();
-            Set<File> newFiles = new HashSet<>();
-            Set<File> deletedFiles = new HashSet<>();
-            Set<File> modifiedFiles = new HashSet<>();
-            Set<File> oldFiles = new HashSet<>(this.mPresentFiles);
+    /**
+     * Traite un snapshot du répertoire : détection des nouveaux / supprimés / modifiés,
+     * notification des observers et mise à jour de l'état interne.
+     * <p>
+     * Séparé de watchDirectory pour réduire la complexité cognitive et faciliter les tests.
+     * </p>
+     */
+    protected void processSnapshot(Set<File> presentFiles) {
+        // Ancien état
+        Set<File> oldFiles = new HashSet<>(this.mPresentFiles);
 
-            // Récupération de fichiers actuellement présent
-            Collections.addAll(presentFiles, files);
+        // Détection des changements
+        Set<File> newFiles = detectNewFiles(presentFiles, oldFiles);
+        Set<File> deletedFiles = detectDeletedFiles(presentFiles, oldFiles);
+        Set<File> modifiedFiles = detectModifiedFiles(presentFiles, newFiles);
 
-            // Détection des nouveaux fichiers
-            for (File presentFile : presentFiles) {
-                if (!oldFiles.contains(presentFile)) {
-                    newFiles.add(presentFile);
-                }
+        // Notification
+        notifyChanges(deletedFiles, newFiles, modifiedFiles);
+
+        // Mise à jour interne de l'état
+        updateInternalState(presentFiles);
+    }
+
+    /**
+     * Récupère l'ensemble des fichiers présents actuellement dans le répertoire.
+     */
+    protected Set<File> listPresentFiles() {
+        File[] files = mDirectory.listFiles();
+        if (files == null) return Collections.emptySet();
+        Set<File> presentFiles = new HashSet<>();
+        Collections.addAll(presentFiles, files);
+        return presentFiles;
+    }
+
+    /**
+     * Détecte les nouveaux fichiers (présents maintenant mais pas dans l'ancien état).
+     */
+    protected Set<File> detectNewFiles(Set<File> presentFiles, Set<File> oldFiles) {
+        Set<File> newFiles = new HashSet<>();
+        for (File presentFile : presentFiles) {
+            if (!oldFiles.contains(presentFile)) {
+                newFiles.add(presentFile);
             }
-
-            // Détection des fichiers supprimés
-            for (File oldFile : oldFiles) {
-                if (!presentFiles.contains(oldFile)) {
-                    deletedFiles.add(oldFile);
-                }
-            }
-
-            // Détection des fichiers modifiés
-            for (File presentFile : presentFiles) {
-                if (!newFiles.contains(presentFile)) {
-                    Long savedLastModification = mFileModificationMap.get(presentFile.getName());
-
-                    if (savedLastModification != null) {
-                        if (savedLastModification < presentFile.lastModified()) {
-                            modifiedFiles.add(presentFile);
-                        }
-                    }
-                }
-            }
-
-            // Notification
-            if (!deletedFiles.isEmpty()) this.notifyDeletedFiles(deletedFiles);
-            if (!newFiles.isEmpty()) this.notifyNewFiles(newFiles);
-            if (!modifiedFiles.isEmpty()) this.notifyModifiedFiles(modifiedFiles);
-
-            // Mise à jour interne de l'état
-            this.mPresentFiles.clear();
-            this.mFileModificationMap.clear();
-            for (File file : presentFiles) this.addPresentFile(file);
         }
+        return newFiles;
+    }
+
+    /**
+     * Détecte les fichiers supprimés (présents dans l'ancien état mais pas maintenant).
+     */
+    protected Set<File> detectDeletedFiles(Set<File> presentFiles, Set<File> oldFiles) {
+        Set<File> deletedFiles = new HashSet<>();
+        for (File oldFile : oldFiles) {
+            if (!presentFiles.contains(oldFile)) {
+                deletedFiles.add(oldFile);
+            }
+        }
+        return deletedFiles;
+    }
+
+    /**
+     * Détecte les fichiers modifiés (présents et ayant une date de modification plus
+     * récente que celle stockée), en ignorant les nouveaux fichiers.
+     */
+    protected Set<File> detectModifiedFiles(Set<File> presentFiles, Set<File> newFiles) {
+        Set<File> modifiedFiles = new HashSet<>();
+        for (File presentFile : presentFiles) {
+            // Ignorer les fichiers nouvellement ajoutés
+            if (newFiles.contains(presentFile)) continue;
+
+            Long savedLastModification = mFileModificationMap.get(presentFile.getName());
+            if (savedLastModification != null && savedLastModification < presentFile.lastModified()) {
+                modifiedFiles.add(presentFile);
+            }
+        }
+        return modifiedFiles;
+    }
+
+    /**
+     * Envoie les notifications appropriées aux observers si les ensembles ne sont pas vides.
+     */
+    protected void notifyChanges(Set<File> deletedFiles, Set<File> newFiles, Set<File> modifiedFiles) {
+        if (!deletedFiles.isEmpty()) this.notifyDeletedFiles(deletedFiles);
+        if (!newFiles.isEmpty()) this.notifyNewFiles(newFiles);
+        if (!modifiedFiles.isEmpty()) this.notifyModifiedFiles(modifiedFiles);
+    }
+
+    /**
+     * Met à jour l'état interne des fichiers présents et des dates de modification.
+     */
+    protected void updateInternalState(Set<File> presentFiles) {
+        this.mPresentFiles.clear();
+        this.mFileModificationMap.clear();
+        for (File file : presentFiles) this.addPresentFile(file);
     }
 
     /**
@@ -326,4 +382,3 @@ public class WatchableDirectory implements IWatchableDirectory {
         }
     }
 }
-
