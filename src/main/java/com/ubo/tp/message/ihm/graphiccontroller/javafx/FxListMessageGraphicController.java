@@ -19,9 +19,6 @@ public class FxListMessageGraphicController implements IListMessageGraphicContro
 
     private final ViewContext viewContext;
     private final FxListMessageView listMessageView;
-    private Consumer<Message> onDeleteMessage;
-    private java.util.UUID deletableSenderUuid;
-
     /**
      * Source de vérité triée chronologiquement.
      */
@@ -29,6 +26,8 @@ public class FxListMessageGraphicController implements IListMessageGraphicContro
             Comparator.comparingLong((FxMessageView mv) -> mv.getMessage().getEmissionDate())
                     .thenComparing(mv -> mv.getMessage().getUuid().toString())
     );
+    private Consumer<Message> onDeleteMessage;
+    private java.util.UUID deletableSenderUuid;
 
     public FxListMessageGraphicController(ViewContext viewContext, FxListMessageView listMessageView) {
         this.viewContext = viewContext;
@@ -83,7 +82,9 @@ public class FxListMessageGraphicController implements IListMessageGraphicContro
         rebuildView(filteredMessages);
     }
 
-    /** Retourne le callback de suppression si l'auteur du message correspond au filtre enregistré, null sinon. */
+    /**
+     * Retourne le callback de suppression si l'auteur du message correspond au filtre enregistré, null sinon.
+     */
     private Consumer<Message> resolveDeleteCallback(Message message) {
         if (onDeleteMessage == null || message.getSender() == null) return null;
         // Le controller métier a défini onDeleteMessage = deleteForCurrentUser

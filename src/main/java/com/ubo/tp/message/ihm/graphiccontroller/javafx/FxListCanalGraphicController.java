@@ -39,7 +39,9 @@ public class FxListCanalGraphicController implements IListCanalGraphicController
             return;
         }
         FxCanalView view = new FxCanalView(viewContext, canal, onEdit, isOwner, allUsersSupplier);
-        view.setOnMouseClicked(e -> { if (e.getButton() == MouseButton.PRIMARY) onSelect.accept(view.getChannel()); });
+        view.setOnMouseClicked(e -> {
+            if (e.getButton() == MouseButton.PRIMARY) onSelect.accept(view.getChannel());
+        });
         canalViews.add(view);
         Platform.runLater(() -> listCanalView.addCanalUI(view));
         if (viewContext.logger() != null) viewContext.logger().debug("(FX) Canal ajouté : " + canal.getName());
@@ -65,7 +67,8 @@ public class FxListCanalGraphicController implements IListCanalGraphicController
             Platform.runLater(() -> view.updateChannel(canal));
             if (viewContext.logger() != null) viewContext.logger().debug("(FX) Canal mis à jour : " + canal.getName());
         } else {
-            if (viewContext.logger() != null) viewContext.logger().warn("(FX) Canal non trouvé pour mise à jour : " + canal.getName());
+            if (viewContext.logger() != null)
+                viewContext.logger().warn("(FX) Canal non trouvé pour mise à jour : " + canal.getName());
         }
     }
 

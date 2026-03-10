@@ -10,12 +10,7 @@ import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.graphiccontroller.service.IListMessageGraphicController;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Contrôleur responsable de la liste des messages affichés dans la vue.
@@ -231,7 +226,8 @@ public class ListMessageController implements IListMessageController, IMessageDa
      * @param addedUser utilisateur ajouté
      */
     private void handleNotifyUserAddedLogic(User addedUser) {
-        if (addedUser != null && context.logger() != null) context.logger().debug("notifyUserAdded received for: " + addedUser);
+        if (addedUser != null && context.logger() != null)
+            context.logger().debug("notifyUserAdded received for: " + addedUser);
     }
 
     /**

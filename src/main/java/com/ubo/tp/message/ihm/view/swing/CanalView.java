@@ -15,27 +15,27 @@ import java.util.function.Supplier;
 
 public class CanalView extends JComponent implements View {
 
-    private static final Color BG_NORMAL  = new Color(54,  57,  63);
-    private static final Color BG_HOVER   = new Color(72,  76,  84);
+    private static final Color BG_NORMAL = new Color(54, 57, 63);
+    private static final Color BG_HOVER = new Color(72, 76, 84);
     private static final Color BORDER_HOVER = new Color(90, 95, 105);
-    private static final Color PUBLIC_CLR  = new Color(55, 205, 0);
+    private static final Color PUBLIC_CLR = new Color(55, 205, 0);
     private static final Color PRIVATE_CLR = new Color(250, 166, 26);
 
     private final ViewContext viewContext;
+    private final boolean isOwner;
     private JLabel prefixLabel;
     private JLabel canalNameLabel;
     private JLabel visibilityLabel;
     private JLabel editBtnLabel;
     private Channel channel;
     private boolean hovered = false;
-    private final boolean isOwner;
     private int unreadCount = 0;
 
     public CanalView(ViewContext viewContext, Channel channel,
                      ChannelEditCallback onEdit, boolean isOwner, Supplier<List<User>> allUsersSupplier) {
         this.viewContext = viewContext;
-        this.channel     = channel;
-        this.isOwner     = isOwner;
+        this.channel = channel;
+        this.isOwner = isOwner;
         this.setLayout(new GridBagLayout());
         this.setBorder(BorderFactory.createEmptyBorder(6, 8, 6, 8));
         this.setOpaque(false);
@@ -74,7 +74,10 @@ public class CanalView extends JComponent implements View {
     private void createPrefixLabel() {
         boolean priv = channel.isPrivate();
         prefixLabel = new JLabel(priv ? "🔒" : "#") {
-            @Override public boolean contains(int x, int y) { return false; }
+            @Override
+            public boolean contains(int x, int y) {
+                return false;
+            }
         };
         prefixLabel.setFont(new Font("SansSerif", Font.BOLD, priv ? 11 : 14));
         prefixLabel.setForeground(priv ? PRIVATE_CLR : PUBLIC_CLR);
@@ -86,7 +89,10 @@ public class CanalView extends JComponent implements View {
 
     private void createNameLabel() {
         canalNameLabel = new JLabel(channel.getName() != null ? channel.getName() : "") {
-            @Override public boolean contains(int x, int y) { return false; }
+            @Override
+            public boolean contains(int x, int y) {
+                return false;
+            }
         };
         canalNameLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
         canalNameLabel.setForeground(new Color(220, 221, 222));
@@ -99,7 +105,10 @@ public class CanalView extends JComponent implements View {
     private void createVisibilityLabel() {
         boolean priv = channel.isPrivate();
         visibilityLabel = new JLabel(priv ? "privé" : "public") {
-            @Override public boolean contains(int x, int y) { return false; }
+            @Override
+            public boolean contains(int x, int y) {
+                return false;
+            }
         };
         visibilityLabel.setFont(new Font("SansSerif", Font.PLAIN, 16));
         visibilityLabel.setForeground(priv ? PRIVATE_CLR : PUBLIC_CLR);
@@ -121,7 +130,9 @@ public class CanalView extends JComponent implements View {
 
         editBtnLabel.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseEntered(MouseEvent e) { editBtnLabel.setVisible(true); }
+            public void mouseEntered(MouseEvent e) {
+                editBtnLabel.setVisible(true);
+            }
 
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -262,7 +273,8 @@ public class CanalView extends JComponent implements View {
                 if (bx + diameter + 4 > getWidth()) {
                     int leftBx = visibilityLabel.getX() - diameter - 6;
                     // si la position gauche est valide, l'utiliser, sinon coller au bord droit
-                    if (leftBx >= 4) bx = leftBx; else bx = getWidth() - diameter - 4;
+                    if (leftBx >= 4) bx = leftBx;
+                    else bx = getWidth() - diameter - 4;
                 }
             } else {
                 bx = getWidth() - diameter - 4;
@@ -276,19 +288,25 @@ public class CanalView extends JComponent implements View {
         g2.dispose();
     }
 
-    /** Incrémente le compteur de messages non lus et redessine. */
+    /**
+     * Incrémente le compteur de messages non lus et redessine.
+     */
     public void incrementUnread() {
         unreadCount++;
         repaint();
     }
 
-    /** Remet le compteur à zéro et redessine. */
+    /**
+     * Remet le compteur à zéro et redessine.
+     */
     public void clearUnread() {
         unreadCount = 0;
         repaint();
     }
 
-    public Channel getChannel() { return channel; }
+    public Channel getChannel() {
+        return channel;
+    }
 
     public void updateChannel(Channel updated) {
         String oldName = this.channel != null ? this.channel.getName() : "<null>";

@@ -7,6 +7,7 @@ import com.ubo.tp.message.ihm.graphiccontroller.service.IListCanalGraphicControl
 import com.ubo.tp.message.ihm.view.swing.CanalView;
 import com.ubo.tp.message.ihm.view.swing.ListCanalView;
 
+import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -14,7 +15,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import javax.swing.SwingUtilities;
 
 public class ListCanalGraphicController implements IListCanalGraphicController {
 

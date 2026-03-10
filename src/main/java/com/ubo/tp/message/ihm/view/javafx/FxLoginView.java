@@ -43,23 +43,23 @@ public class FxLoginView extends GridPane implements View {
 
         Label title = new Label("Connexion");
         title.setFont(Font.font("Arial", FontWeight.BOLD, 24));
-        title.setTextFill(Color.rgb(220,221,222));
+        title.setTextFill(Color.rgb(220, 221, 222));
         add(title, 0, 0, 2, 1);
 
         Label tagLabel = new Label("Tag :");
-        tagLabel.setTextFill(Color.rgb(220,221,222));
+        tagLabel.setTextFill(Color.rgb(220, 221, 222));
         add(tagLabel, 0, 1);
         tagField.setStyle("-fx-text-fill: #DCDCDC; -fx-prompt-text-fill: #9AA0A6;");
         add(tagField, 1, 1);
 
         Label nameLabel = new Label("Nom :");
-        nameLabel.setTextFill(Color.rgb(220,221,222));
+        nameLabel.setTextFill(Color.rgb(220, 221, 222));
         add(nameLabel, 0, 2);
         nameField.setStyle("-fx-text-fill: #DCDCDC; -fx-prompt-text-fill: #9AA0A6;");
         add(nameField, 1, 2);
 
         Label pwdLabel = new Label("Mot de passe :");
-        pwdLabel.setTextFill(Color.rgb(220,221,222));
+        pwdLabel.setTextFill(Color.rgb(220, 221, 222));
         add(pwdLabel, 0, 3);
         pwdField.setStyle("-fx-text-fill: #DCDCDC; -fx-prompt-text-fill: #9AA0A6;");
         add(pwdField, 1, 3);

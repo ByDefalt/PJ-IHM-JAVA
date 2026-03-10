@@ -29,17 +29,13 @@ public class AppMainController implements IAppMainController, ISessionObserver {
         this.context = Objects.requireNonNull(context);
         this.graphicController = graphicController;
 
-        // Abonnement aux événements de session (login / logout)
         context.session().addObserver(this);
 
-        // Connecter le callback de la vue à la logique du contrôleur
         this.graphicController.setOnExchangeDirectorySelected(this::onExchangeDirectorySelected);
 
-        // Enregistrer handlers pour les actions du menu Compte
         this.graphicController.setOnDisconnect(this::onDisconnectRequested);
         this.graphicController.setOnDeleteAccount(this::onDeleteAccountRequested);
 
-        // La fermeture de fenêtre est gérée ici, pas dans la vue
         this.graphicController.setOnClose(this::onCloseRequested);
 
         this.graphicController.setMainView(firstView);

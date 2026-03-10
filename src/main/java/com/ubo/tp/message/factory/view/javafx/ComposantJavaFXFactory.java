@@ -26,10 +26,6 @@ public class ComposantJavaFXFactory implements ViewFactory {
         this.primaryStage = primaryStage;
     }
 
-    // -------------------------------------------------------------------------
-    // ViewFactory
-    // -------------------------------------------------------------------------
-
     @Override
     public IAppMainController createAppMainController() {
         FxAppMainView appMainView = new FxAppMainView(viewContext, primaryStage);
@@ -63,22 +59,18 @@ public class ComposantJavaFXFactory implements ViewFactory {
 
     @Override
     public View createChatMainView() {
-        // Input
         InputMessageController inputController = new InputMessageController(controllerContext);
         FxInputMessageView inputView = new FxInputMessageView(viewContext);
         new FxInputMessageGraphicController(viewContext, inputView, inputController);
 
-        // Canaux
         FxListCanalView listCanalView = new FxListCanalView(viewContext);
         FxListCanalGraphicController listCanalGC = new FxListCanalGraphicController(viewContext, listCanalView);
         new ListCanalController(controllerContext, listCanalGC);
 
-        // Messages
         FxListMessageView listMessageView = new FxListMessageView(viewContext);
         FxListMessageGraphicController listMessageGC = new FxListMessageGraphicController(viewContext, listMessageView);
         new ListMessageController(controllerContext, listMessageGC);
 
-        // Utilisateurs
         FxListUserView listUserView = new FxListUserView(viewContext);
         FxListUserGraphicController listUserGC = new FxListUserGraphicController(viewContext, listUserView);
         new ListUserController(controllerContext, listUserGC);
@@ -88,4 +80,3 @@ public class ComposantJavaFXFactory implements ViewFactory {
         return new FxChatMainView(viewContext, listCanalView, listUserView, listMessageView, inputView);
     }
 }
-

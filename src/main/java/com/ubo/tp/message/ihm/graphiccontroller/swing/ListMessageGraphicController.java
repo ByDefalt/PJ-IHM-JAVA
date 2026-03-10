@@ -15,9 +15,6 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
 
     private final ViewContext viewContext;
     private final ListMessageView listMessageView;
-    private Consumer<Message> onDeleteMessage;
-    private UUID deletableSenderUuid;
-
     /**
      * Source de vérité : toutes les MessageView connues, triées chronologiquement.
      * Le filtrage est entièrement délégué au controller métier.
@@ -26,6 +23,8 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
             Comparator.comparingLong((MessageView mv) -> mv.getMessage().getEmissionDate())
                     .thenComparing(mv -> mv.getMessage().getUuid().toString())
     );
+    private Consumer<Message> onDeleteMessage;
+    private UUID deletableSenderUuid;
 
     public ListMessageGraphicController(ViewContext viewContext, ListMessageView listMessageView) {
         this.viewContext = viewContext;

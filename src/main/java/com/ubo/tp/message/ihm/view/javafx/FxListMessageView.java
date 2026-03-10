@@ -23,7 +23,9 @@ public class FxListMessageView extends VBox implements View {
     private final ScrollPane scrollPane;
     private final TextField searchField;
 
-    /** Dernière liste complète fournie par le graphic controller. */
+    /**
+     * Dernière liste complète fournie par le graphic controller.
+     */
     private List<FxMessageView> allMessages = List.of();
 
     public FxListMessageView(ViewContext viewContext) {
@@ -35,11 +37,11 @@ public class FxListMessageView extends VBox implements View {
         searchField.setPromptText("Rechercher un message…");
         searchField.setStyle(
                 "-fx-background-color: #2f3136;" +
-                "-fx-text-fill: #dcddde;" +
-                "-fx-prompt-text-fill: #72767d;" +
-                "-fx-border-color: #202225;" +
-                "-fx-border-radius: 4;" +
-                "-fx-background-radius: 4;"
+                        "-fx-text-fill: #dcddde;" +
+                        "-fx-prompt-text-fill: #72767d;" +
+                        "-fx-border-color: #202225;" +
+                        "-fx-border-radius: 4;" +
+                        "-fx-background-radius: 4;"
         );
         VBox.setMargin(searchField, new Insets(8, 8, 4, 8));
         searchField.textProperty().addListener((obs, oldVal, newVal) -> applyFilter(newVal));

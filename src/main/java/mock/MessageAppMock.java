@@ -17,72 +17,43 @@ import java.util.UUID;
 
 public class MessageAppMock {
 
-    /**
-     * Fenetre du bouchon
-     */
     protected JFrame mFrame;
 
-    /**
-     * Connecteur spécifique pour la BDD de l'application.
-     */
     protected DbConnector mDbConnector;
 
-    /**
-     * Gestionnaire de données.
-     */
     protected IDataManager mDataManager;
 
-    /**
-     * Constructeur.
-     *
-     * @param dbConnector , lien vers la BDD de l'application.
-     */
     public MessageAppMock(DbConnector dbConnector, IDataManager dataManager) {
         this.mDbConnector = dbConnector;
         this.mDataManager = dataManager;
     }
 
-    /**
-     * Lance l'afficahge de l'IHM.
-     */
     public void showGUI() {
-        // Init auto de l'IHM au cas ou ;)
         if (mFrame == null) {
             this.initGUI();
         }
 
-        // Affichage dans l'EDT
         SwingUtilities.invokeLater(() -> {
-            // Custom de l'affichage
             JFrame frame = MessageAppMock.this.mFrame;
             Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
             frame.setLocation((screenSize.width - frame.getWidth()) / 6,
                     (screenSize.height - frame.getHeight()) / 4);
 
-            // Affichage
             MessageAppMock.this.mFrame.setVisible(true);
 
             MessageAppMock.this.mFrame.pack();
         });
     }
 
-    /**
-     * Initialisation de l'IHM
-     */
     protected void initGUI() {
-        // Création de la fenetre principale
         mFrame = new JFrame("MOCK");
         mFrame.setLayout(new GridBagLayout());
-
-        //
-        // Gestion de la base de données
 
         JLabel dbLabel = new JLabel("Database");
 
         Button addUserButton = new Button("Add User");
         addUserButton.setPreferredSize(new Dimension(100, 50));
         addUserButton.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 MessageAppMock.this.addUserInDatabase();
@@ -92,7 +63,6 @@ public class MessageAppMock {
         Button addMessageButton = new Button("Add Message");
         addMessageButton.setPreferredSize(new Dimension(100, 50));
         addMessageButton.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 MessageAppMock.this.addMessageInDatabase();
@@ -102,20 +72,17 @@ public class MessageAppMock {
         Button addChannelButton = new Button("Add Channel");
         addChannelButton.setPreferredSize(new Dimension(100, 50));
         addChannelButton.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(ActionEvent arg0) {
                 MessageAppMock.this.addChannelInDatabase();
             }
         });
 
-        // Remove buttons
         Button removeUserButton = new Button("Remove User");
         removeUserButton.setPreferredSize(new Dimension(100, 50));
         removeUserButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Prend un utilisateur au hasard dans la DB et le supprime
                 java.util.Set<User> users = MessageAppMock.this.mDataManager.getUsers();
                 if (users.isEmpty()) return;
                 ArrayList<User> list = new ArrayList<>(users);
@@ -150,7 +117,6 @@ public class MessageAppMock {
             }
         });
 
-        // Update buttons
         Button updateUserButton = new Button("Update User");
         updateUserButton.setPreferredSize(new Dimension(100, 50));
         updateUserButton.addActionListener(new ActionListener() {
@@ -160,7 +126,6 @@ public class MessageAppMock {
                 if (users.isEmpty()) return;
                 ArrayList<User> list = new ArrayList<>(users);
                 User chosen = list.get(new Random().nextInt(list.size()));
-                // Modifie le nom et notifie la DB via fichiers
                 chosen.setName(chosen.getName() + "_upd");
                 MessageAppMock.this.mDataManager.sendUser(chosen);
             }
@@ -175,7 +140,6 @@ public class MessageAppMock {
                 if (messages.isEmpty()) return;
                 ArrayList<Message> list = new ArrayList<>(messages);
                 Message chosen = list.get(new Random().nextInt(list.size()));
-                // Crée un nouveau message avec le même UUID mais texte modifié et écrit en fichier
                 Message updated = new Message(chosen.getUuid(), chosen.getSender(), chosen.getRecipient(), chosen.getEmissionDate(), chosen.getText() + "_upd");
                 MessageAppMock.this.mDataManager.sendMessage(updated);
             }
@@ -190,14 +154,10 @@ public class MessageAppMock {
                 if (channels.isEmpty()) return;
                 ArrayList<Channel> list = new ArrayList<>(channels);
                 Channel chosen = list.get(new Random().nextInt(list.size()));
-                // Crée un nouveau canal avec le même UUID mais nom modifié et écrit en fichier
                 Channel updated = new Channel(chosen.getUuid(), chosen.getCreator(), chosen.getName() + "_upd");
                 MessageAppMock.this.mDataManager.sendChannel(updated);
             }
         });
-
-        //
-        // Gestion des fichiers
 
         JLabel fileLabel = new JLabel("Files");
 
@@ -225,8 +185,6 @@ public class MessageAppMock {
             }
         });
 
-        //
-        // Ajout des composants à la fenêtre
         this.mFrame.add(dbLabel, new GridBagConstraints(0, 0, 3, 1, 1, 1, GridBagConstraints.CENTER,
                 GridBagConstraints.NONE, new Insets(5, 5, 0, 5), 0, 0));
         this.mFrame.add(addUserButton, new GridBagConstraints(0, 1, 1, 1, 1, 1, GridBagConstraints.WEST,
@@ -245,7 +203,6 @@ public class MessageAppMock {
         this.mFrame.add(sendChannelButton, new GridBagConstraints(2, 3, 1, 1, 1, 1, GridBagConstraints.WEST,
                 GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
 
-        // remove row
         this.mFrame.add(removeUserButton, new GridBagConstraints(0, 5, 1, 1, 1, 1, GridBagConstraints.WEST,
                 GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
         this.mFrame.add(removeMessageButton, new GridBagConstraints(1, 5, 1, 1, 1, 1, GridBagConstraints.CENTER,
@@ -253,7 +210,6 @@ public class MessageAppMock {
         this.mFrame.add(removeChannelButton, new GridBagConstraints(2, 5, 1, 1, 1, 1, GridBagConstraints.EAST,
                 GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
 
-        // update row
         this.mFrame.add(updateUserButton, new GridBagConstraints(0, 6, 1, 1, 1, 1, GridBagConstraints.WEST,
                 GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
         this.mFrame.add(updateMessageButton, new GridBagConstraints(1, 6, 1, 1, 1, 1, GridBagConstraints.CENTER,
@@ -262,31 +218,18 @@ public class MessageAppMock {
                 GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
     }
 
-    /**
-     * Ajoute un utilisateur fictif à la base de donnée.
-     */
     protected void addUserInDatabase() {
-        // Création d'un utilisateur fictif
         User newUser = this.generateUser();
 
-        // Ajout de l'utilisateur à la base
         this.mDbConnector.addUser(newUser);
     }
 
-    /**
-     * Génération et envoi d'un fichier utilisateur
-     */
     protected void writeUser() {
-        // Création d'un utilisateur fictif
         User newUser = this.generateUser();
 
-        // Génération du fichier utilisateur
         this.mDataManager.sendUser(newUser);
     }
 
-    /**
-     * Génération d'un utilisateur fictif.
-     */
     protected User generateUser() {
         int randomInt = new Random().nextInt(99999);
         String userName = "MockUser" + randomInt;
@@ -295,84 +238,51 @@ public class MessageAppMock {
         return newUser;
     }
 
-    /**
-     * Ajoute un message fictif à la base de données.
-     */
     protected void addMessageInDatabase() {
-        // Création d'un message fictif
         Message newMessage = this.generateMessage();
 
-        // Ajout du message
         this.mDbConnector.addMessage(newMessage);
     }
 
-    /**
-     * Génération et envoi d'un fichier message
-     */
     protected void writeMessage() {
-        // Création d'un message fictif
         Message newMessage = this.generateMessage();
 
-        // Génération du fichier message
         this.mDataManager.sendMessage(newMessage);
     }
 
-    /**
-     * Ajoute un canal fictif à la base de données.
-     */
     protected void addChannelInDatabase() {
-        // Création d'un canal fictif
         Channel newChannel = this.generateChannel();
 
-        // Ajout du message
         this.mDbConnector.addChannel(newChannel);
     }
 
-    /**
-     * Génération et envoi d'un fichier canal
-     */
     protected void writeChannel() {
         Channel newChannel = this.generateChannel();
 
-        // Génération du fichier message
         this.mDataManager.sendChannel(newChannel);
     }
 
-    /**
-     * Génération d'un message fictif.
-     */
     protected Message generateMessage() {
-        // Si la base n'a pas d'utilisateur
         if (this.mDataManager.getUsers().isEmpty()) {
-            // Création d'un utilisateur
             this.addUserInDatabase();
         }
 
-        // Récupération d'un utilisateur au hazard
         int userIndex = new Random().nextInt(this.mDataManager.getUsers().size());
         User randomUser = new ArrayList<>(this.mDataManager.getUsers()).get(Math.max(0, userIndex - 1));
 
-        // Création d'un message fictif
         Message newMessage = new Message(randomUser, Constants.UNKNONWN_USER_UUID, "Message fictif!! #Mock #test ;)");
 
         return newMessage;
     }
 
-    /**
-     * Génération d'un canal fictif.
-     */
     protected Channel generateChannel() {
-        // Si la base n'a pas d'utilisateur
         if (this.mDataManager.getUsers().isEmpty()) {
-            // Création d'un utilisateur
             this.addUserInDatabase();
         }
 
-        // Récupération d'un utilisateur au hazard
         int userIndex = new Random().nextInt(this.mDataManager.getUsers().size());
         User randomUser = new ArrayList<>(this.mDataManager.getUsers()).get(Math.max(0, userIndex - 1));
 
-        // Création d'un canal fictif
         Channel newChannel = new Channel(randomUser, "Canal fictif");
 
         return newChannel;

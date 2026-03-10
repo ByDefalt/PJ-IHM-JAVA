@@ -15,10 +15,6 @@ public class ComposantSwingFactory implements ViewFactory {
     private static ControllerContext controllerContext;
     private static ViewContext viewContext;
 
-    // -------------------------------------------------------------------------
-    // Méthodes d'instance (implémentation de ViewFactory)
-    // -------------------------------------------------------------------------
-
     public static IAppMainController createAppMainControllerStatic() {
         AppMainView view = new AppMainView(viewContext);
         IAppMainGraphicController graphicController = new AppMainGraphicController(viewContext, view);
@@ -52,10 +48,6 @@ public class ComposantSwingFactory implements ViewFactory {
         new ListMessageController(controllerContext, listMessageGraphicController);
         return listMessageView;
     }
-
-    // -------------------------------------------------------------------------
-    // Méthodes statiques (usage interne / NavigationController via ViewFactory)
-    // -------------------------------------------------------------------------
 
     public static ListUserView createListUserView() {
         ListUserView listUserView = new ListUserView(viewContext);
