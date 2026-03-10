@@ -1,5 +1,8 @@
 package com.ubo.tp.message.controller.service;
 
+import com.ubo.tp.message.datamodel.User;
+
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -27,4 +30,6 @@ public interface IInputMessageController extends Controller {
      * @param text contenu du message saisi
      */
     void sendMessageToSelected(String text);
+
+    List<User> onGetAllUsers();
 }

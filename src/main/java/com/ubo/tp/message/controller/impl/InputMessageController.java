@@ -1,9 +1,12 @@
 package com.ubo.tp.message.controller.impl;
 
+import com.ubo.tp.message.common.Constants;
 import com.ubo.tp.message.controller.contexte.ControllerContext;
 import com.ubo.tp.message.controller.service.IInputMessageController;
 import com.ubo.tp.message.datamodel.Message;
+import com.ubo.tp.message.datamodel.User;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -66,6 +69,15 @@ public class InputMessageController implements IInputMessageController {
     @Override
     public void sendMessageToSelected(String text) {
         handleSendMessageToSelectedLogic(text);
+    }
+
+    @Override
+    public List<User> onGetAllUsers() {
+        return handleGetAllUsersLogic();
+    }
+
+    private List<User> handleGetAllUsersLogic() {
+        return context.dataManager().getUsers().stream().filter(user -> !user.equals(Constants.UNKNOWN_USER)).toList();
     }
 
     private void handleSendMessageToSelectedLogic(String text) {

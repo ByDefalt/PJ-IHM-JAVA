@@ -1,5 +1,6 @@
 package com.ubo.tp.message.ihm.view.swing;
 
+import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.view.service.View;
 
@@ -8,10 +9,10 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
+import java.awt.event.*;
 import java.awt.geom.RoundRectangle2D;
+import java.util.List;
+import java.util.function.Supplier;
 
 public class InputMessageView extends JComponent implements View {
 
@@ -22,6 +23,7 @@ public class InputMessageView extends JComponent implements View {
     private final ViewContext viewContext;
     private final JTextArea inputField;
     private Runnable onSendRequested;
+    private Supplier<List<User>> usersSupplier;
 
     private Color normalBorderColor;
     private Color focusBorderColor;
@@ -29,6 +31,13 @@ public class InputMessageView extends JComponent implements View {
 
     private JScrollPane inputScrollPane;
     private int currentRows = 1;
+
+    // Autocomplete UI
+    private final JPopupMenu suggestionPopup = new JPopupMenu();
+    private final DefaultListModel<User> suggestionModel = new DefaultListModel<>();
+    private final JList<User> suggestionList = new JList<>(suggestionModel);
+    private int mentionStart = -1; // position du '@' dans le texte
+    private int mentionEnd   = -1; // position du caret au moment de la complétion
 
     public InputMessageView(ViewContext viewContext) {
         this.viewContext = viewContext;
@@ -42,6 +51,7 @@ public class InputMessageView extends JComponent implements View {
 
         createInputField();
         installInternalListeners();
+        setupSuggestionPopup();
 
         if (this.viewContext.logger() != null) this.viewContext.logger().debug("InputMessageView initialisée");
     }
@@ -50,31 +60,21 @@ public class InputMessageView extends JComponent implements View {
     // API publique
     // -------------------------------------------------------------------------
 
-    /**
-     * Enregistre le callback déclenché quand l'utilisateur valide l'envoi (Entrée).
-     */
     public void setOnSendRequested(Runnable onSendRequested) {
         this.onSendRequested = onSendRequested;
     }
 
-    /**
-     * Retourne le texte saisi.
-     */
     public String getText() {
         return inputField.getText();
     }
 
-    /**
-     * Efface le champ de saisie et remet la mise en page à une ligne.
-     */
     public void clearText() {
         inputField.setText("");
         inputField.requestFocusInWindow();
-        // Le DocumentListener va être déclenché mais on force aussi en invokeLater
-        // pour s'assurer que le reset à 1 ligne est bien appliqué après le setText.
         SwingUtilities.invokeLater(() -> {
             setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
             applyRows(1);
+            hideSuggestionPopup();
         });
     }
 
@@ -94,11 +94,49 @@ public class InputMessageView extends JComponent implements View {
         im.put(KeyStroke.getKeyStroke("shift ENTER"), DefaultEditorKit.insertBreakAction);
         im.put(KeyStroke.getKeyStroke("ctrl ENTER"), DefaultEditorKit.insertBreakAction);
         im.put(KeyStroke.getKeyStroke("ENTER"), "sendMessage");
+        im.put(KeyStroke.getKeyStroke("ESCAPE"), "hideSuggestions");
+        im.put(KeyStroke.getKeyStroke("DOWN"), "selectNextSuggestion");
+        im.put(KeyStroke.getKeyStroke("UP"), "selectPrevSuggestion");
 
         am.put("sendMessage", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (onSendRequested != null) onSendRequested.run();
+                if (suggestionPopup.isVisible()) {
+                    // Entrée avec popup ouvert = valider la complétion sélectionnée
+                    insertSelectedSuggestion();
+                } else {
+                    // Popup fermé = envoyer le message
+                    if (onSendRequested != null) onSendRequested.run();
+                }
+            }
+        });
+
+        am.put("hideSuggestions", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                hideSuggestionPopup();
+            }
+        });
+
+        am.put("selectNextSuggestion", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (suggestionPopup.isVisible()) {
+                    int idx = suggestionList.getSelectedIndex();
+                    if (idx < suggestionModel.size() - 1) suggestionList.setSelectedIndex(idx + 1);
+                    suggestionList.ensureIndexIsVisible(suggestionList.getSelectedIndex());
+                }
+            }
+        });
+
+        am.put("selectPrevSuggestion", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (suggestionPopup.isVisible()) {
+                    int idx = suggestionList.getSelectedIndex();
+                    if (idx > 0) suggestionList.setSelectedIndex(idx - 1);
+                    suggestionList.ensureIndexIsVisible(suggestionList.getSelectedIndex());
+                }
             }
         });
     }
@@ -120,23 +158,13 @@ public class InputMessageView extends JComponent implements View {
                                     ? ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED
                                     : ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER
                     );
+                    handleAutocomplete();
                 });
             }
 
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                notifyChange();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                notifyChange();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                notifyChange();
-            }
+            @Override public void insertUpdate(DocumentEvent e)  { notifyChange(); }
+            @Override public void removeUpdate(DocumentEvent e)  { notifyChange(); }
+            @Override public void changedUpdate(DocumentEvent e) { notifyChange(); }
         });
     }
 
@@ -151,7 +179,24 @@ public class InputMessageView extends JComponent implements View {
             @Override
             public void focusLost(FocusEvent e) {
                 setFocused(false);
-                if (viewContext.logger() != null) viewContext.logger().debug("Input focus: false");
+                Component opposite = e.getOppositeComponent();
+                if (opposite != null) {
+                    if (opposite == suggestionList
+                            || SwingUtilities.isDescendingFrom(opposite, suggestionList)
+                            || SwingUtilities.isDescendingFrom(opposite, suggestionPopup)) {
+                        return;
+                    }
+                }
+                SwingUtilities.invokeLater(() -> {
+                    Component owner = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+                    if (owner == null
+                            || owner == suggestionList
+                            || SwingUtilities.isDescendingFrom(owner, suggestionList)
+                            || SwingUtilities.isDescendingFrom(owner, suggestionPopup)) {
+                        return;
+                    }
+                    hideSuggestionPopup();
+                });
             }
         });
     }
@@ -165,16 +210,10 @@ public class InputMessageView extends JComponent implements View {
         this.repaint();
     }
 
-    /**
-     * Met à jour currentRows et demande un recalcul complet du layout
-     * jusqu'au parent, sans jamais appeler inputField.setRows() (dont la
-     * taille mémorisée par le JScrollPane causait le bug).
-     */
     private void applyRows(int rows) {
         if (rows < 1) rows = 1;
-        if (rows == currentRows) return; // rien à faire
+        if (rows == currentRows) return;
         currentRows = rows;
-        // Invalider toute la chaîne pour effacer les tailles en cache
         inputField.invalidate();
         if (inputScrollPane != null) inputScrollPane.invalidate();
         this.invalidate();
@@ -193,9 +232,6 @@ public class InputMessageView extends JComponent implements View {
         if (inputScrollPane != null) inputScrollPane.setVerticalScrollBarPolicy(policy);
     }
 
-    /**
-     * Calcule la hauteur en pixels pour un nombre de lignes donné.
-     */
     private int rowsToHeight(int rows) {
         FontMetrics fm = inputField.getFontMetrics(inputField.getFont());
         int lineH = (fm != null && fm.getHeight() > 0) ? fm.getHeight() : 20;
@@ -211,19 +247,19 @@ public class InputMessageView extends JComponent implements View {
     }
 
     private void configureColorsAndFonts() {
-        Color inputBg = UIManager.getColor("TextArea.background");
-        Color inputFg = UIManager.getColor("TextArea.foreground");
+        Color inputBg    = UIManager.getColor("TextArea.background");
+        Color inputFg    = UIManager.getColor("TextArea.foreground");
         Color caretColor = UIManager.getColor("TextArea.caretForeground");
         normalBorderColor = UIManager.getColor("TextField.borderColor");
-        focusBorderColor = UIManager.getColor("TextField.focusedBorderColor");
+        focusBorderColor  = UIManager.getColor("TextField.focusedBorderColor");
 
-        if (inputBg == null) inputBg = new Color(64, 68, 75);
-        if (inputFg == null) inputFg = new Color(220, 221, 222);
-        if (caretColor == null) caretColor = inputFg;
+        if (inputBg == null)           inputBg           = new Color(64, 68, 75);
+        if (inputFg == null)           inputFg           = new Color(220, 221, 222);
+        if (caretColor == null)        caretColor        = inputFg;
         if (normalBorderColor == null) normalBorderColor = new Color(32, 34, 37);
-        if (focusBorderColor == null) focusBorderColor = new Color(88, 101, 242);
+        if (focusBorderColor == null)  focusBorderColor  = new Color(88, 101, 242);
 
-        Font baseFont = UIManager.getFont("TextArea.font");
+        Font baseFont  = UIManager.getFont("TextArea.font");
         Font inputFont = (baseFont != null) ? baseFont.deriveFont(Font.PLAIN, 14f)
                 : new Font("SansSerif", Font.PLAIN, 14);
 
@@ -232,13 +268,12 @@ public class InputMessageView extends JComponent implements View {
         inputField.setForeground(inputFg);
         inputField.setCaretColor(caretColor);
         inputField.setOpaque(false);
-        inputField.setRows(1);          // valeur initiale Swing, on ne la touche plus ensuite
+        inputField.setRows(1);
         inputField.setLineWrap(true);
         inputField.setWrapStyleWord(true);
         inputField.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
         inputField.setColumns(30);
 
-        // --- UI-side validation: limiter la saisie à 200 caractères ---
         if (inputField.getDocument() instanceof AbstractDocument adoc) {
             adoc.setDocumentFilter(new MaxLengthFilter(200));
         }
@@ -249,25 +284,13 @@ public class InputMessageView extends JComponent implements View {
         if (selFg != null) inputField.setSelectedTextColor(selFg);
     }
 
-    private void configureInputFieldBasics() {
-        // nothing for now; kept for future small responsibilities
-    }
+    private void configureInputFieldBasics() { }
 
     private void createScrollAndWrapper() {
         final Color finalInputBg = inputField.getBackground();
         JScrollPane sp = new JScrollPane(inputField) {
-            @Override
-            public Dimension getPreferredSize() {
-                // Hauteur pilotée par currentRows, jamais par le cache Swing
-                int h = rowsToHeight(currentRows);
-                // largeur : laisser le layout décider (on retourne 0, le fill=BOTH s'en charge)
-                return new Dimension(0, h);
-            }
-
-            @Override
-            public Dimension getMinimumSize() {
-                return new Dimension(0, rowsToHeight(1));
-            }
+            @Override public Dimension getPreferredSize() { return new Dimension(0, rowsToHeight(currentRows)); }
+            @Override public Dimension getMinimumSize()   { return new Dimension(0, rowsToHeight(1)); }
         };
         this.inputScrollPane = sp;
         sp.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
@@ -276,7 +299,6 @@ public class InputMessageView extends JComponent implements View {
         sp.getViewport().setOpaque(false);
         sp.getViewport().setBackground(finalInputBg);
 
-        // Wrapper arrondi dont getPreferredSize délègue aussi à currentRows
         JPanel roundedWrapper = createRoundedWrapper(finalInputBg);
         roundedWrapper.add(sp, BorderLayout.CENTER);
 
@@ -301,25 +323,11 @@ public class InputMessageView extends JComponent implements View {
                 float inset = strokeWidth / 2f;
                 g2.setColor(border);
                 g2.setStroke(new BasicStroke(strokeWidth));
-                g2.draw(new RoundRectangle2D.Float(
-                        inset, inset,
-                        getWidth() - strokeWidth,
-                        getHeight() - strokeWidth,
-                        ARC, ARC));
+                g2.draw(new RoundRectangle2D.Float(inset, inset, getWidth() - strokeWidth, getHeight() - strokeWidth, ARC, ARC));
                 g2.dispose();
             }
-
-            @Override
-            public Dimension getPreferredSize() {
-                // Déléguer au même calcul que InputMessageView
-                int h = rowsToHeight(currentRows);
-                return new Dimension(0, h);
-            }
-
-            @Override
-            public Dimension getMinimumSize() {
-                return new Dimension(0, rowsToHeight(1));
-            }
+            @Override public Dimension getPreferredSize() { return new Dimension(0, rowsToHeight(currentRows)); }
+            @Override public Dimension getMinimumSize()   { return new Dimension(0, rowsToHeight(1)); }
         };
         roundedWrapper.setOpaque(false);
         roundedWrapper.setBorder(BorderFactory.createEmptyBorder());
@@ -338,72 +346,218 @@ public class InputMessageView extends JComponent implements View {
         super.paintComponent(g);
     }
 
-    // Garantir une taille minimale et préférée pour éviter d'être écrasé par le JScrollPane
     @Override
     public Dimension getMinimumSize() {
         Insets in = getInsets();
         int h = rowsToHeight(1) + in.top + in.bottom;
-        h = Math.max(h, MIN_HEIGHT);
-        return new Dimension(0, h);
+        return new Dimension(0, Math.max(h, MIN_HEIGHT));
     }
 
     @Override
     public Dimension getPreferredSize() {
         Insets in = getInsets();
         int h = rowsToHeight(currentRows) + in.top + in.bottom;
-        h = Math.max(h, MIN_HEIGHT);
-        return new Dimension(0, h);
+        return new Dimension(0, Math.max(h, MIN_HEIGHT));
     }
 
-    // DocumentFilter interne pour limiter la longueur du texte
+    // -------------------------------------------------------------------------
+    // DocumentFilter : limite de 200 caractères
+    // -------------------------------------------------------------------------
+
     private static class MaxLengthFilter extends DocumentFilter {
         private final int max;
-
-        public MaxLengthFilter(int max) {
-            this.max = max;
-        }
+        public MaxLengthFilter(int max) { this.max = max; }
 
         @Override
         public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
             if (string == null) return;
-            int currentLength = fb.getDocument().getLength();
-            int newLength = string.length();
-            if (currentLength + newLength <= max) {
+            int allowed = max - fb.getDocument().getLength();
+            if (allowed <= 0) { Toolkit.getDefaultToolkit().beep(); return; }
+            if (string.length() <= allowed) {
                 super.insertString(fb, offset, string, attr);
             } else {
-                // tronquer le texte pour respecter la taille max
-                int allowed = max - currentLength;
-                if (allowed > 0) {
-                    String cut = string.substring(0, Math.max(0, allowed));
-                    super.insertString(fb, offset, cut, attr);
-                    Toolkit.getDefaultToolkit().beep();
-                } else {
-                    Toolkit.getDefaultToolkit().beep();
-                }
+                super.insertString(fb, offset, string.substring(0, allowed), attr);
+                Toolkit.getDefaultToolkit().beep();
             }
         }
 
         @Override
         public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
-            if (text == null) {
-                super.replace(fb, offset, length, text, attrs);
-                return;
-            }
-            int currentLength = fb.getDocument().getLength();
-            int newLength = text.length();
-            int resulting = currentLength - length + newLength;
-            if (resulting <= max) {
+            if (text == null) { super.replace(fb, offset, length, text, attrs); return; }
+            int allowed = max - (fb.getDocument().getLength() - length);
+            if (allowed <= 0) { Toolkit.getDefaultToolkit().beep(); return; }
+            if (text.length() <= allowed) {
                 super.replace(fb, offset, length, text, attrs);
             } else {
-                int allowed = max - (currentLength - length);
-                if (allowed > 0) {
-                    String cut = text.substring(0, Math.max(0, allowed));
-                    super.replace(fb, offset, length, cut, attrs);
-                    Toolkit.getDefaultToolkit().beep();
-                } else {
-                    Toolkit.getDefaultToolkit().beep();
-                }
+                super.replace(fb, offset, length, text.substring(0, allowed), attrs);
+                Toolkit.getDefaultToolkit().beep();
             }
         }
+    }
+
+    // -------------------------------------------------------------------------
+    // API publique : fournisseur d'utilisateurs
+    // -------------------------------------------------------------------------
+
+    public void setUsersSupplier(Supplier<List<User>> usersSupplier) {
+        this.usersSupplier = usersSupplier;
+    }
+
+    // -------------------------------------------------------------------------
+    // Autocomplete
+    // -------------------------------------------------------------------------
+
+    private void setupSuggestionPopup() {
+        // Doit être appelé avant la création du JPopupMenu pour être effectif
+        JPopupMenu.setDefaultLightWeightPopupEnabled(false);
+
+        suggestionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        suggestionList.setVisibleRowCount(8);
+        suggestionList.setFixedCellHeight(24);
+        suggestionList.setCellRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof User u) setText(u.getName() + " (@" + u.getUserTag() + ")");
+                return this;
+            }
+        });
+
+        suggestionList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                int index = suggestionList.locationToIndex(e.getPoint());
+                if (index >= 0) {
+                    suggestionList.setSelectedIndex(index);
+                    insertSelectedSuggestion();
+                }
+            }
+        });
+
+        // Non-focusable : le popup n'arrache jamais le focus de l'inputField
+        suggestionPopup.setFocusable(false);
+        suggestionList.setFocusable(false);
+
+        JScrollPane sp = new JScrollPane(suggestionList);
+        sp.setBorder(null);
+        sp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        suggestionPopup.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        suggestionPopup.add(sp);
+    }
+
+    /**
+     * Détecte un token "@xxx" actif juste avant le caret.
+     * Remonte caractère par caractère : si on trouve '@' → token actif.
+     * Si on trouve un espace/retour avant '@' → pas de mention active, popup fermé.
+     * Le token après '@' ne doit pas contenir d'espace (sinon la mention est déjà terminée).
+     */
+    private void handleAutocomplete() {
+        if (usersSupplier == null) { hideSuggestionPopup(); return; }
+
+        int caretPos = inputField.getCaretPosition();
+        String text  = inputField.getText();
+        if (text == null || text.isEmpty() || caretPos == 0) { hideSuggestionPopup(); return; }
+
+        // Remonter depuis le caret pour trouver un '@' sans espace intermédiaire
+        int atPos = -1;
+        for (int i = caretPos - 1; i >= 0; i--) {
+            char c = text.charAt(i);
+            if (c == '@') { atPos = i; break; }
+            if (Character.isWhitespace(c)) { hideSuggestionPopup(); return; }
+        }
+
+        if (atPos < 0) { hideSuggestionPopup(); return; }
+
+        // Token entre '@' et le caret — ne doit pas contenir d'espace
+        String token = text.substring(atPos + 1, caretPos);
+        if (token.contains(" ") || token.contains("\t") || token.contains("\n")) {
+            hideSuggestionPopup();
+            return;
+        }
+
+        // Récupérer et filtrer les utilisateurs
+        List<User> all = usersSupplier.get();
+        if (all == null || all.isEmpty()) { hideSuggestionPopup(); return; }
+
+        String q = token.toLowerCase();
+        suggestionModel.clear();
+        for (User u : all) {
+            String tag  = (u.getUserTag() != null) ? u.getUserTag().toLowerCase() : "";
+            String name = (u.getName()    != null) ? u.getName().toLowerCase()    : "";
+            if (q.isEmpty() || tag.contains(q) || name.contains(q)) {
+                suggestionModel.addElement(u);
+            }
+        }
+
+        if (suggestionModel.isEmpty()) { hideSuggestionPopup(); return; }
+
+        // Afficher le popup sous le '@'
+        try {
+            Rectangle rect;
+            try {
+                java.awt.geom.Rectangle2D r2 = inputField.modelToView2D(atPos);
+                rect = new Rectangle((int) Math.round(r2.getX()), (int) Math.round(r2.getY()),
+                        (int) Math.round(r2.getWidth()), (int) Math.round(r2.getHeight()));
+            } catch (Throwable t) {
+                rect = inputField.modelToView(atPos);
+            }
+
+            Component comp = suggestionPopup.getComponent(0);
+            if (comp instanceof JScrollPane jsp) {
+                int cellH = suggestionList.getFixedCellHeight();
+                if (cellH <= 0) {
+                    FontMetrics fm = suggestionList.getFontMetrics(suggestionList.getFont());
+                    cellH = Math.max(20, fm.getHeight() + 4);
+                    suggestionList.setFixedCellHeight(cellH);
+                }
+                int prefH = Math.min(8, suggestionModel.getSize()) * cellH;
+                prefH = Math.max(48, Math.min(200, prefH));
+                jsp.setPreferredSize(new Dimension(240, prefH));
+            }
+
+            suggestionList.setSelectedIndex(0);
+            suggestionPopup.show(inputField, rect.x, rect.y + rect.height);
+
+            mentionStart = atPos;    // inclut le '@'
+            mentionEnd   = caretPos;
+
+        } catch (BadLocationException ex) {
+            hideSuggestionPopup();
+        }
+    }
+
+    /**
+     * Insère "@userTag " en remplaçant la zone "@token" courante.
+     * L'espace final garantit que handleAutocomplete() ne rouvre PAS le popup
+     * (le token après insertion contient un espace → fermeture automatique).
+     */
+    private void insertSelectedSuggestion() {
+        User u = suggestionList.getSelectedValue();
+        if (u == null) return;
+
+        // Fermer le popup AVANT de modifier le document
+        hideSuggestionPopup();
+
+        String mention = u.getUserTag() + " ";
+        try {
+            Document doc = inputField.getDocument();
+            int docLen = doc.getLength();
+            if (mentionStart >= 0 && mentionEnd >= mentionStart && mentionEnd <= docLen) {
+                doc.remove(mentionStart, mentionEnd - mentionStart);
+                doc.insertString(mentionStart, mention, null);
+            } else {
+                int pos = Math.min(inputField.getCaretPosition(), docLen);
+                doc.insertString(pos, mention, null);
+            }
+        } catch (BadLocationException ex) {
+            // ignore
+        }
+        SwingUtilities.invokeLater(() -> inputField.requestFocusInWindow());
+    }
+
+    private void hideSuggestionPopup() {
+        if (suggestionPopup.isVisible()) suggestionPopup.setVisible(false);
+        mentionStart = -1;
+        mentionEnd   = -1;
     }
 }

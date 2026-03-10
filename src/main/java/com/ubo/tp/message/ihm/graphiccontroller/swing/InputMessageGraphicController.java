@@ -20,7 +20,9 @@ public class InputMessageGraphicController implements GraphicController {
         this.viewContext = viewContext;
         this.inputMessageView = inputMessageView;
         this.inputMessageController = inputMessageController;
+
         inputMessageView.setOnSendRequested(this::handleSendAction);
+        inputMessageView.setUsersSupplier(inputMessageController::onGetAllUsers);
     }
 
     /**
