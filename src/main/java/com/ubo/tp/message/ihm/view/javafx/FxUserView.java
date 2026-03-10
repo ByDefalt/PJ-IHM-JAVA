@@ -96,7 +96,11 @@ public class FxUserView extends HBox implements View {
     public void incrementUnread() {
         int current = 0;
         if (badgeLabel.isVisible()) {
-            try { current = Integer.parseInt(badgeLabel.getText()); } catch (Exception ignore) { current = 0; }
+            try {
+                current = Integer.parseInt(badgeLabel.getText());
+            } catch (Exception ignore) {
+                current = 0;
+            }
         }
         current++;
         badgeLabel.setText(current > 99 ? "99+" : String.valueOf(current));

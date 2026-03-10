@@ -3,22 +3,21 @@ package com.ubo.tp.message.ihm.view.javafx;
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.view.service.View;
+import com.ubo.tp.message.utils.EmojiBinders;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Cursor;
-import javafx.scene.control.Label;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
-import javafx.scene.text.TextAlignment;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import com.ubo.tp.message.utils.EmojiBinders;
+import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.*;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -26,10 +25,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import javafx.scene.input.MouseButton;
-import javafx.event.EventHandler;
-import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.input.MouseEvent;
 
 /**
  * Bulle représentant un message — JavaFX.
@@ -37,31 +32,31 @@ import javafx.scene.input.MouseEvent;
  */
 public class FxMessageView extends HBox implements View {
 
-     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter
-             .ofPattern("dd/MM/yyyy HH'h'mm").withLocale(Locale.FRANCE);
-     private static final Color BG_NORMAL = Color.rgb(54, 57, 63);
-     private static final Color BG_HOVER  = Color.rgb(72, 76, 84);
+    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter
+            .ofPattern("dd/MM/yyyy HH'h'mm").withLocale(Locale.FRANCE);
+    private static final Color BG_NORMAL = Color.rgb(54, 57, 63);
+    private static final Color BG_HOVER = Color.rgb(72, 76, 84);
 
-     private final Message message;
-     private TextFlow contentArea;
-     private final ViewContext viewContext;
+    private final Message message;
+    private final ViewContext viewContext;
+    private TextFlow contentArea;
 
     public FxMessageView(ViewContext viewContext, Message message) {
         this(viewContext, message, null, false);
     }
 
-     public FxMessageView(ViewContext viewContext, Message message,
-                          Supplier<Consumer<Message>> onDeleteSupplier, boolean canDelete) {
+    public FxMessageView(ViewContext viewContext, Message message,
+                         Supplier<Consumer<Message>> onDeleteSupplier, boolean canDelete) {
         this.viewContext = viewContext;
-         this.message = message;
-         if (this.viewContext != null && this.viewContext.logger() != null) {
+        this.message = message;
+        if (this.viewContext != null && this.viewContext.logger() != null) {
             Consumer<Message> cb = onDeleteSupplier == null ? null : onDeleteSupplier.get();
             this.viewContext.logger().debug("FxMessageView created for message=" + message.getUuid()
                     + " canDelete=" + canDelete + " onDeletePresent=" + (cb != null));
-         }
-         setAlignment(Pos.TOP_LEFT);
-         setPadding(new Insets(4));
-         setBackground(new Background(new BackgroundFill(BG_NORMAL, new CornerRadii(6), Insets.EMPTY)));
+        }
+        setAlignment(Pos.TOP_LEFT);
+        setPadding(new Insets(4));
+        setBackground(new Background(new BackgroundFill(BG_NORMAL, new CornerRadii(6), Insets.EMPTY)));
 
         // ── Corps du message ─────────────────────────────────────────────
         VBox body = new VBox(2);
@@ -99,8 +94,8 @@ public class FxMessageView extends HBox implements View {
         HBox.setHgrow(contentArea, Priority.ALWAYS);
         // Lier directement la largeur préférée du TextFlow à la largeur du VBox 'body'
         contentArea.prefWidthProperty().bind(body.widthProperty());
-         // Construire le TextFlow en colorant les mentions
-         buildTextFlow(contentArea, message.getText());
+        // Construire le TextFlow en colorant les mentions
+        buildTextFlow(contentArea, message.getText());
 
         body.getChildren().addAll(header, contentArea);
 
@@ -159,16 +154,37 @@ public class FxMessageView extends HBox implements View {
         });
     }
 
-    public Message getMessage() { return message; }
+    // Insert zero-width space \u200B every n characters in long sequences without whitespace to enable wrapping in TextFlow
+    private static String insertZWSEveryN(String s, int n) {
+        if (s == null || s.length() <= n) return s;
+        StringBuilder sb = new StringBuilder();
+        int count = 0;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            sb.append(c);
+            count++;
+            if (Character.isWhitespace(c)) {
+                count = 0;
+            } else if (count >= n) {
+                sb.append('\u200B');
+                count = 0;
+            }
+        }
+        return sb.toString();
+    }
+
+    public Message getMessage() {
+        return message;
+    }
 
     public void updateContent(Message updated) {
         buildTextFlow(contentArea, updated.getText());
     }
 
     private void buildTextFlow(TextFlow flow, String text) {
-         flow.getChildren().clear();
-         if (text == null || text.isEmpty()) return;
-         String raw = text;
+        flow.getChildren().clear();
+        if (text == null || text.isEmpty()) return;
+        String raw = text;
         // Detect emoji codes count and whether message contains only codes
         java.util.regex.Pattern codeOnlyPattern = java.util.regex.Pattern.compile("^(?:(:\\w+:)\\s*)+$");
         boolean onlyEmojiCodes = codeOnlyPattern.matcher(raw.trim()).matches();
@@ -205,7 +221,7 @@ public class FxMessageView extends HBox implements View {
                         if (!first) {
                             // add small spacing
                             Text spacer = new Text(" ");
-                            spacer.setStyle("-fx-font-size: " + (imgSize/2) + "px;");
+                            spacer.setStyle("-fx-font-size: " + (imgSize / 2) + "px;");
                             flow.getChildren().add(spacer);
                         }
                         flow.getChildren().add(iv);
@@ -291,25 +307,6 @@ public class FxMessageView extends HBox implements View {
                 flow.getChildren().add(t);
             }
         }
-    }
-
-    // Insert zero-width space \u200B every n characters in long sequences without whitespace to enable wrapping in TextFlow
-    private static String insertZWSEveryN(String s, int n) {
-        if (s == null || s.length() <= n) return s;
-        StringBuilder sb = new StringBuilder();
-        int count = 0;
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            sb.append(c);
-            count++;
-            if (Character.isWhitespace(c)) {
-                count = 0;
-            } else if (count >= n) {
-                sb.append('\u200B');
-                count = 0;
-            }
-        }
-        return sb.toString();
     }
 
 }

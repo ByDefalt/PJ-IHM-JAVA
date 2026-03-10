@@ -9,10 +9,10 @@ import java.util.function.Supplier;
 
 public interface IListCanalGraphicController extends GraphicController {
     /**
-     * @param canal      canal à ajouter
-     * @param onSelect   callback de sélection (clic gauche sur le canal)
-     * @param onEdit     callback d'edition (bouton edit) -- null si non applicable
-     * @param isOwner    true si l'utilisateur est le créateur du canal
+     * @param canal            canal à ajouter
+     * @param onSelect         callback de sélection (clic gauche sur le canal)
+     * @param onEdit           callback d'edition (bouton edit) -- null si non applicable
+     * @param isOwner          true si l'utilisateur est le créateur du canal
      * @param allUsersSupplier fournisseur évalué au moment du clic (liste fraîche à chaque ouverture du menu)
      */
     void addCanal(Channel canal, Consumer<Channel> onSelect, ChannelEditCallback onEdit, boolean isOwner, Supplier<List<User>> allUsersSupplier);
@@ -21,10 +21,14 @@ public interface IListCanalGraphicController extends GraphicController {
 
     void updateCanal(Channel canal);
 
-    /** Incrémente le badge de messages non lus sur la vue du canal donné. */
+    /**
+     * Incrémente le badge de messages non lus sur la vue du canal donné.
+     */
     void incrementUnread(Channel canal);
 
-    /** Remet à zéro le badge de messages non lus sur la vue du canal donné. */
+    /**
+     * Remet à zéro le badge de messages non lus sur la vue du canal donné.
+     */
     void clearUnread(Channel canal);
 
     /**
@@ -40,16 +44,24 @@ public interface IListCanalGraphicController extends GraphicController {
      * Callback d'édition d'un canal : quitter, supprimer, ajouter ou retirer un membre.
      */
     interface ChannelEditCallback {
-        /** Quitter le canal (membre non-propriétaire). */
+        /**
+         * Quitter le canal (membre non-propriétaire).
+         */
         void onLeave(Channel channel);
 
-        /** Supprimer le canal (propriétaire uniquement). */
+        /**
+         * Supprimer le canal (propriétaire uniquement).
+         */
         void onDelete(Channel channel);
 
-        /** Ajouter un utilisateur au canal (propriétaire uniquement). */
+        /**
+         * Ajouter un utilisateur au canal (propriétaire uniquement).
+         */
         void onAddUser(Channel channel, User user);
 
-        /** Retirer un utilisateur du canal (propriétaire uniquement). */
+        /**
+         * Retirer un utilisateur du canal (propriétaire uniquement).
+         */
         void onRemoveUser(Channel channel, User user);
     }
 

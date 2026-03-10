@@ -12,11 +12,7 @@ import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.graphiccontroller.service.IListCanalGraphicController;
 import com.ubo.tp.message.ihm.graphiccontroller.service.IListCanalGraphicController.ChannelEditCallback;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Contrôleur de la liste des canaux (channels) affichée dans l'IHM.
@@ -31,7 +27,7 @@ public class ListCanalController implements IListCanalController, IChannelDataba
     /**
      * Crée une instance du contrôleur de canaux.
      *
-     * @param context          contexte applicatif
+     * @param context           contexte applicatif
      * @param graphicController contrôleur graphique associé
      */
     public ListCanalController(ControllerContext context, IListCanalGraphicController graphicController) {
@@ -143,17 +139,20 @@ public class ListCanalController implements IListCanalController, IChannelDataba
      * @return callback d'édition
      */
     private ChannelEditCallback buildEditCallback(Channel channel, User me, boolean isOwner) {
-        if (context.logger() != null) context.logger().debug("buildEditCallback for channel: " + channel + " owner? " + isOwner + " me=" + (me != null ? me.getName() : "null"));
+        if (context.logger() != null)
+            context.logger().debug("buildEditCallback for channel: " + channel + " owner? " + isOwner + " me=" + (me != null ? me.getName() : "null"));
         return new ChannelEditCallback() {
             @Override
             public void onLeave(Channel c) {
-                if (context.logger() != null) context.logger().debug("onLeave called for: " + c + " (template: " + channel + ")");
+                if (context.logger() != null)
+                    context.logger().debug("onLeave called for: " + c + " (template: " + channel + ")");
                 leaveChannel(c);
             }
 
             @Override
             public void onDelete(Channel c) {
-                if (context.logger() != null) context.logger().debug("onDelete called for: " + c + " (template: " + channel + ")");
+                if (context.logger() != null)
+                    context.logger().debug("onDelete called for: " + c + " (template: " + channel + ")");
                 deleteChannel(c);
             }
 
@@ -230,14 +229,21 @@ public class ListCanalController implements IListCanalController, IChannelDataba
      * @param addedUser utilisateur ajouté
      */
     @Override
-    public void notifyUserAdded(User addedUser) { handleNotifyUserAddedLogic(addedUser); }
+    public void notifyUserAdded(User addedUser) {
+        handleNotifyUserAddedLogic(addedUser);
+    }
 
     /**
      * Logique interne pour la notification d'ajout d'utilisateur.
      *
      * @param addedUser utilisateur ajouté
      */
-    private void handleNotifyUserAddedLogic(User addedUser) { if (context.logger() != null) { context.logger().debug("notifyUserAdded: " + addedUser); } refreshFormUsers(); }
+    private void handleNotifyUserAddedLogic(User addedUser) {
+        if (context.logger() != null) {
+            context.logger().debug("notifyUserAdded: " + addedUser);
+        }
+        refreshFormUsers();
+    }
 
     /**
      * Notification : un utilisateur a été supprimé.
@@ -245,14 +251,21 @@ public class ListCanalController implements IListCanalController, IChannelDataba
      * @param deletedUser utilisateur supprimé
      */
     @Override
-    public void notifyUserDeleted(User deletedUser) { handleNotifyUserDeletedLogic(deletedUser); }
+    public void notifyUserDeleted(User deletedUser) {
+        handleNotifyUserDeletedLogic(deletedUser);
+    }
 
     /**
      * Logique interne pour la suppression d'un utilisateur.
      *
      * @param deletedUser utilisateur supprimé
      */
-    private void handleNotifyUserDeletedLogic(User deletedUser) { if (context.logger() != null) { context.logger().debug("notifyUserDeleted: " + deletedUser); } refreshFormUsers(); }
+    private void handleNotifyUserDeletedLogic(User deletedUser) {
+        if (context.logger() != null) {
+            context.logger().debug("notifyUserDeleted: " + deletedUser);
+        }
+        refreshFormUsers();
+    }
 
     /**
      * Notification : un utilisateur a été modifié.
@@ -260,14 +273,21 @@ public class ListCanalController implements IListCanalController, IChannelDataba
      * @param modifiedUser utilisateur modifié
      */
     @Override
-    public void notifyUserModified(User modifiedUser) { handleNotifyUserModifiedLogic(modifiedUser); }
+    public void notifyUserModified(User modifiedUser) {
+        handleNotifyUserModifiedLogic(modifiedUser);
+    }
 
     /**
      * Logique interne pour la modification d'un utilisateur.
      *
      * @param modifiedUser utilisateur modifié
      */
-    private void handleNotifyUserModifiedLogic(User modifiedUser) { if (context.logger() != null) { context.logger().debug("notifyUserModified: " + modifiedUser); } refreshFormUsers(); }
+    private void handleNotifyUserModifiedLogic(User modifiedUser) {
+        if (context.logger() != null) {
+            context.logger().debug("notifyUserModified: " + modifiedUser);
+        }
+        refreshFormUsers();
+    }
 
     /**
      * Crée un nouveau canal: wrapper public.
@@ -446,7 +466,8 @@ public class ListCanalController implements IListCanalController, IChannelDataba
      * @param deletedMessage message supprimé
      */
     private void handleNotifyMessageDeletedLogic(Message deletedMessage) {
-        if (deletedMessage != null && context.logger() != null) context.logger().debug("notifyMessageDeleted: " + deletedMessage);
+        if (deletedMessage != null && context.logger() != null)
+            context.logger().debug("notifyMessageDeleted: " + deletedMessage);
     }
 
     /**
@@ -465,6 +486,7 @@ public class ListCanalController implements IListCanalController, IChannelDataba
      * @param modifiedMessage message modifié
      */
     private void handleNotifyMessageModifiedLogic(Message modifiedMessage) {
-        if (modifiedMessage != null && context.logger() != null) context.logger().debug("notifyMessageModified: " + modifiedMessage);
+        if (modifiedMessage != null && context.logger() != null)
+            context.logger().debug("notifyMessageModified: " + modifiedMessage);
     }
 }

@@ -73,7 +73,8 @@ public class FxListUserGraphicController implements IListUserGraphicController {
         if (opt.isPresent()) {
             Platform.runLater(() -> opt.get().incrementUnread());
         } else {
-            if (viewContext.logger() != null) viewContext.logger().warn("(FX) User non trouvé pour incrément unread: " + user.getName());
+            if (viewContext.logger() != null)
+                viewContext.logger().warn("(FX) User non trouvé pour incrément unread: " + user.getName());
         }
     }
 
@@ -84,7 +85,8 @@ public class FxListUserGraphicController implements IListUserGraphicController {
         if (opt.isPresent()) {
             Platform.runLater(() -> opt.get().clearUnread());
         } else {
-            if (viewContext.logger() != null) viewContext.logger().warn("(FX) User non trouvé pour clear unread: " + user.getName());
+            if (viewContext.logger() != null)
+                viewContext.logger().warn("(FX) User non trouvé pour clear unread: " + user.getName());
         }
     }
 }

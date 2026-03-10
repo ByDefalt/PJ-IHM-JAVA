@@ -10,9 +10,9 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import javafx.scene.paint.Color;
 
 /**
  * Vue d'inscription — JavaFX.
@@ -44,29 +44,29 @@ public class FxRegisterView extends GridPane implements View {
 
         Label title = new Label("Inscription");
         title.setFont(Font.font("Arial", FontWeight.BOLD, 24));
-        title.setTextFill(Color.rgb(220,221,222));
+        title.setTextFill(Color.rgb(220, 221, 222));
         add(title, 0, 0, 2, 1);
 
         Label tagLabel = new Label("Tag :");
-        tagLabel.setTextFill(Color.rgb(220,221,222));
+        tagLabel.setTextFill(Color.rgb(220, 221, 222));
         add(tagLabel, 0, 1);
         tagField.setStyle("-fx-text-fill: #DCDCDC; -fx-prompt-text-fill: #9AA0A6;");
         add(tagField, 1, 1);
 
         Label nameLabel = new Label("Nom :");
-        nameLabel.setTextFill(Color.rgb(220,221,222));
+        nameLabel.setTextFill(Color.rgb(220, 221, 222));
         add(nameLabel, 0, 2);
         nameField.setStyle("-fx-text-fill: #DCDCDC; -fx-prompt-text-fill: #9AA0A6;");
         add(nameField, 1, 2);
 
         Label pwdLabel = new Label("Mot de passe :");
-        pwdLabel.setTextFill(Color.rgb(220,221,222));
+        pwdLabel.setTextFill(Color.rgb(220, 221, 222));
         add(pwdLabel, 0, 3);
         pwdField.setStyle("-fx-text-fill: #DCDCDC; -fx-prompt-text-fill: #9AA0A6;");
         add(pwdField, 1, 3);
 
         Label confirmLabel = new Label("Confirmer mdp :");
-        confirmLabel.setTextFill(Color.rgb(220,221,222));
+        confirmLabel.setTextFill(Color.rgb(220, 221, 222));
         add(confirmLabel, 0, 4);
         confirmPwdField.setStyle("-fx-text-fill: #DCDCDC; -fx-prompt-text-fill: #9AA0A6;");
         add(confirmPwdField, 1, 4);

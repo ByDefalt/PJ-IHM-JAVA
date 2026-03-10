@@ -31,12 +31,11 @@ public class MessageView extends JComponent implements View {
 
     private final ViewContext viewContext;
     private final Message message;
-
+    private final boolean canDelete;
     private JLabel authorLabel;
     private javax.swing.JComponent contentPane;
     private JLabel timeLabel;
     private boolean hovered = false;
-    private final boolean canDelete;
 
     public MessageView(ViewContext viewContext, Message message) {
         this(viewContext, message, null, false);
@@ -44,9 +43,9 @@ public class MessageView extends JComponent implements View {
 
     public MessageView(ViewContext viewContext, Message message,
                        Consumer<Message> onDelete, boolean canDelete) {
-        this.viewContext  = viewContext;
-        this.message      = message;
-        this.canDelete    = canDelete;
+        this.viewContext = viewContext;
+        this.message = message;
+        this.canDelete = canDelete;
         this.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         this.setLayout(new GridBagLayout());
         this.setOpaque(false);
@@ -72,6 +71,25 @@ public class MessageView extends JComponent implements View {
 
         if (this.viewContext.logger() != null)
             this.viewContext.logger().debug("MessageView initialisée pour '" + message.getSender() + "'");
+    }
+
+    // Insert zero-width space \u200B every n characters in long sequences without whitespace to enable wrapping
+    private static String insertZWSEveryN(String s, int n) {
+        if (s == null || s.length() <= n) return s;
+        StringBuilder sb = new StringBuilder();
+        int count = 0;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            sb.append(c);
+            count++;
+            if (Character.isWhitespace(c)) {
+                count = 0;
+            } else if (count >= n) {
+                sb.append('\u200B');
+                count = 0;
+            }
+        }
+        return sb.toString();
     }
 
     private void init(Message message, Consumer<Message> onDelete) {
@@ -101,8 +119,15 @@ public class MessageView extends JComponent implements View {
                 }
             }
 
-            @Override public void mousePressed(MouseEvent e) { showPopupIfRequested(e); }
-            @Override public void mouseReleased(MouseEvent e) { showPopupIfRequested(e); }
+            @Override
+            public void mousePressed(MouseEvent e) {
+                showPopupIfRequested(e);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                showPopupIfRequested(e);
+            }
         };
         this.addMouseListener(popupListener);
     }
@@ -414,25 +439,6 @@ public class MessageView extends JComponent implements View {
         }
     }
 
-    // Insert zero-width space \u200B every n characters in long sequences without whitespace to enable wrapping
-    private static String insertZWSEveryN(String s, int n) {
-        if (s == null || s.length() <= n) return s;
-        StringBuilder sb = new StringBuilder();
-        int count = 0;
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            sb.append(c);
-            count++;
-            if (Character.isWhitespace(c)) {
-                count = 0;
-            } else if (count >= n) {
-                sb.append('\u200B');
-                count = 0;
-            }
-        }
-        return sb.toString();
-    }
-
     private String formatTimestamp(long millis) {
         try {
             return DATE_FORMATTER.format(
@@ -466,15 +472,15 @@ public class MessageView extends JComponent implements View {
             wrapper.add(ta, BorderLayout.CENTER);
             return wrapper;
         } else {
-             javax.swing.JTextPane tp = new javax.swing.JTextPane();
-             tp.setEditable(false);
-             tp.setOpaque(false);
-             tp.setBorder(null);
-             tp.setFocusable(false);
-             renderTextToPane(tp, text, font, fg);
-             return tp;
-         }
-     }
+            javax.swing.JTextPane tp = new javax.swing.JTextPane();
+            tp.setEditable(false);
+            tp.setOpaque(false);
+            tp.setBorder(null);
+            tp.setFocusable(false);
+            renderTextToPane(tp, text, font, fg);
+            return tp;
+        }
+    }
 
     private void updateContentComponent(String text, Font font, Color fg) {
         try {
@@ -495,7 +501,8 @@ public class MessageView extends JComponent implements View {
                 parent.remove(contentPane);
                 contentPane = createContentComponent(text, font, fg);
                 parent.add(contentPane, gbc);
-                parent.revalidate(); parent.repaint();
+                parent.revalidate();
+                parent.repaint();
             } else if (!needPlain && contentPane instanceof javax.swing.JTextArea) {
                 // replace JTextArea by JTextPane
                 Container parent = contentPane.getParent();
@@ -508,7 +515,8 @@ public class MessageView extends JComponent implements View {
                 parent.remove(contentPane);
                 contentPane = createContentComponent(text, font, fg);
                 parent.add(contentPane, gbc);
-                parent.revalidate(); parent.repaint();
+                parent.revalidate();
+                parent.repaint();
             } else {
                 // same type -> update in place
                 if (contentPane instanceof javax.swing.JTextArea) {
@@ -525,11 +533,11 @@ public class MessageView extends JComponent implements View {
                 }
             }
         } catch (Exception e) {
-             // fallback : set HTML on original component if possible
-             if (contentPane instanceof javax.swing.JTextPane) {
-                 ((javax.swing.JTextPane) contentPane).setContentType("text/html");
-                 ((javax.swing.JTextPane) contentPane).setText(toHtml(text, font, fg));
-             }
-         }
-     }
+            // fallback : set HTML on original component if possible
+            if (contentPane instanceof javax.swing.JTextPane) {
+                ((javax.swing.JTextPane) contentPane).setContentType("text/html");
+                ((javax.swing.JTextPane) contentPane).setText(toHtml(text, font, fg));
+            }
+        }
+    }
 }

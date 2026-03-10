@@ -9,16 +9,24 @@ import java.util.function.Consumer;
  */
 public interface INavigationController extends Controller {
 
-    /** Navigue vers la vue de connexion. */
+    /**
+     * Navigue vers la vue de connexion.
+     */
     void navigateToLogin();
 
-    /** Navigue vers la vue d'inscription. */
+    /**
+     * Navigue vers la vue d'inscription.
+     */
     void navigateToRegister();
 
-    /** Navigue vers la vue de profil (compte). */
+    /**
+     * Navigue vers la vue de profil (compte).
+     */
     void navigateToProfile();
 
-    /** Navigue vers la vue principale de chat. */
+    /**
+     * Navigue vers la vue principale de chat.
+     */
     void navigateToChat();
 
     /**

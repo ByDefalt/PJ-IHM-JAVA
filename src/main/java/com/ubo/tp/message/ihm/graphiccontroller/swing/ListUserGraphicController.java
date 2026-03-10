@@ -100,7 +100,8 @@ public class ListUserGraphicController implements IListUserGraphicController {
         if (opt.isPresent()) {
             opt.get().incrementUnread();
         } else {
-            if (viewContext.logger() != null) viewContext.logger().warn("User non trouvé pour incrément unread: " + user.getName());
+            if (viewContext.logger() != null)
+                viewContext.logger().warn("User non trouvé pour incrément unread: " + user.getName());
         }
     }
 
@@ -111,7 +112,8 @@ public class ListUserGraphicController implements IListUserGraphicController {
         if (opt.isPresent()) {
             opt.get().clearUnread();
         } else {
-            if (viewContext.logger() != null) viewContext.logger().warn("User non trouvé pour clear unread: " + user.getName());
+            if (viewContext.logger() != null)
+                viewContext.logger().warn("User non trouvé pour clear unread: " + user.getName());
         }
     }
 }

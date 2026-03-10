@@ -29,7 +29,9 @@ public class ListMessageView extends JComponent implements View {
     private Component verticalGlue;
     private volatile boolean pendingScroll = false;
 
-    /** Dernière liste complète fournie par rebuildUI. */
+    /**
+     * Dernière liste complète fournie par rebuildUI.
+     */
     private List<MessageView> allMessages = new ArrayList<>();
 
     public ListMessageView(ViewContext viewContext) {
@@ -60,9 +62,20 @@ public class ListMessageView extends JComponent implements View {
         // Placeholder via prompt text (Java 7+)
         searchField.putClientProperty("JTextField.placeholderText", "Rechercher un message\u2026");
         searchField.getDocument().addDocumentListener(new DocumentListener() {
-            @Override public void insertUpdate(DocumentEvent e) { applyFilter(); }
-            @Override public void removeUpdate(DocumentEvent e) { applyFilter(); }
-            @Override public void changedUpdate(DocumentEvent e) { applyFilter(); }
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                applyFilter();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                applyFilter();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                applyFilter();
+            }
         });
 
         JPanel searchPanel = new JPanel(new BorderLayout());
@@ -76,8 +89,10 @@ public class ListMessageView extends JComponent implements View {
 
         verticalGlue = Box.createVerticalGlue();
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0; gbc.gridy = 0;
-        gbc.weightx = 1.0; gbc.weighty = 1.0;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.VERTICAL;
         messagesPanel.add(verticalGlue, gbc);
     }
@@ -131,7 +146,8 @@ public class ListMessageView extends JComponent implements View {
                             try {
                                 JScrollBar sb = scrollPane.getVerticalScrollBar();
                                 if (sb != null) sb.setValue(sb.getMaximum());
-                            } catch (Exception ignored) {}
+                            } catch (Exception ignored) {
+                            }
                         })
                 )
         );
@@ -150,8 +166,8 @@ public class ListMessageView extends JComponent implements View {
         List<MessageView> toDisplay = q.isEmpty() ? allMessages :
                 allMessages.stream().filter(mv ->
                         mv.getMessage() != null &&
-                        mv.getMessage().getText() != null &&
-                        mv.getMessage().getText().toLowerCase().contains(q)
+                                mv.getMessage().getText() != null &&
+                                mv.getMessage().getText().toLowerCase().contains(q)
                 ).toList();
         renderMessages(toDisplay);
     }
@@ -225,8 +241,8 @@ public class ListMessageView extends JComponent implements View {
         label.setForeground(textColor);
         label.setFont(labelFont);
 
-        panel.add(left,  new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 6, 0, 6), 0, 0));
-        panel.add(label, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,       new Insets(0, 6, 0, 6), 0, 0));
+        panel.add(left, new GridBagConstraints(0, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 6, 0, 6), 0, 0));
+        panel.add(label, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 6, 0, 6), 0, 0));
         panel.add(right, new GridBagConstraints(2, 0, 1, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(0, 6, 0, 6), 0, 0));
 
         return panel;
