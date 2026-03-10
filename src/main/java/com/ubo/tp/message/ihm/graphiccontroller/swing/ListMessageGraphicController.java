@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 
 /**
  * Contrôleur graphique Swing pour la liste des messages.
- *
+ * <p>
  * Responsable de la représentation triée des messages et de
  * la reconstruction de la vue lorsque le controller métier
  * fournit une liste filtrée.

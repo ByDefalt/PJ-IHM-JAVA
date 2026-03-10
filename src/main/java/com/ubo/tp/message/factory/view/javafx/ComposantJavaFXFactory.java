@@ -13,7 +13,7 @@ import javafx.stage.Stage;
 
 /**
  * Fabrique de composants JavaFX — symétrique à {@link ComposantSwingFactory}.
- *
+ * <p>
  * Fournit la construction des vues JavaFX et de leurs contrôleurs graphiques
  * pour l'application.
  */

@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 
 /**
  * Contrat graphique pour la liste des canaux (UI).
- *
+ * <p>
  * Définit les opérations que la couche graphique doit proposer pour afficher
  * et manipuler les canaux de discussion.
  */

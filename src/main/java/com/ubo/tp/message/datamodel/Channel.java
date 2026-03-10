@@ -25,7 +25,7 @@ public class Channel extends AbstractMessageAppObject implements IMessageRecipie
     /**
      * Liste des Utilisateurs du canal.
      */
-    protected final Set<User> mUsers = new HashSet<User>();
+    protected final Set<User> mUsers = new HashSet<>();
     /**
      * Statut privé ou public du canal.
      */
@@ -114,7 +114,7 @@ public class Channel extends AbstractMessageAppObject implements IMessageRecipie
      * @return la liste des utilisateurs de ce canal (copie).
      */
     public List<User> getUsers() {
-        return new ArrayList<User>(mUsers);
+        return new ArrayList<>(mUsers);
     }
 
     public boolean isPrivate() {

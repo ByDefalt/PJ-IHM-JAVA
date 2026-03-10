@@ -7,7 +7,7 @@ import com.ubo.tp.message.ihm.view.swing.InputMessageView;
 
 /**
  * Contrôleur graphique Swing pour la saisie de messages.
- *
+ * <p>
  * Branche le callback d'envoi de la vue vers le controller métier.
  */
 public class InputMessageGraphicController implements GraphicController {

@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 
 /**
  * Contrôleur graphique Swing de la fenêtre principale.
- *
+ * <p>
  * Expose des méthodes pour configurer la vue principale et les callbacks
  * liés à la navigation et aux actions globales (déconnexion, suppression de compte, etc.).
  */

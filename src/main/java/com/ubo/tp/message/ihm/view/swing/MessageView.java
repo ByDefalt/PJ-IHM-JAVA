@@ -534,12 +534,11 @@ public class MessageView extends JComponent implements View {
                 parent.repaint();
             } else {
                 // same type -> update in place
-                if (contentPane instanceof javax.swing.JTextArea) {
-                    javax.swing.JTextArea ta = (javax.swing.JTextArea) contentPane;
+                if (contentPane instanceof JTextArea ta) {
                     ta.setText(EmojiBinders.replaceEmojiCodesUnicode(text));
                 } else if (contentPane instanceof javax.swing.JPanel) {
                     // wrapper with JTextArea inside
-                    java.awt.Component c = ((javax.swing.JPanel) contentPane).getComponent(0);
+                    java.awt.Component c = contentPane.getComponent(0);
                     if (c instanceof javax.swing.JTextArea) {
                         ((javax.swing.JTextArea) c).setText(EmojiBinders.replaceEmojiCodesUnicode(text));
                     }

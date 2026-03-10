@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 
 /**
  * Contrat graphique pour le contrôleur principal de l'application (fenêtre principale).
- *
+ * <p>
  * Fournit des méthodes pour contrôler la visibilité de la fenêtre, gérer
  * les callbacks de navigation et l'affichage du contenu principal.
  */

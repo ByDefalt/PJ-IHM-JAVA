@@ -29,10 +29,9 @@ public class FxCanalView extends HBox implements View {
     private static final Color BG_HOVER = Color.rgb(72, 76, 84);
     private static final Color PUBLIC_CLR = Color.rgb(88, 101, 242);
     private static final Color PRIVATE_CLR = Color.rgb(250, 166, 26);
-
+    private final Label unreadBadge;
     private Channel channel;
     private int unreadCount = 0;
-    private final Label unreadBadge;
 
     public FxCanalView(ViewContext viewContext, Channel channel,
                        ChannelEditCallback onEdit, boolean isOwner, Supplier<List<User>> allUsersSupplier) {

@@ -69,6 +69,25 @@ public class FxMessageView extends HBox implements View {
         setOnMouseExited(e -> setBackground(new Background(new BackgroundFill(BG_NORMAL, new CornerRadii(6), Insets.EMPTY))));
     }
 
+    // Insert zero-width space \u200B every n characters in long sequences without whitespace to enable wrapping in TextFlow
+    private static String insertZWSEveryN(String s, int n) {
+        if (s == null || s.length() <= n) return s;
+        StringBuilder sb = new StringBuilder();
+        int count = 0;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            sb.append(c);
+            count++;
+            if (Character.isWhitespace(c)) {
+                count = 0;
+            } else if (count >= n) {
+                sb.append('\u200B');
+                count = 0;
+            }
+        }
+        return sb.toString();
+    }
+
     private VBox createBody(Message message) {
         VBox body = new VBox(2);
         body.setMouseTransparent(false);
@@ -153,25 +172,6 @@ public class FxMessageView extends HBox implements View {
             ctx.show(this, e.getScreenX(), e.getScreenY());
             e.consume();
         }
-    }
-
-    // Insert zero-width space \u200B every n characters in long sequences without whitespace to enable wrapping in TextFlow
-    private static String insertZWSEveryN(String s, int n) {
-        if (s == null || s.length() <= n) return s;
-        StringBuilder sb = new StringBuilder();
-        int count = 0;
-        for (int i = 0; i < s.length(); i++) {
-            char c = s.charAt(i);
-            sb.append(c);
-            count++;
-            if (Character.isWhitespace(c)) {
-                count = 0;
-            } else if (count >= n) {
-                sb.append('\u200B');
-                count = 0;
-            }
-        }
-        return sb.toString();
     }
 
     public Message getMessage() {

@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 
 /**
  * Contrat graphique pour la liste des messages.
- *
+ * <p>
  * La couche métier fournit une liste filtrée de messages à afficher ;
  * la couche graphique se contente d'afficher et de gérer les interactions.
  */

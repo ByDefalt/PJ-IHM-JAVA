@@ -20,7 +20,7 @@ public abstract class AbstractMessageAppObject extends Observable {
      *
      * @param uuid Identifiant unique de l'objet (non-null).
      */
-    public AbstractMessageAppObject(UUID uuid) {
+    protected AbstractMessageAppObject(UUID uuid) {
         mUuid = uuid;
     }
 
@@ -48,8 +48,8 @@ public abstract class AbstractMessageAppObject extends Observable {
     public boolean equals(Object other) {
         boolean equals = false;
 
-        if (other instanceof AbstractMessageAppObject) {
-            equals = (this.getUuid().equals(((AbstractMessageAppObject) other).getUuid()));
+        if (other instanceof AbstractMessageAppObject abstractmessageappobject) {
+            equals = (this.getUuid().equals((abstractmessageappobject).getUuid()));
         }
 
         return equals;

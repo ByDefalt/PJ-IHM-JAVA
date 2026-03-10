@@ -15,12 +15,13 @@ javafx {
     modules = listOf("javafx.controls", "javafx.fxml", "javafx.graphics", "javafx.base")
 }
 val flatlafVersion = "3.2"
+val twoslicesVersion = "0.9.4"
 dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     implementation("com.formdev:flatlaf:$flatlafVersion")
-    implementation("com.sshtools:two-slices:0.9.4")
+    implementation("com.sshtools:two-slices:$twoslicesVersion")
 }
 
 tasks.test {

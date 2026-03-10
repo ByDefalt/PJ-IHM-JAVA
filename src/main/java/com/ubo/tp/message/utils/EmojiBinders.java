@@ -3,32 +3,28 @@ package com.ubo.tp.message.utils;
 import java.util.Map;
 
 public class EmojiBinders {
+    // Centralised definitions for all supported emojis (name, twemoji hex code, unicode char)
+    private static final Map<String, EmojiData> EMOJIS = new java.util.LinkedHashMap<>();
+
+    static {
+        // Utiliser les caractères emoji directement pour la lisibilité
+        EMOJIS.put(":smile:", new EmojiData("smile.png", "1f60a", "😊"));
+        EMOJIS.put(":sad:", new EmojiData("sad.png", "2639", "☹️"));
+        EMOJIS.put(":heart:", new EmojiData("heart.png", "2764", "❤️"));
+        EMOJIS.put(":thumbs_up:", new EmojiData("thumbs_up.png", "1f44d", "👍"));
+        EMOJIS.put(":thumbs_down:", new EmojiData("thumbs_down.png", "1f44e", "👎"));
+        EMOJIS.put(":laughing:", new EmojiData("laughing.png", "1f606", "😆"));
+        EMOJIS.put(":crying:", new EmojiData("crying.png", "1f62d", "😭"));
+        EMOJIS.put(":angry:", new EmojiData("angry.png", "1f620", "😠"));
+        EMOJIS.put(":surprised:", new EmojiData("surprised.png", "1f632", "😲"));
+    }
+
     private EmojiBinders() {
         /* This utility class should not be instantiated */
     }
 
-    // Liste des codes supportés
-    private static final String[] CODES = new String[]{
-            ":smile:", ":sad:", ":heart:", ":thumbs_up:", ":thumbs_down:",
-            ":laughing:", ":crying:", ":angry:", ":surprised:"
-    };
-
-    private static final Map<String, String> TWEMOJI_HEX = new java.util.HashMap<>();
-
-    static {
-        TWEMOJI_HEX.put(":smile:", "1f60a");
-        TWEMOJI_HEX.put(":sad:", "2639");
-        TWEMOJI_HEX.put(":heart:", "2764");
-        TWEMOJI_HEX.put(":thumbs_up:", "1f44d");
-        TWEMOJI_HEX.put(":thumbs_down:", "1f44e");
-        TWEMOJI_HEX.put(":laughing:", "1f606");
-        TWEMOJI_HEX.put(":crying:", "1f62d");
-        TWEMOJI_HEX.put(":angry:", "1f620");
-        TWEMOJI_HEX.put(":surprised:", "1f632");
-    }
-
     public static String[] getSupportedCodes() {
-        return CODES.clone();
+        return EMOJIS.keySet().toArray(new String[0]);
     }
 
     /**
@@ -37,25 +33,14 @@ public class EmojiBinders {
      */
     public static String getEmojiImageUrl(String code) {
         if (code == null) return null;
-        String name = switch (code) {
-            case ":smile:" -> "smile.png";
-            case ":sad:" -> "sad.png";
-            case ":heart:" -> "heart.png";
-            case ":thumbs_up:" -> "thumbs_up.png";
-            case ":thumbs_down:" -> "thumbs_down.png";
-            case ":laughing:" -> "laughing.png";
-            case ":crying:" -> "crying.png";
-            case ":angry:" -> "angry.png";
-            case ":surprised:" -> "surprised.png";
-            default -> null;
-        };
-        if (name != null) {
-            java.net.URL res = EmojiBinders.class.getResource("/images/emoji/" + name);
+        EmojiData data = EMOJIS.get(code);
+        if (data == null) return null;
+        if (data.fileName != null) {
+            java.net.URL res = EmojiBinders.class.getResource("/images/emoji/" + data.fileName);
             if (res != null) return res.toExternalForm();
         }
         // fallback Twemoji
-        String hex = TWEMOJI_HEX.get(code);
-        if (hex != null) return "https://twemoji.maxcdn.com/v/latest/72x72/" + hex + ".png";
+        if (data.hex != null) return "https://twemoji.maxcdn.com/v/latest/72x72/" + data.hex + ".png";
         return null;
     }
 
@@ -65,15 +50,14 @@ public class EmojiBinders {
      */
     public static String replaceEmojiCodesHtml(String text) {
         if (text == null || text.isEmpty()) return text;
-        return text.replace(":smile:", "<span style=\"font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol';\">\uD83D\uDE0A</span>")
-                .replace(":sad:", "<span style=\"font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol';\">\u2639\uFE0F</span>")
-                .replace(":heart:", "<span style=\"font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol';\">\u2764\uFE0F</span>")
-                .replace(":thumbs_up:", "<span style=\"font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol';\">\uD83D\uDC4D</span>")
-                .replace(":thumbs_down:", "<span style=\"font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol';\">\uD83D\uDC4E</span>")
-                .replace(":laughing:", "<span style=\"font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol';\">\uD83D\uDE06</span>")
-                .replace(":crying:", "<span style=\"font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol';\">\uD83D\uDE2D</span>")
-                .replace(":angry:", "<span style=\"font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol';\">\uD83D\uDE20</span>")
-                .replace(":surprised:", "<span style=\"font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol';\">\uD83D\uDE32</span>");
+        String out = text;
+        for (Map.Entry<String, EmojiData> e : EMOJIS.entrySet()) {
+            String code = e.getKey();
+            String uni = e.getValue().unicode;
+            String span = "<span style=\"font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', 'Segoe UI Symbol';\">" + uni + "</span>";
+            out = out.replace(code, span);
+        }
+        return out;
     }
 
     /**
@@ -82,22 +66,22 @@ public class EmojiBinders {
      */
     public static String replaceEmojiCodesUnicode(String text) {
         if (text == null || text.isEmpty()) return text;
-        return text.replace(":smile:", "\uD83D\uDE0A")
-                .replace(":sad:", "\u2639\uFE0F")
-                .replace(":heart:", "\u2764\uFE0F")
-                .replace(":thumbs_up:", "\uD83D\uDC4D")
-                .replace(":thumbs_down:", "\uD83D\uDC4E")
-                .replace(":laughing:", "\uD83D\uDE06")
-                .replace(":crying:", "\uD83D\uDE2D")
-                .replace(":angry:", "\uD83D\uDE20")
-                .replace(":surprised:", "\uD83D\uDE32");
+        String out = text;
+        for (Map.Entry<String, EmojiData> e : EMOJIS.entrySet()) {
+            out = out.replace(e.getKey(), e.getValue().unicode);
+        }
+        return out;
     }
 
-    /**
-     * Ancienne méthode (conservée pour compatibilité) : renvoie HTML par défaut.
-     */
-    @Deprecated
-    public static String replaceEmojiCodes(String text) {
-        return replaceEmojiCodesHtml(text);
+    private static final class EmojiData {
+        final String fileName;
+        final String hex;
+        final String unicode;
+
+        EmojiData(String fileName, String hex, String unicode) {
+            this.fileName = fileName;
+            this.hex = hex;
+            this.unicode = unicode;
+        }
     }
 }

@@ -30,8 +30,6 @@ public class MessageApp {
         // Initialisation de l'IHM
         this.initGui();
 
-        // Initialisation du répertoire d'échange
-        this.initDirectory();
     }
 
     /**
@@ -52,15 +50,6 @@ public class MessageApp {
      */
     protected void initGui() {
         mMainController = ComposantSwingFactory.createAppMainControllerStatic();
-    }
-
-    /**
-     * Initialisation du répertoire d'échange (depuis la conf ou depuis un file
-     * chooser). <br/>
-     * <b>Le chemin doit obligatoirement avoir été saisi et être valide avant de
-     * pouvoir utiliser l'application</b>
-     */
-    protected void initDirectory() {
     }
 
     /**

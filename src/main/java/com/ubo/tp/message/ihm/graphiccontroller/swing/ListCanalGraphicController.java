@@ -18,7 +18,7 @@ import java.util.function.Supplier;
 
 /**
  * Contrôleur graphique Swing pour la liste des canaux.
- *
+ * <p>
  * Responsable de l'ajout, suppression, mise à jour et de la gestion des badges
  * de non-lus des canaux dans l'interface Swing.
  */
@@ -36,11 +36,11 @@ public class ListCanalGraphicController implements IListCanalGraphicController {
     /**
      * Ajoute un canal à la liste.
      *
-     * @param canal               Le canal à ajouter.
-     * @param onSelect            Action à effectuer lors de la sélection du canal.
-     * @param onEdit              Callback pour l'édition du canal.
-     * @param isOwner             Indique si l'utilisateur est le propriétaire du canal.
-     * @param allUsersSupplier    Fournisseur de la liste de tous les utilisateurs.
+     * @param canal            Le canal à ajouter.
+     * @param onSelect         Action à effectuer lors de la sélection du canal.
+     * @param onEdit           Callback pour l'édition du canal.
+     * @param isOwner          Indique si l'utilisateur est le propriétaire du canal.
+     * @param allUsersSupplier Fournisseur de la liste de tous les utilisateurs.
      */
     @Override
     public void addCanal(Channel canal, Consumer<Channel> onSelect,
@@ -171,7 +171,7 @@ public class ListCanalGraphicController implements IListCanalGraphicController {
      * Configure le formulaire de création d'un nouveau canal.
      *
      * @param availableUsers Liste des utilisateurs disponibles.
-     * @param onConfirm     Callback à appeler lors de la confirmation de la création du canal.
+     * @param onConfirm      Callback à appeler lors de la confirmation de la création du canal.
      */
     @Override
     public void setupNewChannelForm(List<User> availableUsers, ChannelCreationCallback onConfirm) {
