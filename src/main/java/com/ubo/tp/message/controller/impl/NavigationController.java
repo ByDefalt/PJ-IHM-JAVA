@@ -78,7 +78,12 @@ public class NavigationController implements INavigationController, ISessionObse
     }
 
     private void handleNotifyLoginLogic(User connectedUser) {
-        context.logger().info("notifyLogin");
+        // Utilisation minimale du paramètre pour éviter les warnings d'analyse statique
+        if (connectedUser != null) {
+            context.logger().info("notifyLogin -> utilisateur connecté : " + connectedUser.getName());
+        } else {
+            context.logger().info("notifyLogin -> utilisateur connecté : null");
+        }
         this.setMainContent(viewFactory.createChatMainView());
     }
 

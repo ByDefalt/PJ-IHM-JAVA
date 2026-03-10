@@ -10,7 +10,12 @@ import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.graphiccontroller.service.IListMessageGraphicController;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
+import java.util.Collection;
+import java.util.Objects;
 
 public class ListMessageController implements IListMessageController, IMessageDatabaseObserver, IUserDatabaseObserver, ISelectedObserver {
 
@@ -63,35 +68,44 @@ public class ListMessageController implements IListMessageController, IMessageDa
         if (selectedUser == null && selectedChannel == null) return filtered;
 
         if (selectedUser != null) {
-            // Conversation privée : messages entre l'utilisateur connecté et le sélectionné
-            User connectedUser = (context.session() != null) ? context.session().getConnectedUser() : null;
-            if (connectedUser == null) return filtered;
-
-            UUID selUuid = selectedUser.getUuid();
-            UUID meUuid = connectedUser.getUuid();
-
-            for (Message m : allMessages) {
-                if (m == null) continue;
-                boolean fromMeToSel = m.getSender() != null
-                        && m.getSender().getUuid().equals(meUuid)
-                        && m.getRecipient() != null
-                        && m.getRecipient().equals(selUuid);
-                boolean fromSelToMe = m.getSender() != null
-                        && m.getSender().getUuid().equals(selUuid)
-                        && m.getRecipient() != null
-                        && m.getRecipient().equals(meUuid);
-                if (fromMeToSel || fromSelToMe) filtered.add(m);
-            }
+            filtered = filterForPrivateConversation(allMessages, selectedUser);
         } else {
-            // Canal : messages dont le destinataire est ce canal
-            UUID channelUuid = selectedChannel.getUuid();
-            for (Message m : allMessages) {
-                if (m == null) continue;
-                if (m.getRecipient() != null && m.getRecipient().equals(channelUuid)) filtered.add(m);
-            }
+            filtered = filterForChannel(allMessages, selectedChannel.getUuid());
         }
 
         filtered.sort(Comparator.comparingLong(Message::getEmissionDate));
+        return filtered;
+    }
+
+    private List<Message> filterForPrivateConversation(Collection<Message> allMessages, User selectedUser) {
+        List<Message> filtered = new ArrayList<>();
+        User connectedUser = (context.session() != null) ? context.session().getConnectedUser() : null;
+        if (connectedUser == null) return filtered;
+
+        UUID selUuid = selectedUser.getUuid();
+        UUID meUuid = connectedUser.getUuid();
+
+        for (Message m : allMessages) {
+            if (m == null) continue;
+            boolean fromMeToSel = m.getSender() != null
+                    && m.getSender().getUuid().equals(meUuid)
+                    && m.getRecipient() != null
+                    && m.getRecipient().equals(selUuid);
+            boolean fromSelToMe = m.getSender() != null
+                    && m.getSender().getUuid().equals(selUuid)
+                    && m.getRecipient() != null
+                    && m.getRecipient().equals(meUuid);
+            if (fromMeToSel || fromSelToMe) filtered.add(m);
+        }
+        return filtered;
+    }
+
+    private List<Message> filterForChannel(Collection<Message> allMessages, UUID channelUuid) {
+        List<Message> filtered = new ArrayList<>();
+        for (Message m : allMessages) {
+            if (m == null) continue;
+            if (m.getRecipient() != null && m.getRecipient().equals(channelUuid)) filtered.add(m);
+        }
         return filtered;
     }
 
@@ -151,6 +165,7 @@ public class ListMessageController implements IListMessageController, IMessageDa
 
     private void handleNotifyUserAddedLogic(User addedUser) {
         // Rien à faire : les messages du nouvel utilisateur arrivent via notifyMessageAdded
+        if (addedUser != null && context.logger() != null) context.logger().debug("notifyUserAdded received for: " + addedUser);
     }
 
     @Override

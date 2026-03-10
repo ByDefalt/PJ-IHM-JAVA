@@ -109,6 +109,7 @@ public class ListUserController implements IListUserController, IUserDatabaseObs
 
     private void handleNotifyMessageDeletedLogic(com.ubo.tp.message.datamodel.Message deletedMessage) {
         // no action
+        if (deletedMessage != null && context.logger() != null) context.logger().debug("Message supprimé : " + deletedMessage);
     }
 
     @Override
@@ -118,5 +119,6 @@ public class ListUserController implements IListUserController, IUserDatabaseObs
 
     private void handleNotifyMessageModifiedLogic(com.ubo.tp.message.datamodel.Message modifiedMessage) {
         // no action
+        if (modifiedMessage != null && context.logger() != null) context.logger().debug("Message modifié : " + modifiedMessage);
     }
 }

@@ -83,7 +83,8 @@ public class AppMainController implements IAppMainController, ISessionObserver {
                         context.dataManager().sendUser(context.session().getConnectedUser());
                         context.session().disconnect();
                         System.exit(0);
-                    } catch (Exception ignored) {
+                    } catch (Exception e) {
+                        context.logger().error("Erreur lors de la fermeture (thread) : ", e);
                         System.exit(0);
                     }
                 }, "app-close-thread").start();

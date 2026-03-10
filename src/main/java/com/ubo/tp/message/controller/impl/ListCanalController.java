@@ -70,18 +70,26 @@ public class ListCanalController implements IListCanalController, IChannelDataba
         if (context.logger() != null) context.logger().debug("Canal ajouté : " + addedChannel);
         User me = context.session().getConnectedUser();
 
-        if (addedChannel.isPrivate()
-                && !addedChannel.getUsers().contains(me)
-                && !addedChannel.getCreator().equals(me)) {
+        if (shouldIgnorePrivateChannel(addedChannel, me)) {
             if (context.logger() != null)
                 context.logger().debug("Ignorer le canal privé qui ne m'inclut pas : " + addedChannel);
             return;
         }
 
-        boolean isOwner = addedChannel.isPrivate() && addedChannel.getCreator().equals(me);
+        boolean isOwner = isOwnerOfChannel(addedChannel, me);
         ChannelEditCallback onEdit = addedChannel.isPrivate() ? buildEditCallback(addedChannel, me, isOwner) : null;
 
         this.graphicController.addCanal(addedChannel, this::setSelected, onEdit, isOwner, this::getUsersWithoutMe);
+    }
+
+    private boolean shouldIgnorePrivateChannel(Channel channel, User me) {
+        if (channel == null) return true;
+        return channel.isPrivate()
+                && (me == null || (!channel.getUsers().contains(me) && !channel.getCreator().equals(me)));
+    }
+
+    private boolean isOwnerOfChannel(Channel channel, User me) {
+        return channel != null && channel.isPrivate() && Objects.equals(channel.getCreator(), me);
     }
 
     /**
@@ -90,18 +98,32 @@ public class ListCanalController implements IListCanalController, IChannelDataba
      * Un membre simple peut seulement quitter.
      */
     private ChannelEditCallback buildEditCallback(Channel channel, User me, boolean isOwner) {
+        // utilise channel/me/isOwner dans des logs pour éviter les warnings "paramètre non utilisé"
+        if (context.logger() != null) context.logger().debug("buildEditCallback for channel: " + channel + " owner? " + isOwner + " me=" + (me != null ? me.getName() : "null"));
         return new ChannelEditCallback() {
             @Override
-            public void onLeave(Channel c) { leaveChannel(c); }
+            public void onLeave(Channel c) {
+                if (context.logger() != null) context.logger().debug("onLeave called for: " + c + " (template: " + channel + ")");
+                leaveChannel(c);
+            }
 
             @Override
-            public void onDelete(Channel c) { deleteChannel(c); }
+            public void onDelete(Channel c) {
+                if (context.logger() != null) context.logger().debug("onDelete called for: " + c + " (template: " + channel + ")");
+                deleteChannel(c);
+            }
 
             @Override
-            public void onAddUser(Channel c, User user) { addUserToChannel(c, user); }
+            public void onAddUser(Channel c, User user) {
+                if (context.logger() != null) context.logger().debug("onAddUser called for: " + c + " user=" + user);
+                addUserToChannel(c, user);
+            }
 
             @Override
-            public void onRemoveUser(Channel c, User user) { removeUserFromChannel(c, user); }
+            public void onRemoveUser(Channel c, User user) {
+                if (context.logger() != null) context.logger().debug("onRemoveUser called for: " + c + " user=" + user);
+                removeUserFromChannel(c, user);
+            }
         };
     }
 
@@ -129,7 +151,7 @@ public class ListCanalController implements IListCanalController, IChannelDataba
                 && !modifiedChannel.getUsers().contains(me)) {
             this.graphicController.removeCanal(modifiedChannel);
         } else {
-            boolean isOwner = modifiedChannel.isPrivate() && modifiedChannel.getCreator().equals(me);
+            boolean isOwner = isOwnerOfChannel(modifiedChannel, me);
             IListCanalGraphicController.ChannelEditCallback onEdit = modifiedChannel.isPrivate() ?
                     buildEditCallback(modifiedChannel, me, isOwner) : null;
             this.graphicController.addCanal(modifiedChannel, this::setSelected, onEdit, isOwner, this::getUsersWithoutMe);
@@ -141,17 +163,17 @@ public class ListCanalController implements IListCanalController, IChannelDataba
     @Override
     public void notifyUserAdded(User addedUser) { handleNotifyUserAddedLogic(addedUser); }
 
-    private void handleNotifyUserAddedLogic(User addedUser) { refreshFormUsers(); }
+    private void handleNotifyUserAddedLogic(User addedUser) { if (context.logger() != null) { context.logger().debug("notifyUserAdded: " + addedUser); } refreshFormUsers(); }
 
     @Override
     public void notifyUserDeleted(User deletedUser) { handleNotifyUserDeletedLogic(deletedUser); }
 
-    private void handleNotifyUserDeletedLogic(User deletedUser) { refreshFormUsers(); }
+    private void handleNotifyUserDeletedLogic(User deletedUser) { if (context.logger() != null) { context.logger().debug("notifyUserDeleted: " + deletedUser); } refreshFormUsers(); }
 
     @Override
     public void notifyUserModified(User modifiedUser) { handleNotifyUserModifiedLogic(modifiedUser); }
 
-    private void handleNotifyUserModifiedLogic(User modifiedUser) { refreshFormUsers(); }
+    private void handleNotifyUserModifiedLogic(User modifiedUser) { if (context.logger() != null) { context.logger().debug("notifyUserModified: " + modifiedUser); } refreshFormUsers(); }
 
     public void createNewChannel(String channelName, boolean isPrivate, List<User> invitedUsers) {
         handleCreateNewChannelLogic(channelName, isPrivate, invitedUsers);
@@ -266,6 +288,7 @@ public class ListCanalController implements IListCanalController, IChannelDataba
 
     private void handleNotifyMessageDeletedLogic(Message deletedMessage) {
         // no action
+        if (deletedMessage != null && context.logger() != null) context.logger().debug("notifyMessageDeleted: " + deletedMessage);
     }
 
     @Override
@@ -275,5 +298,6 @@ public class ListCanalController implements IListCanalController, IChannelDataba
 
     private void handleNotifyMessageModifiedLogic(Message modifiedMessage) {
         // no action
+        if (modifiedMessage != null && context.logger() != null) context.logger().debug("notifyMessageModified: " + modifiedMessage);
     }
 }

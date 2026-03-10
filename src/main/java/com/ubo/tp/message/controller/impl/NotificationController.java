@@ -5,14 +5,13 @@ import com.sshtools.twoslices.ToastType;
 import com.sshtools.twoslices.ToasterFactory;
 import com.sshtools.twoslices.ToasterSettings;
 import com.ubo.tp.message.controller.contexte.ControllerContext;
-import com.ubo.tp.message.controller.service.INotificationController;
 import com.ubo.tp.message.core.database.observer.IMessageDatabaseObserver;
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.datamodel.User;
 
-public class NotificationController implements INotificationController, IMessageDatabaseObserver {
+public class NotificationController implements IMessageDatabaseObserver {
 
-    private ControllerContext context;
+    private final ControllerContext context;
 
     public NotificationController(ControllerContext context) {
         this.context = context;
@@ -67,6 +66,9 @@ public class NotificationController implements INotificationController, IMessage
     }
 
     private void handleNotifyMessageDeletedLogic(Message deletedMessage) {
+        if (deletedMessage != null && context.logger() != null) {
+            context.logger().debug("notifyMessageDeleted called for: " + deletedMessage);
+        }
         // currently no action on deleted messages
     }
 
@@ -76,6 +78,9 @@ public class NotificationController implements INotificationController, IMessage
     }
 
     private void handleNotifyMessageModifiedLogic(Message modifiedMessage) {
+        if (modifiedMessage != null && context.logger() != null) {
+            context.logger().debug("notifyMessageModified called for: " + modifiedMessage);
+        }
         // currently no action on modified messages
     }
 }
