@@ -40,6 +40,10 @@ public class NotificationController implements INotificationController, IMessage
 
     @Override
     public void notifyMessageAdded(Message addedMessage) {
+        handleNotifyMessageAddedLogic(addedMessage);
+    }
+
+    private void handleNotifyMessageAddedLogic(Message addedMessage) {
         if (addedMessage == null) return;
         if (context.session() == null || context.session().getConnectedUser() == null) return;
         if (isUserMentioned(context.session().getConnectedUser(), addedMessage)) {
@@ -58,8 +62,20 @@ public class NotificationController implements INotificationController, IMessage
     }
 
     @Override
-    public void notifyMessageDeleted(Message deletedMessage) {}
+    public void notifyMessageDeleted(Message deletedMessage) {
+        handleNotifyMessageDeletedLogic(deletedMessage);
+    }
+
+    private void handleNotifyMessageDeletedLogic(Message deletedMessage) {
+        // currently no action on deleted messages
+    }
 
     @Override
-    public void notifyMessageModified(Message modifiedMessage) {}
+    public void notifyMessageModified(Message modifiedMessage) {
+        handleNotifyMessageModifiedLogic(modifiedMessage);
+    }
+
+    private void handleNotifyMessageModifiedLogic(Message modifiedMessage) {
+        // currently no action on modified messages
+    }
 }

@@ -57,6 +57,10 @@ public class AppMainController implements IAppMainController, ISessionObserver {
      * @param directoryPath chemin du répertoire sélectionné
      */
     private void onExchangeDirectorySelected(String directoryPath) {
+        handleOnExchangeDirectorySelectedLogic(directoryPath);
+    }
+
+    private void handleOnExchangeDirectorySelectedLogic(String directoryPath) {
         context.logger().info("Controller: répertoire sélectionné -> " + directoryPath);
         context.dataManager().setExchangeDirectory(directoryPath);
     }
@@ -66,6 +70,10 @@ public class AppMainController implements IAppMainController, ISessionObserver {
     }
 
     private void onCloseRequested() {
+        handleOnCloseRequestedLogic();
+    }
+
+    private void handleOnCloseRequestedLogic() {
         context.logger().info("Controller: fermeture demandée");
         try {
             if (context.session() != null && context.session().getConnectedUser() != null) {
@@ -89,6 +97,10 @@ public class AppMainController implements IAppMainController, ISessionObserver {
     }
 
     private void onDisconnectRequested() {
+        handleOnDisconnectRequestedLogic();
+    }
+
+    private void handleOnDisconnectRequestedLogic() {
         context.logger().info("Controller: demande de déconnexion reçue");
         try {
             if (context.session() != null && context.session().getConnectedUser() != null) {
@@ -102,6 +114,10 @@ public class AppMainController implements IAppMainController, ISessionObserver {
     }
 
     private void onDeleteAccountRequested() {
+        handleOnDeleteAccountRequestedLogic();
+    }
+
+    private void handleOnDeleteAccountRequestedLogic() {
         context.logger().info("Controller: demande de suppression du compte reçue");
         try {
             if (context.session() != null && context.session().getConnectedUser() != null) {
@@ -120,12 +136,20 @@ public class AppMainController implements IAppMainController, ISessionObserver {
 
     @Override
     public void notifyLogin(User connectedUser) {
+        handleNotifyLoginLogic(connectedUser);
+    }
+
+    private void handleNotifyLoginLogic(User connectedUser) {
         context.logger().info("Session: utilisateur connecté -> " + (connectedUser != null ? connectedUser.getName() : "null"));
         graphicController.setConnectMenuVisible(true);
     }
 
     @Override
     public void notifyLogout() {
+        handleNotifyLogoutLogic();
+    }
+
+    private void handleNotifyLogoutLogic() {
         context.logger().info("Session: utilisateur déconnecté");
         graphicController.setConnectMenuVisible(false);
     }

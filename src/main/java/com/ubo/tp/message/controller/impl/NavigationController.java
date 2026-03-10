@@ -29,24 +29,40 @@ public class NavigationController implements INavigationController, ISessionObse
 
     @Override
     public void navigateToLogin() {
+        handleNavigateToLoginLogic();
+    }
+
+    private void handleNavigateToLoginLogic() {
         context.logger().info("navigateToLogin");
         this.setMainContent(viewFactory.createLoginView());
     }
 
     @Override
     public void navigateToRegister() {
+        handleNavigateToRegisterLogic();
+    }
+
+    private void handleNavigateToRegisterLogic() {
         context.logger().info("navigateToRegister");
         this.setMainContent(viewFactory.createRegisterView());
     }
 
     @Override
     public void navigateToProfile() {
+        handleNavigateToProfileLogic();
+    }
+
+    private void handleNavigateToProfileLogic() {
         context.logger().info("navigateToProfile");
         this.setMainContent(viewFactory.createUpdateAccountView());
     }
 
     @Override
     public void navigateToChat() {
+        handleNavigateToChatLogic();
+    }
+
+    private void handleNavigateToChatLogic() {
         context.logger().info("navigateToChat");
         this.setMainContent(viewFactory.createChatMainView());
     }
@@ -58,12 +74,20 @@ public class NavigationController implements INavigationController, ISessionObse
 
     @Override
     public void notifyLogin(User connectedUser) {
+        handleNotifyLoginLogic(connectedUser);
+    }
+
+    private void handleNotifyLoginLogic(User connectedUser) {
         context.logger().info("notifyLogin");
         this.setMainContent(viewFactory.createChatMainView());
     }
 
     @Override
     public void notifyLogout() {
+        handleNotifyLogoutLogic();
+    }
+
+    private void handleNotifyLogoutLogic() {
         this.navigateToLogin();
     }
 }

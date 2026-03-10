@@ -18,6 +18,10 @@ public class InputMessageController implements IInputMessageController {
 
     @Override
     public void sendMessage(UUID recipientUuid, String message) {
+        handleSendMessageLogic(recipientUuid, message);
+    }
+
+    private void handleSendMessageLogic(UUID recipientUuid, String message) {
         if (message == null || message.trim().isEmpty()) {
             if (context.logger() != null) context.logger().warn("Message vide, envoi annulé");
             return;
@@ -46,6 +50,10 @@ public class InputMessageController implements IInputMessageController {
      */
     @Override
     public void sendMessageToSelected(String text) {
+        handleSendMessageToSelectedLogic(text);
+    }
+
+    private void handleSendMessageToSelectedLogic(String text) {
         var sel = context.selected();
         if (sel == null) {
             if (context.logger() != null) context.logger().warn("Aucune sélection, envoi annulé");

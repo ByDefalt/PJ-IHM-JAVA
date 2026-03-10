@@ -17,6 +17,10 @@ public class UpdateAccountController implements IUpdateAccountController {
 
     @Override
     public boolean onUpdateNameClicked(String newName) {
+        return handleOnUpdateNameClickedLogic(newName);
+    }
+
+    private boolean handleOnUpdateNameClickedLogic(String newName) {
         if (newName == null) return false;
         if (context.logger() != null) context.logger().debug("Mise à jour du nom utilisateur vers: " + newName);
 

@@ -63,6 +63,10 @@ public class ListCanalController implements IListCanalController, IChannelDataba
 
     @Override
     public void notifyChannelAdded(Channel addedChannel) {
+        handleNotifyChannelAddedLogic(addedChannel);
+    }
+
+    private void handleNotifyChannelAddedLogic(Channel addedChannel) {
         if (context.logger() != null) context.logger().debug("Canal ajouté : " + addedChannel);
         User me = context.session().getConnectedUser();
 
@@ -103,12 +107,20 @@ public class ListCanalController implements IListCanalController, IChannelDataba
 
     @Override
     public void notifyChannelDeleted(Channel deletedChannel) {
+        handleNotifyChannelDeletedLogic(deletedChannel);
+    }
+
+    private void handleNotifyChannelDeletedLogic(Channel deletedChannel) {
         if (context.logger() != null) context.logger().debug("Canal supprimé : " + deletedChannel);
         this.graphicController.removeCanal(deletedChannel);
     }
 
     @Override
     public void notifyChannelModified(Channel modifiedChannel) {
+        handleNotifyChannelModifiedLogic(modifiedChannel);
+    }
+
+    private void handleNotifyChannelModifiedLogic(Channel modifiedChannel) {
         if (context.logger() != null) context.logger().debug("Canal modifié : " + modifiedChannel);
         User me = context.session().getConnectedUser();
 
@@ -127,15 +139,25 @@ public class ListCanalController implements IListCanalController, IChannelDataba
     }
 
     @Override
-    public void notifyUserAdded(User addedUser) { refreshFormUsers(); }
+    public void notifyUserAdded(User addedUser) { handleNotifyUserAddedLogic(addedUser); }
+
+    private void handleNotifyUserAddedLogic(User addedUser) { refreshFormUsers(); }
 
     @Override
-    public void notifyUserDeleted(User deletedUser) { refreshFormUsers(); }
+    public void notifyUserDeleted(User deletedUser) { handleNotifyUserDeletedLogic(deletedUser); }
+
+    private void handleNotifyUserDeletedLogic(User deletedUser) { refreshFormUsers(); }
 
     @Override
-    public void notifyUserModified(User modifiedUser) { refreshFormUsers(); }
+    public void notifyUserModified(User modifiedUser) { handleNotifyUserModifiedLogic(modifiedUser); }
+
+    private void handleNotifyUserModifiedLogic(User modifiedUser) { refreshFormUsers(); }
 
     public void createNewChannel(String channelName, boolean isPrivate, List<User> invitedUsers) {
+        handleCreateNewChannelLogic(channelName, isPrivate, invitedUsers);
+    }
+
+    private void handleCreateNewChannelLogic(String channelName, boolean isPrivate, List<User> invitedUsers) {
         Channel newChannel;
         if (invitedUsers != null && !invitedUsers.isEmpty()) {
             List<User> members = new ArrayList<>(invitedUsers);
@@ -149,6 +171,10 @@ public class ListCanalController implements IListCanalController, IChannelDataba
 
     /** Supprime définitivement le canal (réservé au créateur). */
     public void deleteChannel(Channel channel) {
+        handleDeleteChannelLogic(channel);
+    }
+
+    private void handleDeleteChannelLogic(Channel channel) {
         if (channel == null) return;
         context.dataManager().deleteChannelFile(channel);
         if (context.logger() != null)
@@ -159,6 +185,10 @@ public class ListCanalController implements IListCanalController, IChannelDataba
      * Retire l'utilisateur connecté du canal et persiste le canal mis à jour.
      */
     public void leaveChannel(Channel channel) {
+        handleLeaveChannelLogic(channel);
+    }
+
+    private void handleLeaveChannelLogic(Channel channel) {
         if (channel == null) return;
         User me = context.session().getConnectedUser();
         List<User> newMembers = new ArrayList<>(channel.getUsers());
@@ -171,6 +201,10 @@ public class ListCanalController implements IListCanalController, IChannelDataba
 
     /** Ajoute un utilisateur au canal (propriétaire uniquement). */
     public void addUserToChannel(Channel channel, User user) {
+        handleAddUserToChannelLogic(channel, user);
+    }
+
+    private void handleAddUserToChannelLogic(Channel channel, User user) {
         if (channel == null || user == null) return;
         List<User> newMembers = new ArrayList<>(channel.getUsers());
         if (newMembers.contains(user)) return; // déjà membre, rien à faire
@@ -186,6 +220,10 @@ public class ListCanalController implements IListCanalController, IChannelDataba
 
     /** Retire un utilisateur du canal (propriétaire uniquement). */
     public void removeUserFromChannel(Channel channel, User user) {
+        handleRemoveUserFromChannelLogic(channel, user);
+    }
+
+    private void handleRemoveUserFromChannelLogic(Channel channel, User user) {
         if (channel == null || user == null) return;
         List<User> newMembers = new ArrayList<>(channel.getUsers());
         if (!newMembers.contains(user)) return; // pas membre, rien à faire
@@ -201,6 +239,10 @@ public class ListCanalController implements IListCanalController, IChannelDataba
 
     @Override
     public void notifyMessageAdded(Message addedMessage) {
+        handleNotifyMessageAddedLogic(addedMessage);
+    }
+
+    private void handleNotifyMessageAddedLogic(Message addedMessage) {
         if (addedMessage == null) return;
 
         // Trouver le canal destinataire du message
@@ -219,9 +261,19 @@ public class ListCanalController implements IListCanalController, IChannelDataba
 
     @Override
     public void notifyMessageDeleted(Message deletedMessage) {
+        handleNotifyMessageDeletedLogic(deletedMessage);
+    }
+
+    private void handleNotifyMessageDeletedLogic(Message deletedMessage) {
+        // no action
     }
 
     @Override
     public void notifyMessageModified(Message modifiedMessage) {
+        handleNotifyMessageModifiedLogic(modifiedMessage);
+    }
+
+    private void handleNotifyMessageModifiedLogic(Message modifiedMessage) {
+        // no action
     }
 }

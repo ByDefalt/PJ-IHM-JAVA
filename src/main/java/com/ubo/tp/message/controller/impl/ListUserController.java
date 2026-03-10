@@ -34,6 +34,10 @@ public class ListUserController implements IListUserController, IUserDatabaseObs
 
     @Override
     public void notifyUserAdded(User addedUser) {
+        handleNotifyUserAddedLogic(addedUser);
+    }
+
+    private void handleNotifyUserAddedLogic(User addedUser) {
         if (context.logger() != null) context.logger().debug("Utilisateur ajouté : " + addedUser);
         if (isCurrentUser(addedUser)) {
             if (context.logger() != null)
@@ -50,18 +54,30 @@ public class ListUserController implements IListUserController, IUserDatabaseObs
 
     @Override
     public void notifyUserDeleted(User deletedUser) {
+        handleNotifyUserDeletedLogic(deletedUser);
+    }
+
+    private void handleNotifyUserDeletedLogic(User deletedUser) {
         if (context.logger() != null) context.logger().debug("Utilisateur supprimé : " + deletedUser);
         this.graphicController.removeUser(deletedUser);
     }
 
     @Override
     public void notifyUserModified(User modifiedUser) {
+        handleNotifyUserModifiedLogic(modifiedUser);
+    }
+
+    private void handleNotifyUserModifiedLogic(User modifiedUser) {
         if (context.logger() != null) context.logger().debug("Utilisateur modifié : " + modifiedUser);
         this.graphicController.updateUser(modifiedUser);
     }
 
     @Override
     public void notifyMessageAdded(com.ubo.tp.message.datamodel.Message addedMessage) {
+        handleNotifyMessageAddedLogic(addedMessage);
+    }
+
+    private void handleNotifyMessageAddedLogic(com.ubo.tp.message.datamodel.Message addedMessage) {
         if (addedMessage == null) return;
         // if the message is to a user (private conversation)
         if (addedMessage.getRecipient() == null) return;
@@ -87,8 +103,20 @@ public class ListUserController implements IListUserController, IUserDatabaseObs
     }
 
     @Override
-    public void notifyMessageDeleted(com.ubo.tp.message.datamodel.Message deletedMessage) {}
+    public void notifyMessageDeleted(com.ubo.tp.message.datamodel.Message deletedMessage) {
+        handleNotifyMessageDeletedLogic(deletedMessage);
+    }
+
+    private void handleNotifyMessageDeletedLogic(com.ubo.tp.message.datamodel.Message deletedMessage) {
+        // no action
+    }
 
     @Override
-    public void notifyMessageModified(com.ubo.tp.message.datamodel.Message modifiedMessage) {}
+    public void notifyMessageModified(com.ubo.tp.message.datamodel.Message modifiedMessage) {
+        handleNotifyMessageModifiedLogic(modifiedMessage);
+    }
+
+    private void handleNotifyMessageModifiedLogic(com.ubo.tp.message.datamodel.Message modifiedMessage) {
+        // no action
+    }
 }

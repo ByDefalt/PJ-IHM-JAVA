@@ -97,6 +97,10 @@ public class ListMessageController implements IListMessageController, IMessageDa
 
     @Override
     public void notifyMessageAdded(Message addedMessage) {
+        handleNotifyMessageAddedLogic(addedMessage);
+    }
+
+    private void handleNotifyMessageAddedLogic(Message addedMessage) {
         if (context.logger() != null) context.logger().debug("Message ajouté : " + addedMessage);
         List<Message> filtered = getFilteredMessages(context.dataManager().getMessages());
         this.graphicController.addMessage(addedMessage, filtered);
@@ -104,6 +108,10 @@ public class ListMessageController implements IListMessageController, IMessageDa
 
     @Override
     public void notifyMessageDeleted(Message deletedMessage) {
+        handleNotifyMessageDeletedLogic(deletedMessage);
+    }
+
+    private void handleNotifyMessageDeletedLogic(Message deletedMessage) {
         if (context.logger() != null) context.logger().debug("Message suppression : " + deletedMessage);
         List<Message> filtered = getFilteredMessages(context.dataManager().getMessages());
         this.graphicController.removeMessage(deletedMessage, filtered);
@@ -111,6 +119,10 @@ public class ListMessageController implements IListMessageController, IMessageDa
 
     @Override
     public void notifyMessageModified(Message modifiedMessage) {
+        handleNotifyMessageModifiedLogic(modifiedMessage);
+    }
+
+    private void handleNotifyMessageModifiedLogic(Message modifiedMessage) {
         if (context.logger() != null) context.logger().debug("Message update : " + modifiedMessage);
         List<Message> filtered = getFilteredMessages(context.dataManager().getMessages());
         this.graphicController.updateMessage(modifiedMessage, filtered);
@@ -118,6 +130,10 @@ public class ListMessageController implements IListMessageController, IMessageDa
 
     @Override
     public void notifySelectedChanged() {
+        handleNotifySelectedChangedLogic();
+    }
+
+    private void handleNotifySelectedChangedLogic() {
         List<Message> filtered = getFilteredMessages(context.dataManager().getMessages());
         if (context.logger() != null)
             context.logger().debug("Sélection changée, messages filtrés : " + filtered.size());
@@ -130,11 +146,19 @@ public class ListMessageController implements IListMessageController, IMessageDa
 
     @Override
     public void notifyUserAdded(User addedUser) {
+        handleNotifyUserAddedLogic(addedUser);
+    }
+
+    private void handleNotifyUserAddedLogic(User addedUser) {
         // Rien à faire : les messages du nouvel utilisateur arrivent via notifyMessageAdded
     }
 
     @Override
     public void notifyUserDeleted(User deletedUser) {
+        handleNotifyUserDeletedLogic(deletedUser);
+    }
+
+    private void handleNotifyUserDeletedLogic(User deletedUser) {
         if (deletedUser == null) return;
         if (context.logger() != null)
             context.logger().debug("User supprimé, mise à jour des messages : " + deletedUser);
@@ -160,6 +184,10 @@ public class ListMessageController implements IListMessageController, IMessageDa
 
     @Override
     public void notifyUserModified(User modifiedUser) {
+        handleNotifyUserModifiedLogic(modifiedUser);
+    }
+
+    private void handleNotifyUserModifiedLogic(User modifiedUser) {
         if (modifiedUser == null) return;
         // Le graphic controller met à jour son TreeSet interne pour tous les messages
         // dont le sender correspond à modifiedUser, puis reconstruit l'affichage
