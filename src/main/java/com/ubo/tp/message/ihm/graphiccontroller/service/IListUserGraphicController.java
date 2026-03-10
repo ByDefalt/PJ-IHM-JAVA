@@ -10,4 +10,10 @@ public interface IListUserGraphicController extends GraphicController {
     void removeUser(User user);
 
     void updateUser(User user);
+
+    /** Incrémente le badge de messages non lus pour un utilisateur donné. */
+    void incrementUnread(User user);
+
+    /** Remet à zéro le badge de messages non lus pour un utilisateur donné. */
+    void clearUnread(User user);
 }

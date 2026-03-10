@@ -23,6 +23,7 @@ public class UserView extends JComponent implements View {
     private JLabel statusDotLabel;
     private User user;
     private boolean hovered = false;
+    private int unreadCount = 0;
 
     public UserView(ViewContext viewContext, User user) {
         this.viewContext = viewContext;
@@ -140,6 +141,22 @@ public class UserView extends JComponent implements View {
             g2.setColor(BG_NORMAL);
             g2.fillRoundRect(pad, pad, w, h, arc, arc);
         }
+
+        // Badge messages non lus
+        if (unreadCount > 0) {
+            String text = unreadCount > 99 ? "99+" : String.valueOf(unreadCount);
+            g2.setFont(new Font("SansSerif", Font.BOLD, 9));
+            FontMetrics fm = g2.getFontMetrics();
+            int tw = fm.stringWidth(text);
+            int diameter = Math.max(tw + 8, 14);
+            int by = (getHeight() - diameter) / 2;
+            int bx = getWidth() - diameter - 6;
+            g2.setColor(new Color(240, 71, 71));
+            g2.fillOval(bx, by, diameter, diameter);
+            g2.setColor(Color.WHITE);
+            g2.drawString(text, bx + (diameter - tw) / 2, by + fm.getAscent() + (diameter - fm.getHeight()) / 2);
+        }
+
         g2.dispose();
     }
 
@@ -154,5 +171,17 @@ public class UserView extends JComponent implements View {
         statusDotLabel.repaint();
         this.revalidate();
         this.repaint();
+    }
+
+    public void incrementUnread() {
+        unreadCount++;
+        revalidate();
+        repaint();
+    }
+
+    public void clearUnread() {
+        unreadCount = 0;
+        revalidate();
+        repaint();
     }
 }

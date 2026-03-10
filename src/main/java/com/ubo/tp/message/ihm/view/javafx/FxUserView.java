@@ -26,6 +26,7 @@ public class FxUserView extends HBox implements View {
     private final Label nameLabel;
     private final Label tagLabel;
     private final Circle statusDot;
+    private final Label badgeLabel;
     private User user;
 
     public FxUserView(ViewContext viewContext, User user) {
@@ -54,7 +55,16 @@ public class FxUserView extends HBox implements View {
         VBox info = new VBox(1, nameLabel, tagLabel);
         info.setMouseTransparent(true);
 
-        getChildren().addAll(statusDot, info);
+        badgeLabel = new Label();
+        badgeLabel.setStyle("-fx-background-color: #F04747; -fx-text-fill: white; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 2 6 2 6; -fx-background-radius: 10px;");
+        badgeLabel.setVisible(false);
+        // ensure badge doesn't grow the HBox
+        HBox.setHgrow(badgeLabel, Priority.NEVER);
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        getChildren().addAll(statusDot, info, spacer, badgeLabel);
 
         // Appliquer l'état initial
         applyStatus(user.isOnline());
@@ -82,7 +92,19 @@ public class FxUserView extends HBox implements View {
         tagLabel.setText("@" + updated.getUserTag());
         applyStatus(updated.isOnline());
     }
+
+    public void incrementUnread() {
+        int current = 0;
+        if (badgeLabel.isVisible()) {
+            try { current = Integer.parseInt(badgeLabel.getText()); } catch (Exception ignore) { current = 0; }
+        }
+        current++;
+        badgeLabel.setText(current > 99 ? "99+" : String.valueOf(current));
+        badgeLabel.setVisible(true);
+    }
+
+    public void clearUnread() {
+        badgeLabel.setText("");
+        badgeLabel.setVisible(false);
+    }
 }
-
-
-

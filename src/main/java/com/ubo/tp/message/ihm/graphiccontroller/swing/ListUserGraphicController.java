@@ -92,4 +92,26 @@ public class ListUserGraphicController implements IListUserGraphicController {
             if (logger != null) logger.warn("User non trouvé pour mise à jour : " + user.getName());
         }
     }
+
+    @Override
+    public void incrementUnread(User user) {
+        if (user == null) return;
+        Optional<UserView> opt = userViews.stream().filter(uv -> uv.getUser().equals(user)).findFirst();
+        if (opt.isPresent()) {
+            opt.get().incrementUnread();
+        } else {
+            if (viewContext.logger() != null) viewContext.logger().warn("User non trouvé pour incrément unread: " + user.getName());
+        }
+    }
+
+    @Override
+    public void clearUnread(User user) {
+        if (user == null) return;
+        Optional<UserView> opt = userViews.stream().filter(uv -> uv.getUser().equals(user)).findFirst();
+        if (opt.isPresent()) {
+            opt.get().clearUnread();
+        } else {
+            if (viewContext.logger() != null) viewContext.logger().warn("User non trouvé pour clear unread: " + user.getName());
+        }
+    }
 }
