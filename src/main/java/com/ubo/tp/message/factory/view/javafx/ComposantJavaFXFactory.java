@@ -13,6 +13,9 @@ import javafx.stage.Stage;
 
 /**
  * Fabrique de composants JavaFX — symétrique à {@link ComposantSwingFactory}.
+ *
+ * Fournit la construction des vues JavaFX et de leurs contrôleurs graphiques
+ * pour l'application.
  */
 public class ComposantJavaFXFactory implements ViewFactory {
 
@@ -20,12 +23,22 @@ public class ComposantJavaFXFactory implements ViewFactory {
     private final ViewContext viewContext;
     private final Stage primaryStage;
 
+    /**
+     * Crée une fabrique JavaFX avec le contexte et la stage principale.
+     *
+     * @param controllerContext contexte applicatif
+     * @param viewContext       contexte de la vue
+     * @param primaryStage      stage principal JavaFX
+     */
     public ComposantJavaFXFactory(ControllerContext controllerContext, ViewContext viewContext, Stage primaryStage) {
         this.controllerContext = controllerContext;
         this.viewContext = viewContext;
         this.primaryStage = primaryStage;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public IAppMainController createAppMainController() {
         FxAppMainView appMainView = new FxAppMainView(viewContext, primaryStage);
@@ -33,6 +46,9 @@ public class ComposantJavaFXFactory implements ViewFactory {
         return new AppMainController(controllerContext, gc, createLoginView());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public View createLoginView() {
         LoginController loginController = new LoginController(controllerContext);
@@ -41,6 +57,9 @@ public class ComposantJavaFXFactory implements ViewFactory {
         return loginView;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public View createRegisterView() {
         RegisterController registerController = new RegisterController(controllerContext);
@@ -49,6 +68,9 @@ public class ComposantJavaFXFactory implements ViewFactory {
         return registerView;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public View createUpdateAccountView() {
         UpdateAccountController updateController = new UpdateAccountController(controllerContext);
@@ -57,6 +79,9 @@ public class ComposantJavaFXFactory implements ViewFactory {
         return updateView;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public View createChatMainView() {
         InputMessageController inputController = new InputMessageController(controllerContext);
