@@ -17,6 +17,8 @@ public class NotificationController implements INotificationController, IMessage
     public NotificationController(ControllerContext context) {
         this.context = context;
         context.dataManager().addObserver(this);
+
+        ToasterFactory.setSettings(new ToasterSettings().setAppName("MessageApp"));
     }
 
     private boolean isUserMentioned(User user, Message message) {
@@ -26,18 +28,13 @@ public class NotificationController implements INotificationController, IMessage
 
     private void sendOsNotification(String title, String content) {
         try {
-            // Forcer le provider natif Windows (WinToast) au lieu de AWT
-            ToasterSettings settings = new ToasterSettings()
-                    .setAppName("MessageApp");
-            ToasterFactory.setSettings(settings);
-
             Toast.builder()
                     .type(ToastType.INFO)
                     .title(title)
                     .content(content)
                     .toast();
         } catch (Exception e) {
-            System.err.println("Notification OS échouée : " + e.getMessage());
+            context.logger().warn("Notification OS échouée : " + e.getMessage());
         }
     }
 
