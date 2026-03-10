@@ -49,7 +49,7 @@ public class RegisterController implements IRegisterController {
         context.logger().debug("RegisterController: addUser called");
         context.logger().info("Adding user with tag: " + tag + ", name: " + name + ", password: " + password + ", confirmPassword: " + confirmPassword);
         Set<User> users = context.dataManager().getUsers();
-        boolean userExists = users.stream().anyMatch(u -> u.getName().equals(name));
+        boolean userExists = users.stream().anyMatch(u -> u.getUserTag().equals(tag));
         if (!userExists) {
             context.dataManager().sendUser(new User(tag, password, name));
             context.logger().info("User added successfully: " + name);

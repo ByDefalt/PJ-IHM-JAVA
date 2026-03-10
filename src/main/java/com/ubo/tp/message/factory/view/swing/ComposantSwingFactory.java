@@ -84,6 +84,8 @@ public class ComposantSwingFactory implements ViewFactory {
         ListMessageView listMessageView = createListMessageView();
         ListUserView listUserView = createListUserView();
 
+        new NotificationController(controllerContext);
+
         return new ChatMainView(
                 viewContext,
                 listCanalView,

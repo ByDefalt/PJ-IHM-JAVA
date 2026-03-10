@@ -83,6 +83,8 @@ public class ComposantJavaFXFactory implements ViewFactory {
         FxListUserGraphicController listUserGC = new FxListUserGraphicController(viewContext, listUserView);
         new ListUserController(controllerContext, listUserGC);
 
+        new NotificationController(controllerContext);
+
         return new FxChatMainView(viewContext, listCanalView, listUserView, listMessageView, inputView);
     }
 }
