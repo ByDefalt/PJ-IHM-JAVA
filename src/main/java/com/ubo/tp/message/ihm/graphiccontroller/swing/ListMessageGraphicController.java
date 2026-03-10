@@ -11,6 +11,13 @@ import javax.swing.*;
 import java.util.*;
 import java.util.function.Consumer;
 
+/**
+ * Contrôleur graphique Swing pour la liste des messages.
+ *
+ * Responsable de la représentation triée des messages et de
+ * la reconstruction de la vue lorsque le controller métier
+ * fournit une liste filtrée.
+ */
 public class ListMessageGraphicController implements IListMessageGraphicController {
 
     private final ViewContext viewContext;
@@ -31,17 +38,24 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
         this.listMessageView = listMessageView;
     }
 
-    // Helpers
+    /**
+     * Construit une liste de MessageView à partir de la liste filtrée fournie.
+     */
     private ArrayList<MessageView> toViewList(List<Message> filteredMessages) {
         if (filteredMessages == null || filteredMessages.isEmpty()) return new ArrayList<>();
-        Set<Message> filteredSet = new HashSet<>(filteredMessages);
+        java.util.Set<Message> filteredSet = new java.util.HashSet<>(filteredMessages);
         ArrayList<MessageView> result = new ArrayList<>();
         for (MessageView mv : messages) {
-            if (filteredSet.contains(mv.getMessage())) result.add(mv);
+            if (filteredSet.contains(mv.getMessage())) {
+                result.add(mv);
+            }
         }
         return result;
     }
 
+    /**
+     * Reconstruit la vue avec la liste filtrée fournie par le controller métier.
+     */
     private void rebuildView(List<Message> filteredMessages) {
         if (listMessageView == null) return;
         ArrayList<MessageView> viewList = toViewList(filteredMessages);
@@ -61,8 +75,9 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
         else SwingUtilities.invokeLater(task);
     }
 
-    // IListMessageGraphicController
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setOnDeleteMessage(Consumer<Message> onDelete, UUID connectedUserUuid) {
         this.onDeleteMessage = onDelete;
@@ -76,15 +91,19 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
 
     private void handleAddMessage(Message message, List<Message> filteredMessages) {
         if (message == null || listMessageView == null) return;
+
         Runnable task = () -> {
-            boolean alreadyPresent = messages.stream().anyMatch(mv -> mv.getMessage().equals(message));
+            boolean alreadyPresent = messages.stream()
+                    .anyMatch(mv -> mv.getMessage().equals(message));
             if (!alreadyPresent) {
                 Consumer<Message> cb = resolveDeleteCallback(message);
                 messages.add(new MessageView(viewContext, message, cb, cb != null));
-                if (viewContext.logger() != null) viewContext.logger().debug("Message ajouté : " + message);
+                if (viewContext.logger() != null)
+                    viewContext.logger().debug("Message ajouté : " + message);
             }
             rebuildView(filteredMessages);
         };
+
         runOnEDT(task);
     }
 
@@ -95,16 +114,22 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
 
     private void handleRemoveMessage(Message message, List<Message> filteredMessages) {
         if (message == null || listMessageView == null) return;
+
         Runnable task = () -> {
-            Optional<MessageView> opt = messages.stream().filter(mv -> mv.getMessage().equals(message)).findFirst();
+            Optional<MessageView> opt = messages.stream()
+                    .filter(mv -> mv.getMessage().equals(message))
+                    .findFirst();
             if (opt.isPresent()) {
                 messages.remove(opt.get());
-                if (viewContext.logger() != null) viewContext.logger().debug("Message supprimé : " + message);
+                if (viewContext.logger() != null)
+                    viewContext.logger().debug("Message supprimé : " + message);
             } else {
-                if (viewContext.logger() != null) viewContext.logger().warn("Message non trouvé, pas supprimé : " + message);
+                if (viewContext.logger() != null)
+                    viewContext.logger().warn("Message non trouvé, pas supprimé : " + message);
             }
             rebuildView(filteredMessages);
         };
+
         runOnEDT(task);
     }
 
@@ -115,6 +140,7 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
 
     private void handleUpdateMessage(Message message, List<Message> filteredMessages) {
         if (message == null || listMessageView == null) return;
+
         Runnable task = () -> {
             Optional<MessageView> opt = messages.stream()
                     .filter(mv -> mv.getMessage().getUuid().equals(message.getUuid()))
@@ -123,12 +149,15 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
                 messages.remove(opt.get());
                 Consumer<Message> cb = resolveDeleteCallback(message);
                 messages.add(new MessageView(viewContext, message, cb, cb != null));
-                if (viewContext.logger() != null) viewContext.logger().debug("Message mis à jour : " + message);
+                if (viewContext.logger() != null)
+                    viewContext.logger().debug("Message mis à jour : " + message);
             } else {
-                if (viewContext.logger() != null) viewContext.logger().warn("Message non trouvé pour mise à jour : " + message);
+                if (viewContext.logger() != null)
+                    viewContext.logger().warn("Message non trouvé pour mise à jour : " + message);
             }
             rebuildView(filteredMessages);
         };
+
         runOnEDT(task);
     }
 
@@ -139,6 +168,7 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
 
     private void handleRefreshSenderInMessages(User updatedUser, List<Message> filteredMessages) {
         if (updatedUser == null || listMessageView == null) return;
+
         Runnable task = () -> {
             List<MessageView> toReplace = messages.stream()
                     .filter(mv -> mv.getMessage().getSender() != null
@@ -153,10 +183,12 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
                 messages.add(new MessageView(viewContext, updated, cb, cb != null));
             }
             if (!toReplace.isEmpty()) {
-                if (viewContext.logger() != null) viewContext.logger().debug("Sender mis à jour dans " + toReplace.size() + " message(s)");
+                if (viewContext.logger() != null)
+                    viewContext.logger().debug("Sender mis à jour dans " + toReplace.size() + " message(s)");
                 rebuildView(filteredMessages);
             }
         };
+
         runOnEDT(task);
     }
 
@@ -167,7 +199,9 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
 
     private void handleSelectedChanged(List<Message> filteredMessages) {
         if (viewContext == null || listMessageView == null) return;
+
         Runnable task = () -> rebuildView(filteredMessages);
+
         runOnEDT(task);
     }
 }

@@ -5,6 +5,9 @@ import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.graphiccontroller.service.GraphicController;
 import com.ubo.tp.message.ihm.view.swing.RegisterView;
 
+/**
+ * Contrôleur graphique Swing pour la vue d'inscription.
+ */
 public class RegisterGraphicController implements GraphicController {
 
     private final ViewContext viewContext;

@@ -5,6 +5,9 @@ import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.graphiccontroller.service.GraphicController;
 import com.ubo.tp.message.ihm.view.swing.UpdateAccountView;
 
+/**
+ * Contrôleur graphique Swing de la vue de mise à jour du compte.
+ */
 public class UpdateAccountGraphicController implements GraphicController {
 
     private final ViewContext viewContext;
@@ -27,7 +30,6 @@ public class UpdateAccountGraphicController implements GraphicController {
     }
 
     private void handleInitView() {
-        // Récupérer l'utilisateur connecté et initialiser la vue
         var user = updateAccountController.getConnectedUser();
         if (user != null) {
             updateAccountView.setUser(user);
@@ -35,7 +37,6 @@ public class UpdateAccountGraphicController implements GraphicController {
     }
 
     private void registerCallbacks() {
-        // Brancher le callback UI vers le contrôleur métier
         updateAccountView.setOnUpdateRequested(this::handleUpdateRequested);
     }
 

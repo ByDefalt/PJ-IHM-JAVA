@@ -34,7 +34,9 @@ public class FxListMessageGraphicController implements IListMessageGraphicContro
         this.listMessageView = listMessageView;
     }
 
-    // Helpers
+    /**
+     * Helpers privés pour la construction/rafraîchissement de l'UI.
+     */
     private List<FxMessageView> toViewList(List<Message> filtered) {
         if (filtered == null || filtered.isEmpty()) return Collections.emptyList();
         Set<Message> set = new HashSet<>(filtered);
@@ -57,8 +59,9 @@ public class FxListMessageGraphicController implements IListMessageGraphicContro
             viewContext.logger().debug("(FX) Vue messages reconstruite : " + ordered.size());
     }
 
-    // IListMessageGraphicController
-
+    /**
+     * Méthodes de l'interface IListMessageGraphicController.
+     */
     @Override
     public void setOnDeleteMessage(Consumer<Message> onDelete, java.util.UUID connectedUserUuid) {
         handleSetOnDeleteMessage(onDelete, connectedUserUuid);

@@ -14,6 +14,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+/**
+ * Contrôleur graphique Swing pour la liste des utilisateurs.
+ */
 public class ListUserGraphicController implements IListUserGraphicController {
 
     private final ViewContext viewContext;
@@ -29,6 +32,12 @@ public class ListUserGraphicController implements IListUserGraphicController {
         this.listUserView = Objects.requireNonNull(listUserView, "listUserView ne peut pas être null");
     }
 
+    /**
+     * Ajoute un utilisateur à la liste et définit l'action à effectuer lors de son ajout.
+     *
+     * @param user  L'utilisateur à ajouter.
+     * @param added Action à effectuer après l'ajout de l'utilisateur.
+     */
     @Override
     public void addUser(User user, Consumer<User> added) {
         handleAddUser(user, added);
@@ -70,6 +79,11 @@ public class ListUserGraphicController implements IListUserGraphicController {
         });
     }
 
+    /**
+     * Supprime un utilisateur de la liste.
+     *
+     * @param user L'utilisateur à supprimer.
+     */
     @Override
     public void removeUser(User user) {
         handleRemoveUser(user);
@@ -90,6 +104,11 @@ public class ListUserGraphicController implements IListUserGraphicController {
         }
     }
 
+    /**
+     * Met à jour les informations d'un utilisateur dans la liste.
+     *
+     * @param user L'utilisateur avec les informations mises à jour.
+     */
     @Override
     public void updateUser(User user) {
         handleUpdateUser(user);
@@ -109,6 +128,11 @@ public class ListUserGraphicController implements IListUserGraphicController {
         }
     }
 
+    /**
+     * Incrémente le compteur de messages non lus pour un utilisateur.
+     *
+     * @param user L'utilisateur dont le compteur de messages non lus doit être incrémenté.
+     */
     @Override
     public void incrementUnread(User user) {
         handleIncrementUnread(user);
@@ -125,6 +149,11 @@ public class ListUserGraphicController implements IListUserGraphicController {
         }
     }
 
+    /**
+     * Réinitialise le compteur de messages non lus pour un utilisateur.
+     *
+     * @param user L'utilisateur dont le compteur de messages non lus doit être réinitialisé.
+     */
     @Override
     public void clearUnread(User user) {
         handleClearUnread(user);

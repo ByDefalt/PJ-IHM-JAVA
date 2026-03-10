@@ -16,6 +16,12 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+/**
+ * Contrôleur graphique Swing pour la liste des canaux.
+ *
+ * Responsable de l'ajout, suppression, mise à jour et de la gestion des badges
+ * de non-lus des canaux dans l'interface Swing.
+ */
 public class ListCanalGraphicController implements IListCanalGraphicController {
 
     private final ViewContext viewContext;
@@ -27,6 +33,15 @@ public class ListCanalGraphicController implements IListCanalGraphicController {
         this.listCanalView = listCanalView;
     }
 
+    /**
+     * Ajoute un canal à la liste.
+     *
+     * @param canal               Le canal à ajouter.
+     * @param onSelect            Action à effectuer lors de la sélection du canal.
+     * @param onEdit              Callback pour l'édition du canal.
+     * @param isOwner             Indique si l'utilisateur est le propriétaire du canal.
+     * @param allUsersSupplier    Fournisseur de la liste de tous les utilisateurs.
+     */
     @Override
     public void addCanal(Channel canal, Consumer<Channel> onSelect,
                          ChannelEditCallback onEdit, boolean isOwner, Supplier<List<User>> allUsersSupplier) {
@@ -76,6 +91,11 @@ public class ListCanalGraphicController implements IListCanalGraphicController {
         if (viewContext.logger() != null) viewContext.logger().debug(msg + canal);
     }
 
+    /**
+     * Supprime un canal de la liste.
+     *
+     * @param canal Le canal à supprimer.
+     */
     @Override
     public void removeCanal(Channel canal) {
         handleRemoveCanal(canal);
@@ -93,6 +113,11 @@ public class ListCanalGraphicController implements IListCanalGraphicController {
         }
     }
 
+    /**
+     * Met à jour un canal existant.
+     *
+     * @param canal Le canal avec les nouvelles informations.
+     */
     @Override
     public void updateCanal(Channel canal) {
         handleUpdateCanal(canal);
@@ -110,6 +135,11 @@ public class ListCanalGraphicController implements IListCanalGraphicController {
         }
     }
 
+    /**
+     * Incrémente le compteur de messages non lus pour un canal.
+     *
+     * @param canal Le canal concerné.
+     */
     @Override
     public void incrementUnread(Channel canal) {
         handleIncrementUnread(canal);
@@ -121,6 +151,11 @@ public class ListCanalGraphicController implements IListCanalGraphicController {
                 .ifPresent(cv -> SwingUtilities.invokeLater(cv::incrementUnread));
     }
 
+    /**
+     * Efface le compteur de messages non lus pour un canal.
+     *
+     * @param canal Le canal concerné.
+     */
     @Override
     public void clearUnread(Channel canal) {
         handleClearUnread(canal);
@@ -132,6 +167,12 @@ public class ListCanalGraphicController implements IListCanalGraphicController {
                 .ifPresent(cv -> SwingUtilities.invokeLater(cv::clearUnread));
     }
 
+    /**
+     * Configure le formulaire de création d'un nouveau canal.
+     *
+     * @param availableUsers Liste des utilisateurs disponibles.
+     * @param onConfirm     Callback à appeler lors de la confirmation de la création du canal.
+     */
     @Override
     public void setupNewChannelForm(List<User> availableUsers, ChannelCreationCallback onConfirm) {
         handleSetupNewChannelForm(availableUsers, onConfirm);

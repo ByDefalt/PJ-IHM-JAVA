@@ -7,33 +7,55 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+/**
+ * Contrat graphique pour la liste des canaux (UI).
+ *
+ * Définit les opérations que la couche graphique doit proposer pour afficher
+ * et manipuler les canaux de discussion.
+ */
 public interface IListCanalGraphicController extends GraphicController {
     /**
+     * Ajoute un canal à la vue.
+     *
      * @param canal            canal à ajouter
      * @param onSelect         callback de sélection (clic gauche sur le canal)
-     * @param onEdit           callback d'edition (bouton edit) -- null si non applicable
+     * @param onEdit           callback d'édition (bouton edit) — null si non applicable
      * @param isOwner          true si l'utilisateur est le créateur du canal
      * @param allUsersSupplier fournisseur évalué au moment du clic (liste fraîche à chaque ouverture du menu)
      */
     void addCanal(Channel canal, Consumer<Channel> onSelect, ChannelEditCallback onEdit, boolean isOwner, Supplier<List<User>> allUsersSupplier);
 
+    /**
+     * Supprime un canal de la vue.
+     *
+     * @param canal canal à supprimer
+     */
     void removeCanal(Channel canal);
 
+    /**
+     * Met à jour l'affichage d'un canal existant.
+     *
+     * @param canal canal mis à jour
+     */
     void updateCanal(Channel canal);
 
     /**
      * Incrémente le badge de messages non lus sur la vue du canal donné.
+     *
+     * @param canal canal ciblé
      */
     void incrementUnread(Channel canal);
 
     /**
      * Remet à zéro le badge de messages non lus sur la vue du canal donné.
+     *
+     * @param canal canal ciblé
      */
     void clearUnread(Channel canal);
 
     /**
      * Enregistre le callback et la liste d'utilisateurs disponibles pour le formulaire
-     * de création de canal. Le formulaire s'ouvre via le menu contextuel clic droit.
+     * de création de canal. Le formulaire s'ouvre via le menu contextuel (clic droit).
      *
      * @param availableUsers utilisateurs disponibles (sans l'utilisateur connecté)
      * @param onConfirm      callback appelé avec (nom, estPrivé, usersInvités)

@@ -5,6 +5,11 @@ import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.graphiccontroller.service.GraphicController;
 import com.ubo.tp.message.ihm.view.swing.InputMessageView;
 
+/**
+ * Contrôleur graphique Swing pour la saisie de messages.
+ *
+ * Branche le callback d'envoi de la vue vers le controller métier.
+ */
 public class InputMessageGraphicController implements GraphicController {
 
     private final ViewContext viewContext;
@@ -18,6 +23,9 @@ public class InputMessageGraphicController implements GraphicController {
         inputMessageView.setOnSendRequested(this::handleSendAction);
     }
 
+    /**
+     * Récupère le texte saisi, le valide et le transmet au controller métier.
+     */
     private void handleSendAction() {
         String message = inputMessageView.getText().trim();
         if (viewContext.logger() != null) viewContext.logger().debug("Envoi demandé : " + message);

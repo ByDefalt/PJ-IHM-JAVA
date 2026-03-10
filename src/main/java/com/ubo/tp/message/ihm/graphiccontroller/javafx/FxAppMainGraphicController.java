@@ -23,7 +23,6 @@ public class FxAppMainGraphicController implements IAppMainGraphicController {
         this.appMainView = appMainView;
 
         viewContext.navigationController().setMainView(this::setMainView);
-        // Câbler "Modifier le profil" vers la navigation via handler
         appMainView.setOnUpdateProfile(this::handleUpdateProfileRequested);
     }
 
