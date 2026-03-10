@@ -7,12 +7,18 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.Tooltip;
-import javafx.scene.layout.*;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
+import javafx.scene.text.TextAlignment;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import com.ubo.tp.message.utils.EmojiBinders;
+import javafx.scene.layout.*;
 
 import java.time.Instant;
 import java.time.ZoneId;
@@ -21,6 +27,9 @@ import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javafx.scene.input.MouseButton;
+import javafx.event.EventHandler;
+import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.MouseEvent;
 
 /**
  * Bulle représentant un message — JavaFX.
@@ -34,7 +43,7 @@ public class FxMessageView extends HBox implements View {
      private static final Color BG_HOVER  = Color.rgb(72, 76, 84);
 
      private final Message message;
-     private final TextArea contentArea;
+     private TextFlow contentArea;
      private final ViewContext viewContext;
 
     public FxMessageView(ViewContext viewContext, Message message) {
@@ -59,7 +68,12 @@ public class FxMessageView extends HBox implements View {
         body.setMouseTransparent(false);
         HBox.setHgrow(body, Priority.ALWAYS);
 
-        String senderName = message.getSender() != null ? message.getSender().getName() : "?";
+        String senderName = "?";
+        if (message.getSender() != null) {
+            String tag = message.getSender().getUserTag() != null ? message.getSender().getUserTag() : "";
+            String name = message.getSender().getName() != null ? message.getSender().getName() : "";
+            senderName = "@" + tag + " - " + name;
+        }
         String timeStr = DATE_FMT.format(
                 Instant.ofEpochSecond(message.getEmissionDate()).atZone(ZoneId.systemDefault()));
 
@@ -78,15 +92,15 @@ public class FxMessageView extends HBox implements View {
         // header doit recevoir les événements pour ouvrir le menu si l'utilisateur clique dessus
         header.setMouseTransparent(false);
 
-        contentArea = new TextArea(message.getText());
-        contentArea.setEditable(false);
-        contentArea.setWrapText(true);
-        contentArea.setPrefRowCount(2);
-        // Le TextArea doit recevoir le clic droit pour ouvrir le ContextMenu. Ne pas le rendre mouseTransparent.
-        contentArea.setMouseTransparent(false);
-        // Ne pas recevoir le focus clavier lors de clics pour conserver le comportement read-only
-        contentArea.setFocusTraversable(false);
-        contentArea.setStyle("-fx-background-color: transparent; -fx-control-inner-background: transparent;");
+        contentArea = new TextFlow();
+        contentArea.setLineSpacing(2);
+        contentArea.setPrefWidth(400); // largeur initiale
+        contentArea.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(contentArea, Priority.ALWAYS);
+        // Lier directement la largeur préférée du TextFlow à la largeur du VBox 'body'
+        contentArea.prefWidthProperty().bind(body.widthProperty());
+         // Construire le TextFlow en colorant les mentions
+         buildTextFlow(contentArea, message.getText());
 
         body.getChildren().addAll(header, contentArea);
 
@@ -95,8 +109,8 @@ public class FxMessageView extends HBox implements View {
 
         // ContextMenu sur clic droit pour la suppression (sans confirmation)
         // On attache toujours le menu, mais on active/désactive l'item au moment de l'ouverture
-        javafx.scene.control.ContextMenu ctx = new javafx.scene.control.ContextMenu();
-        javafx.scene.control.MenuItem del = new javafx.scene.control.MenuItem("Supprimer le message");
+        ContextMenu ctx = new ContextMenu();
+        MenuItem del = new MenuItem("Supprimer le message");
         del.setOnAction(ev -> {
             Consumer<Message> cb = onDeleteSupplier == null ? null : onDeleteSupplier.get();
             if (cb != null) cb.accept(message);
@@ -106,7 +120,7 @@ public class FxMessageView extends HBox implements View {
         // Supporter à la fois l'événement ContextMenuRequested (platform) et le clic droit classique
         // Attacher le menu au HBox (this) et aussi aux sous-nœuds pour éviter les cas
         // où un enfant intercepte l'événement et empêche l'ouverture du menu.
-        javafx.event.EventHandler<javafx.scene.input.ContextMenuEvent> ctxHandler = e -> {
+        EventHandler<ContextMenuEvent> ctxHandler = e -> {
             Consumer<Message> cb = onDeleteSupplier == null ? null : onDeleteSupplier.get();
             boolean disabled = (cb == null);
             del.setDisable(disabled);
@@ -120,7 +134,7 @@ public class FxMessageView extends HBox implements View {
         header.setOnContextMenuRequested(ctxHandler);
         contentArea.setOnContextMenuRequested(ctxHandler);
 
-        javafx.event.EventHandler<javafx.scene.input.MouseEvent> mouseHandler = e -> {
+        EventHandler<MouseEvent> mouseHandler = e -> {
             if (e.getButton() == MouseButton.SECONDARY) {
                 Consumer<Message> cb = onDeleteSupplier == null ? null : onDeleteSupplier.get();
                 boolean disabled = (cb == null);
@@ -148,6 +162,154 @@ public class FxMessageView extends HBox implements View {
     public Message getMessage() { return message; }
 
     public void updateContent(Message updated) {
-        contentArea.setText(updated.getText());
+        buildTextFlow(contentArea, updated.getText());
     }
+
+    private void buildTextFlow(TextFlow flow, String text) {
+         flow.getChildren().clear();
+         if (text == null || text.isEmpty()) return;
+         String raw = text;
+        // Detect emoji codes count and whether message contains only codes
+        java.util.regex.Pattern codeOnlyPattern = java.util.regex.Pattern.compile("^(?:(:\\w+:)\\s*)+$");
+        boolean onlyEmojiCodes = codeOnlyPattern.matcher(raw.trim()).matches();
+        java.util.regex.Pattern codeFinder = java.util.regex.Pattern.compile("(:\\w+:)");
+        java.util.regex.Matcher cm = codeFinder.matcher(raw);
+        int codeCount = 0;
+        while (cm.find()) codeCount++;
+
+        int imgSize = 16;
+        if (onlyEmojiCodes) imgSize = (codeCount == 1) ? 48 : 32;
+
+        // Ensure left alignment and that flow expands to full width so left alignment is visible
+        flow.setTextAlignment(TextAlignment.LEFT);
+        flow.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(flow, Priority.ALWAYS);
+
+        Color normalColor = Color.web("#DCDEDF");
+        Color mentionColor = Color.web("#5865F2");
+
+        if (onlyEmojiCodes) {
+            // Add images left-aligned, with small gap
+            java.util.regex.Pattern p = java.util.regex.Pattern.compile("(:\\w+:)");
+            java.util.regex.Matcher m = p.matcher(raw);
+            boolean first = true;
+            while (m.find()) {
+                String code = m.group(1);
+                String url = EmojiBinders.getEmojiImageUrl(code);
+                if (url != null) {
+                    try {
+                        Image img = new Image(url, imgSize, imgSize, true, true);
+                        ImageView iv = new ImageView(img);
+                        iv.setFitWidth(imgSize);
+                        iv.setFitHeight(imgSize);
+                        if (!first) {
+                            // add small spacing
+                            Text spacer = new Text(" ");
+                            spacer.setStyle("-fx-font-size: " + (imgSize/2) + "px;");
+                            flow.getChildren().add(spacer);
+                        }
+                        flow.getChildren().add(iv);
+                    } catch (Exception ex) {
+                        String uni = EmojiBinders.replaceEmojiCodesUnicode(code);
+                        uni = insertZWSEveryN(uni, 40);
+                        Text t = new Text(uni);
+                        t.setFill(normalColor);
+                        t.setStyle("-fx-font-size: " + (imgSize) + "px;");
+                        flow.getChildren().add(t);
+                    }
+                } else {
+                    String uni = EmojiBinders.replaceEmojiCodesUnicode(code);
+                    uni = insertZWSEveryN(uni, 40);
+                    Text t = new Text(uni);
+                    t.setFill(normalColor);
+                    t.setStyle("-fx-font-size: " + (imgSize) + "px;");
+                    flow.getChildren().add(t);
+                }
+                first = false;
+            }
+            return;
+        }
+
+        // Mixed content: keep inline text and small emoji sized to ~13px
+        java.util.regex.Pattern p = java.util.regex.Pattern.compile("(:\\w+:)|(@\\w+)");
+        java.util.regex.Matcher m = p.matcher(raw);
+        int last = 0;
+        int inlineSize = 13;
+        while (m.find()) {
+            if (m.start() > last) {
+                String part = raw.substring(last, m.start());
+                if (!part.isEmpty()) {
+                    part = insertZWSEveryN(part, 40);
+                    Text t = new Text(part);
+                    t.setFill(normalColor);
+                    t.setStyle("-fx-font-size: " + inlineSize + "px;");
+                    flow.getChildren().add(t);
+                }
+            }
+            String emojiCode = m.group(1);
+            String mention = m.group(2);
+            if (emojiCode != null) {
+                String url = EmojiBinders.getEmojiImageUrl(emojiCode);
+                if (url != null) {
+                    try {
+                        Image img = new Image(url, inlineSize, inlineSize, true, true);
+                        ImageView iv = new ImageView(img);
+                        iv.setFitWidth(inlineSize);
+                        iv.setFitHeight(inlineSize);
+                        flow.getChildren().add(iv);
+                    } catch (Exception ex) {
+                        String uni = EmojiBinders.replaceEmojiCodesUnicode(emojiCode);
+                        uni = insertZWSEveryN(uni, 40);
+                        Text t = new Text(uni);
+                        t.setFill(normalColor);
+                        t.setStyle("-fx-font-size: " + inlineSize + "px;");
+                        flow.getChildren().add(t);
+                    }
+                } else {
+                    String uni = EmojiBinders.replaceEmojiCodesUnicode(emojiCode);
+                    uni = insertZWSEveryN(uni, 40);
+                    Text t = new Text(uni);
+                    t.setFill(normalColor);
+                    t.setStyle("-fx-font-size: " + inlineSize + "px;");
+                    flow.getChildren().add(t);
+                }
+            } else if (mention != null) {
+                Text tm = new Text(mention);
+                tm.setFill(mentionColor);
+                tm.setStyle("-fx-font-size: " + inlineSize + "px; -fx-font-weight: bold;");
+                flow.getChildren().add(tm);
+            }
+            last = m.end();
+        }
+        if (last < raw.length()) {
+            String part = raw.substring(last);
+            if (!part.isEmpty()) {
+                part = insertZWSEveryN(part, 40);
+                Text t = new Text(part);
+                t.setFill(normalColor);
+                t.setStyle("-fx-font-size: " + inlineSize + "px;");
+                flow.getChildren().add(t);
+            }
+        }
+    }
+
+    // Insert zero-width space \u200B every n characters in long sequences without whitespace to enable wrapping in TextFlow
+    private static String insertZWSEveryN(String s, int n) {
+        if (s == null || s.length() <= n) return s;
+        StringBuilder sb = new StringBuilder();
+        int count = 0;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            sb.append(c);
+            count++;
+            if (Character.isWhitespace(c)) {
+                count = 0;
+            } else if (count >= n) {
+                sb.append('\u200B');
+                count = 0;
+            }
+        }
+        return sb.toString();
+    }
+
 }

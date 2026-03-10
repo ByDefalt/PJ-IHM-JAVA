@@ -42,10 +42,6 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
      */
     private ArrayList<MessageView> toViewList(List<Message> filteredMessages) {
         if (filteredMessages == null || filteredMessages.isEmpty()) return new ArrayList<>();
-        // On itère sur le TreeSet (trié par date) et on ne retient que
-        // les MessageView dont le message figure dans la liste filtrée.
-        // Ainsi l'ordre chronologique est toujours garanti, quelle que soit
-        // l'ordre dans lequel le controller transmet les messages filtrés.
         java.util.Set<Message> filteredSet = new java.util.HashSet<>(filteredMessages);
         ArrayList<MessageView> result = new ArrayList<>();
         for (MessageView mv : messages) {

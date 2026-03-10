@@ -3,6 +3,7 @@ package com.ubo.tp.message.ihm.view.swing;
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.view.service.View;
+import com.ubo.tp.message.utils.EmojiBinders;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -32,7 +33,7 @@ public class MessageView extends JComponent implements View {
     private final Message message;
 
     private JLabel authorLabel;
-    private JTextArea contentArea;
+    private javax.swing.JComponent contentPane;
     private JLabel timeLabel;
     private boolean hovered = false;
     private final boolean canDelete;
@@ -74,7 +75,12 @@ public class MessageView extends JComponent implements View {
     }
 
     private void init(Message message, Consumer<Message> onDelete) {
-        String authorName = (message.getSender() != null) ? message.getSender().getName() : "";
+        String authorName = "";
+        if (message.getSender() != null) {
+            String tag = message.getSender().getUserTag() != null ? message.getSender().getUserTag() : "";
+            String name = message.getSender().getName() != null ? message.getSender().getName() : "";
+            authorName = "@" + tag + " - " + name;
+        }
         createBubble(authorName, message.getText(), message.getEmissionDate());
         if (canDelete && onDelete != null) createDeletePopup(onDelete);
     }
@@ -186,31 +192,78 @@ public class MessageView extends JComponent implements View {
         Font contentFont = (baseFont != null) ? baseFont.deriveFont(Font.PLAIN, 13f)
                 : new Font("SansSerif", Font.PLAIN, 13);
 
-        contentArea = new JTextArea() {
-            @Override
-            public boolean contains(int x, int y) {
-                return false;
-            }
-        };
-        contentArea.setEditable(false);
-        contentArea.setLineWrap(true);
-        contentArea.setWrapStyleWord(true);
-        contentArea.setOpaque(false);
-        contentArea.setForeground(contentColor);
-        contentArea.setFont(contentFont);
-        contentArea.setBorder(null);
-        contentArea.setFocusable(false);
-        contentArea.setText(content != null ? content : "");
-
-        Color caretColor = UIManager.getColor("TextArea.caretForeground");
-        if (caretColor != null) contentArea.setCaretColor(caretColor);
+        contentPane = createContentComponent(content != null ? content : "", contentFont, contentColor);
 
         GridBagConstraints gbcContent = new GridBagConstraints(
                 0, 1, 2, 1, 1.0, 0.0,
                 GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
                 new Insets(0, 0, 0, 0), 0, 0
         );
-        bubble.add(contentArea, gbcContent);
+        bubble.add(contentPane, gbcContent);
+    }
+
+    private String escapeHtml(String s) {
+        if (s == null) return "";
+        return s.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;")
+                .replace("'", "&#39;");
+    }
+
+    private String toHtml(String text, Font font, Color fg) {
+        String color = String.format("#%02x%02x%02x", fg.getRed(), fg.getGreen(), fg.getBlue());
+        String fontFamily = font.getFamily();
+        int fontSize = font.getSize();
+        // Détecter si le texte contient uniquement des codes emoji (:smile: :heart: ...)
+        String raw = text == null ? "" : text;
+        boolean onlyEmojiCodes = raw.trim().matches("(?:(?::\\w+:)\\s*)+");
+        java.util.regex.Matcher cm = java.util.regex.Pattern.compile("(:\\w+:)").matcher(raw);
+        int codeCount = 0;
+        while (cm.find()) codeCount++;
+
+        // Taille des images emoji : inline petit (16) lorsqu'il y a du texte, plus grand si message uniquement emoji
+        int imgSize = 16;
+        if (onlyEmojiCodes) {
+            imgSize = (codeCount == 1) ? 48 : 32;
+            // adapter la taille de la police du body si message uniquement emoji
+            fontSize = imgSize;
+        }
+
+        String esc = escapeHtml(raw);
+        String highlighted = esc.replaceAll("(@\\w+)", "<span style=\"color: #5865F2;\">$1</span>");
+        // Remplacer les codes emoji par des images si possible (ressource locale ou Twemoji CDN)
+        for (String code : EmojiBinders.getSupportedCodes()) {
+            if (highlighted.contains(code)) {
+                String url = EmojiBinders.getEmojiImageUrl(code);
+                if (url != null) {
+                    String img;
+                    if (onlyEmojiCodes) {
+                        // pixel size for messages that are only emojis (big) + spacing
+                        // include width/height attributes (pixels) so JEditorPane respects sizing
+                        img = "<img src=\"" + url + "\" width=\"" + imgSize + "\" height=\"" + imgSize + "\" style=\"display:inline-block;margin:0 6px;vertical-align:middle;\"/>";
+                    } else {
+                        // relative size for mixed content: scale to text height (fontSize px) for pleasant inline rendering
+                        // use fontSize (px) to ensure JEditorPane scales image to match text height
+                        img = "<img src=\"" + url + "\" width=\"" + fontSize + "\" height=\"" + fontSize + "\" style=\"display:inline-block;vertical-align:-0.15em;\"/>";
+                    }
+                    highlighted = highlighted.replace(code, img);
+                } else {
+                    // fallback : remplacer par le caractère unicode
+                    String uni = EmojiBinders.replaceEmojiCodesUnicode(code);
+                    highlighted = highlighted.replace(code, uni);
+                }
+            }
+        }
+        String bodyHtml;
+        if (onlyEmojiCodes) {
+            // Laisser les images grandes mais alignées à gauche
+            bodyHtml = "<div style=\"text-align:left;line-height:1;\">" + highlighted + "</div>";
+        } else {
+            // Mixed content: images already use inline-block + relative height
+            bodyHtml = highlighted;
+        }
+        return "<html><body style=\"font-family: '" + fontFamily + "'; font-size: " + fontSize + "px; color: " + color + "; background-color: transparent;\">" + bodyHtml + "</body></html>";
     }
 
     @Override
@@ -243,8 +296,21 @@ public class MessageView extends JComponent implements View {
     }
 
     public void setMessage(Message message) {
-        authorLabel.setText(message.getSender() != null ? message.getSender().getName() : "");
-        contentArea.setText(message.getText() != null ? message.getText() : "");
+        if (message.getSender() != null) {
+            String tag = message.getSender().getUserTag() != null ? message.getSender().getUserTag() : "";
+            String name = message.getSender().getName() != null ? message.getSender().getName() : "";
+            authorLabel.setText(tag + " - " + name);
+        } else {
+            authorLabel.setText("");
+        }
+        // mettre à jour le contenu HTML en reformatant les mentions
+        Font baseFont = UIManager.getFont("TextArea.font");
+        Font contentFont = (baseFont != null) ? baseFont.deriveFont(Font.PLAIN, 13f) : new Font("SansSerif", Font.PLAIN, 13);
+        Color contentColor = UIManager.getColor("TextArea.foreground");
+        if (contentColor == null) contentColor = UIManager.getColor("Label.foreground");
+        if (contentColor == null) contentColor = new Color(220, 221, 222);
+        // Update the content component (may replace JTextPane <-> JTextArea depending on content)
+        updateContentComponent(message.getText() != null ? message.getText() : "", contentFont, contentColor);
         timeLabel.setText(formatTimestamp(message.getEmissionDate()));
         revalidate();
         repaint();
@@ -252,6 +318,119 @@ public class MessageView extends JComponent implements View {
 
     public void updateMessage(Message message) {
         this.setMessage(message);
+    }
+
+    // Render text into JTextPane's StyledDocument. Inserts scaled ImageIcons for emoji codes.
+    private void renderTextToPane(javax.swing.JTextPane pane, String text, Font font, Color fg) {
+        try {
+            javax.swing.text.StyledDocument doc = pane.getStyledDocument();
+            doc.remove(0, doc.getLength());
+
+            String raw = text == null ? "" : text;
+            boolean onlyEmojiCodes = raw.trim().matches("(?:(?::\\w+:)\\s*)+");
+            java.util.regex.Pattern codePat = java.util.regex.Pattern.compile("(:\\w+:)");
+            java.util.regex.Matcher cm = codePat.matcher(raw);
+            int codeCount = 0;
+            while (cm.find()) codeCount++;
+
+            int imgSize = 16;
+            if (onlyEmojiCodes) imgSize = (codeCount == 1) ? 48 : 32;
+
+            // Attributes for text
+            javax.swing.text.SimpleAttributeSet attr = new javax.swing.text.SimpleAttributeSet();
+            javax.swing.text.StyleConstants.setFontFamily(attr, font.getFamily());
+            javax.swing.text.StyleConstants.setFontSize(attr, font.getSize());
+            javax.swing.text.StyleConstants.setForeground(attr, fg);
+
+            // Toujours aligner à gauche (le style des emoji seule reste grand mais aligné à gauche)
+            javax.swing.text.SimpleAttributeSet paragraph = new javax.swing.text.SimpleAttributeSet();
+            javax.swing.text.StyleConstants.setAlignment(paragraph, javax.swing.text.StyleConstants.ALIGN_LEFT);
+
+            // Si message uniquement emoji, insérer un caractère invisible pour forcer l'alignement gauche
+            if (onlyEmojiCodes) {
+                doc.insertString(doc.getLength(), "\u200B", attr);
+            }
+
+            int last = 0;
+            java.util.regex.Pattern p = java.util.regex.Pattern.compile("(:\\w+:)|(@\\w+)");
+            java.util.regex.Matcher m = p.matcher(raw);
+            while (m.find()) {
+                if (m.start() > last) {
+                    String part = raw.substring(last, m.start());
+                    part = insertZWSEveryN(part, 40);
+                    doc.insertString(doc.getLength(), part, attr);
+                }
+                String emojiCode = m.group(1);
+                String mention = m.group(2);
+                if (emojiCode != null) {
+                    String url = EmojiBinders.getEmojiImageUrl(emojiCode);
+                    if (url != null) {
+                        try {
+                            java.net.URL u = new java.net.URL(url);
+                            java.awt.Image img = javax.imageio.ImageIO.read(u);
+                            if (img != null) {
+                                java.awt.Image scaled = img.getScaledInstance(imgSize, imgSize, java.awt.Image.SCALE_SMOOTH);
+                                javax.swing.ImageIcon icon = new javax.swing.ImageIcon(scaled);
+                                // insert icon
+                                pane.setCaretPosition(doc.getLength());
+                                pane.insertIcon(icon);
+                            } else {
+                                // fallback unicode
+                                String uni = EmojiBinders.replaceEmojiCodesUnicode(emojiCode);
+                                uni = insertZWSEveryN(uni, 40);
+                                doc.insertString(doc.getLength(), uni, attr);
+                            }
+                        } catch (Exception ex) {
+                            String uni = EmojiBinders.replaceEmojiCodesUnicode(emojiCode);
+                            uni = insertZWSEveryN(uni, 40);
+                            doc.insertString(doc.getLength(), uni, attr);
+                        }
+                    } else {
+                        String uni = EmojiBinders.replaceEmojiCodesUnicode(emojiCode);
+                        uni = insertZWSEveryN(uni, 40);
+                        doc.insertString(doc.getLength(), uni, attr);
+                    }
+                } else if (mention != null) {
+                    javax.swing.text.SimpleAttributeSet mAttr = new javax.swing.text.SimpleAttributeSet();
+                    javax.swing.text.StyleConstants.setBold(mAttr, true);
+                    javax.swing.text.StyleConstants.setForeground(mAttr, Color.decode("#5865F2"));
+                    doc.insertString(doc.getLength(), mention, mAttr);
+                }
+                last = m.end();
+            }
+            if (last < raw.length()) {
+                String part = raw.substring(last);
+                part = insertZWSEveryN(part, 40);
+                doc.insertString(doc.getLength(), part, attr);
+            }
+
+            // Apply paragraph alignment
+            doc.setParagraphAttributes(0, doc.getLength(), paragraph, false);
+            pane.setCaretPosition(0);
+        } catch (Exception ex) {
+            // fallback to simple HTML rendering if anything fails
+            pane.setContentType("text/html");
+            pane.setText(toHtml(text, font, fg));
+        }
+    }
+
+    // Insert zero-width space \u200B every n characters in long sequences without whitespace to enable wrapping
+    private static String insertZWSEveryN(String s, int n) {
+        if (s == null || s.length() <= n) return s;
+        StringBuilder sb = new StringBuilder();
+        int count = 0;
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            sb.append(c);
+            count++;
+            if (Character.isWhitespace(c)) {
+                count = 0;
+            } else if (count >= n) {
+                sb.append('\u200B');
+                count = 0;
+            }
+        }
+        return sb.toString();
     }
 
     private String formatTimestamp(long millis) {
@@ -264,4 +443,93 @@ public class MessageView extends JComponent implements View {
             return String.valueOf(millis);
         }
     }
+
+    private javax.swing.JComponent createContentComponent(String text, Font font, Color fg) {
+        boolean hasEmojiCode = text != null && text.matches(".*(:\\w+:).*");
+        boolean hasMention = text != null && text.matches(".*@\\w+.*");
+        if (!hasEmojiCode && !hasMention && text != null && text.length() > 120) {
+            // Plain long text -> JTextArea for reliable wrapping, wrapped in a JPanel so it expands
+            javax.swing.JTextArea ta = new javax.swing.JTextArea();
+            ta.setOpaque(false);
+            ta.setEditable(false);
+            ta.setLineWrap(true);
+            ta.setWrapStyleWord(true);
+            ta.setBorder(null);
+            ta.setFocusable(false);
+            ta.setFont(font);
+            ta.setForeground(fg);
+            // replace emoji codes by unicode just in case
+            String display = EmojiBinders.replaceEmojiCodesUnicode(text);
+            ta.setText(display);
+            JPanel wrapper = new JPanel(new BorderLayout());
+            wrapper.setOpaque(false);
+            wrapper.add(ta, BorderLayout.CENTER);
+            return wrapper;
+        } else {
+             javax.swing.JTextPane tp = new javax.swing.JTextPane();
+             tp.setEditable(false);
+             tp.setOpaque(false);
+             tp.setBorder(null);
+             tp.setFocusable(false);
+             renderTextToPane(tp, text, font, fg);
+             return tp;
+         }
+     }
+
+    private void updateContentComponent(String text, Font font, Color fg) {
+        try {
+            boolean needPlain = !(text != null && text.matches(".*(:\\w+:).*"))
+                    && !(text != null && text.matches(".*@\\w+.*"))
+                    && (text != null && text.length() > 120);
+
+            if (needPlain && !(contentPane instanceof javax.swing.JTextArea)) {
+                // remplacer par JTextArea
+                Container parent = contentPane.getParent();
+                if (parent == null) return;
+                GridBagLayout layout = (GridBagLayout) parent.getLayout();
+                GridBagConstraints gbc = new GridBagConstraints(
+                        0, 1, 2, 1, 1.0, 0.0,
+                        GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
+                        new Insets(0, 0, 0, 0), 0, 0
+                );
+                parent.remove(contentPane);
+                contentPane = createContentComponent(text, font, fg);
+                parent.add(contentPane, gbc);
+                parent.revalidate(); parent.repaint();
+            } else if (!needPlain && contentPane instanceof javax.swing.JTextArea) {
+                // replace JTextArea by JTextPane
+                Container parent = contentPane.getParent();
+                if (parent == null) return;
+                GridBagConstraints gbc = new GridBagConstraints(
+                        0, 1, 2, 1, 1.0, 0.0,
+                        GridBagConstraints.WEST, GridBagConstraints.HORIZONTAL,
+                        new Insets(0, 0, 0, 0), 0, 0
+                );
+                parent.remove(contentPane);
+                contentPane = createContentComponent(text, font, fg);
+                parent.add(contentPane, gbc);
+                parent.revalidate(); parent.repaint();
+            } else {
+                // same type -> update in place
+                if (contentPane instanceof javax.swing.JTextArea) {
+                    javax.swing.JTextArea ta = (javax.swing.JTextArea) contentPane;
+                    ta.setText(EmojiBinders.replaceEmojiCodesUnicode(text));
+                } else if (contentPane instanceof javax.swing.JPanel) {
+                    // wrapper with JTextArea inside
+                    java.awt.Component c = ((javax.swing.JPanel) contentPane).getComponent(0);
+                    if (c instanceof javax.swing.JTextArea) {
+                        ((javax.swing.JTextArea) c).setText(EmojiBinders.replaceEmojiCodesUnicode(text));
+                    }
+                } else if (contentPane instanceof javax.swing.JTextPane) {
+                    renderTextToPane((javax.swing.JTextPane) contentPane, text, font, fg);
+                }
+            }
+        } catch (Exception e) {
+             // fallback : set HTML on original component if possible
+             if (contentPane instanceof javax.swing.JTextPane) {
+                 ((javax.swing.JTextPane) contentPane).setContentType("text/html");
+                 ((javax.swing.JTextPane) contentPane).setText(toHtml(text, font, fg));
+             }
+         }
+     }
 }
