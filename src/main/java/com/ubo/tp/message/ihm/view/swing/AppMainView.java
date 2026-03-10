@@ -106,7 +106,19 @@ public class AppMainView extends JComponent implements View {
     private void createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
 
-        // Menu Fichier
+        JMenu fileMenu = createFileMenu();
+        JMenu helpMenu = createHelpMenu();
+        JMenu accountMenu = createConnectMenu();
+
+        menuBar.add(fileMenu);
+        menuBar.add(this.connectMenu);
+        menuBar.add(helpMenu);
+
+        this.mainFrame.setJMenuBar(menuBar);
+        this.viewContext.logger().debug("MenuBar créé");
+    }
+
+    private JMenu createFileMenu() {
         JMenu fileMenu = new JMenu("Fichier");
 
         JMenuItem selectDirItem = new JMenuItem("Sélectionner répertoire",
@@ -120,15 +132,19 @@ public class AppMainView extends JComponent implements View {
         exitItem.addActionListener(e -> mainFrame.dispatchEvent(
                 new java.awt.event.WindowEvent(mainFrame, java.awt.event.WindowEvent.WINDOW_CLOSING)));
         fileMenu.add(exitItem);
+        return fileMenu;
+    }
 
-        // Menu Aide
+    private JMenu createHelpMenu() {
         JMenu helpMenu = new JMenu("Aide");
         JMenuItem aboutItem = new JMenuItem("À propos",
                 new ImageIcon(Objects.requireNonNull(LoadIcon.loadIcon("/images/logo_20.png"))));
         aboutItem.addActionListener(e -> this.showAboutDialog());
         helpMenu.add(aboutItem);
+        return helpMenu;
+    }
 
-        // Menu Connexion — caché par défaut, affiché uniquement si connecté
+    private JMenu createConnectMenu() {
         this.connectMenu = new JMenu("Compte");
         this.connectMenu.setVisible(false);
 
@@ -137,23 +153,20 @@ public class AppMainView extends JComponent implements View {
             if (onDisconnect != null) onDisconnect.run();
         });
         this.connectMenu.add(disconnectItem);
+
         JMenuItem updateProfileItem = new JMenuItem("Modifier le profil");
         updateProfileItem.addActionListener(e -> {
             if (onUpdateProfile != null) onUpdateProfile.run();
         });
         this.connectMenu.add(updateProfileItem);
+
         JMenuItem deleteAccountItem = new JMenuItem("Supprimer le compte");
         deleteAccountItem.addActionListener(e -> {
             if (onDeleteAccount != null) onDeleteAccount.run();
         });
         this.connectMenu.add(deleteAccountItem);
 
-        menuBar.add(fileMenu);
-        menuBar.add(this.connectMenu);
-        menuBar.add(helpMenu);
-
-        this.mainFrame.setJMenuBar(menuBar);
-        this.viewContext.logger().debug("MenuBar créé");
+        return this.connectMenu;
     }
 
     private void showAboutDialog() {

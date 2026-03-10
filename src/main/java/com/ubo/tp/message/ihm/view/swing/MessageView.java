@@ -376,60 +376,9 @@ public class MessageView extends JComponent implements View {
                 doc.insertString(doc.getLength(), "\u200B", attr);
             }
 
-            int last = 0;
-            java.util.regex.Pattern p = java.util.regex.Pattern.compile("(:\\w+:)|(@\\w+)");
-            java.util.regex.Matcher m = p.matcher(raw);
-            while (m.find()) {
-                if (m.start() > last) {
-                    String part = raw.substring(last, m.start());
-                    part = insertZWSEveryN(part, 40);
-                    doc.insertString(doc.getLength(), part, attr);
-                }
-                String emojiCode = m.group(1);
-                String mention = m.group(2);
-                if (emojiCode != null) {
-                    String url = EmojiBinders.getEmojiImageUrl(emojiCode);
-                    if (url != null) {
-                        try {
-                            java.net.URL u = new java.net.URL(url);
-                            java.awt.Image img = javax.imageio.ImageIO.read(u);
-                            if (img != null) {
-                                java.awt.Image scaled = img.getScaledInstance(imgSize, imgSize, java.awt.Image.SCALE_SMOOTH);
-                                javax.swing.ImageIcon icon = new javax.swing.ImageIcon(scaled);
-                                // insert icon
-                                pane.setCaretPosition(doc.getLength());
-                                pane.insertIcon(icon);
-                            } else {
-                                // fallback unicode
-                                String uni = EmojiBinders.replaceEmojiCodesUnicode(emojiCode);
-                                uni = insertZWSEveryN(uni, 40);
-                                doc.insertString(doc.getLength(), uni, attr);
-                            }
-                        } catch (Exception ex) {
-                            String uni = EmojiBinders.replaceEmojiCodesUnicode(emojiCode);
-                            uni = insertZWSEveryN(uni, 40);
-                            doc.insertString(doc.getLength(), uni, attr);
-                        }
-                    } else {
-                        String uni = EmojiBinders.replaceEmojiCodesUnicode(emojiCode);
-                        uni = insertZWSEveryN(uni, 40);
-                        doc.insertString(doc.getLength(), uni, attr);
-                    }
-                } else if (mention != null) {
-                    javax.swing.text.SimpleAttributeSet mAttr = new javax.swing.text.SimpleAttributeSet();
-                    javax.swing.text.StyleConstants.setBold(mAttr, true);
-                    javax.swing.text.StyleConstants.setForeground(mAttr, Color.decode("#5865F2"));
-                    doc.insertString(doc.getLength(), mention, mAttr);
-                }
-                last = m.end();
-            }
-            if (last < raw.length()) {
-                String part = raw.substring(last);
-                part = insertZWSEveryN(part, 40);
-                doc.insertString(doc.getLength(), part, attr);
-            }
+            // Déléguer le parsing et l'insertion segment par segment
+            renderSegmentsToDoc(doc, raw, attr, paragraph, imgSize, font, fg);
 
-            // Apply paragraph alignment
             doc.setParagraphAttributes(0, doc.getLength(), paragraph, false);
             pane.setCaretPosition(0);
         } catch (Exception ex) {
@@ -437,6 +386,72 @@ public class MessageView extends JComponent implements View {
             pane.setContentType("text/html");
             pane.setText(toHtml(text, font, fg));
         }
+    }
+
+    private void renderSegmentsToDoc(javax.swing.text.StyledDocument doc, String raw,
+                                     javax.swing.text.AttributeSet attr,
+                                     javax.swing.text.AttributeSet paragraph,
+                                     int imgSize, Font font, Color fg) throws Exception {
+        int last = 0;
+        java.util.regex.Pattern p = java.util.regex.Pattern.compile("(:\\w+:)|(@\\w+)");
+        java.util.regex.Matcher m = p.matcher(raw);
+        while (m.find()) {
+            if (m.start() > last) {
+                String part = raw.substring(last, m.start());
+                part = insertZWSEveryN(part, 40);
+                doc.insertString(doc.getLength(), part, attr);
+            }
+            String emojiCode = m.group(1);
+            String mention = m.group(2);
+            if (emojiCode != null) {
+                insertEmojiOrFallback(doc, emojiCode, imgSize, attr);
+            } else if (mention != null) {
+                insertMention(doc, mention);
+            }
+            last = m.end();
+        }
+        if (last < raw.length()) {
+            String part = raw.substring(last);
+            part = insertZWSEveryN(part, 40);
+            doc.insertString(doc.getLength(), part, attr);
+        }
+    }
+
+    private void insertEmojiOrFallback(javax.swing.text.StyledDocument doc, String emojiCode, int imgSize, javax.swing.text.AttributeSet attr) throws Exception {
+        String url = EmojiBinders.getEmojiImageUrl(emojiCode);
+        if (url != null) {
+            try {
+                java.net.URL u = new java.net.URL(url);
+                java.awt.Image img = javax.imageio.ImageIO.read(u);
+                if (img != null) {
+                    java.awt.Image scaled = img.getScaledInstance(imgSize, imgSize, java.awt.Image.SCALE_SMOOTH);
+                    javax.swing.ImageIcon icon = new javax.swing.ImageIcon(scaled);
+                    // insert icon
+                    javax.swing.text.StyleConstants.setIcon(new javax.swing.text.SimpleAttributeSet(), icon);
+                    doc.insertString(doc.getLength(), " ", attr);
+                    // remove icon attribute (not strictly necessary)
+                } else {
+                    String uni = EmojiBinders.replaceEmojiCodesUnicode(emojiCode);
+                    uni = insertZWSEveryN(uni, 40);
+                    doc.insertString(doc.getLength(), uni, attr);
+                }
+            } catch (Exception ex) {
+                String uni = EmojiBinders.replaceEmojiCodesUnicode(emojiCode);
+                uni = insertZWSEveryN(uni, 40);
+                doc.insertString(doc.getLength(), uni, attr);
+            }
+        } else {
+            String uni = EmojiBinders.replaceEmojiCodesUnicode(emojiCode);
+            uni = insertZWSEveryN(uni, 40);
+            doc.insertString(doc.getLength(), uni, attr);
+        }
+    }
+
+    private void insertMention(javax.swing.text.StyledDocument doc, String mention) throws Exception {
+        javax.swing.text.SimpleAttributeSet mAttr = new javax.swing.text.SimpleAttributeSet();
+        javax.swing.text.StyleConstants.setBold(mAttr, true);
+        javax.swing.text.StyleConstants.setForeground(mAttr, Color.decode("#5865F2"));
+        doc.insertString(doc.getLength(), mention, mAttr);
     }
 
     private String formatTimestamp(long millis) {

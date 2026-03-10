@@ -77,22 +77,25 @@ public class RegisterView extends JComponent implements View {
     // -------------------------------------------------------------------------
 
     private void installListeners() {
-        registerButton.addActionListener(e -> {
-            if (viewContext.logger() != null) viewContext.logger().debug("Bouton d'inscription cliqué");
-            if (onRegisterRequested != null) {
-                onRegisterRequested.accept(
-                        tagField.getText(),
-                        nameField.getText(),
-                        new String(passwordField.getPassword()),
-                        new String(confirmPasswordField.getPassword())
-                );
-            }
-        });
+        registerButton.addActionListener(e -> handleRegister());
+        loginButton.addActionListener(e -> handleBackToLogin());
+    }
 
-        loginButton.addActionListener(e -> {
-            if (viewContext.logger() != null) viewContext.logger().debug("Bouton retour connexion cliqué");
-            if (onBackToLoginRequested != null) onBackToLoginRequested.run();
-        });
+    private void handleRegister() {
+        if (viewContext.logger() != null) viewContext.logger().debug("Bouton d'inscription cliqué");
+        if (onRegisterRequested != null) {
+            onRegisterRequested.accept(
+                    tagField.getText(),
+                    nameField.getText(),
+                    new String(passwordField.getPassword()),
+                    new String(confirmPasswordField.getPassword())
+            );
+        }
+    }
+
+    private void handleBackToLogin() {
+        if (viewContext.logger() != null) viewContext.logger().debug("Bouton retour connexion cliqué");
+        if (onBackToLoginRequested != null) onBackToLoginRequested.run();
     }
 
     // -------------------------------------------------------------------------

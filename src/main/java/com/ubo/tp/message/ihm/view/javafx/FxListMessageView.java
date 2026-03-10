@@ -32,10 +32,19 @@ public class FxListMessageView extends VBox implements View {
         this.viewContext = viewContext;
         setBackground(new Background(new BackgroundFill(BG, CornerRadii.EMPTY, Insets.EMPTY)));
 
-        // ── Barre de recherche ────────────────────────────────────────────
-        searchField = new TextField();
-        searchField.setPromptText("Rechercher un message…");
-        searchField.setStyle(
+        searchField = createSearchField();
+        messagesBox.setPadding(new Insets(4));
+        scrollPane = createScrollPane(messagesBox);
+
+        initLayout();
+
+        if (viewContext.logger() != null) viewContext.logger().debug("FxListMessageView initialisée");
+    }
+
+    private TextField createSearchField() {
+        TextField f = new TextField();
+        f.setPromptText("Rechercher un message…");
+        f.setStyle(
                 "-fx-background-color: #2f3136;" +
                         "-fx-text-fill: #dcddde;" +
                         "-fx-prompt-text-fill: #72767d;" +
@@ -43,19 +52,21 @@ public class FxListMessageView extends VBox implements View {
                         "-fx-border-radius: 4;" +
                         "-fx-background-radius: 4;"
         );
-        VBox.setMargin(searchField, new Insets(8, 8, 4, 8));
-        searchField.textProperty().addListener((obs, oldVal, newVal) -> applyFilter(newVal));
+        VBox.setMargin(f, new Insets(8, 8, 4, 8));
+        f.textProperty().addListener((obs, oldVal, newVal) -> applyFilter(newVal));
+        return f;
+    }
 
-        // ── Zone de messages défilante ────────────────────────────────────
-        messagesBox.setPadding(new Insets(4));
+    private ScrollPane createScrollPane(VBox content) {
+        ScrollPane sp = new ScrollPane(content);
+        sp.setFitToWidth(true);
+        sp.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+        VBox.setVgrow(sp, Priority.ALWAYS);
+        return sp;
+    }
 
-        scrollPane = new ScrollPane(messagesBox);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-        VBox.setVgrow(scrollPane, Priority.ALWAYS);
-
+    private void initLayout() {
         getChildren().addAll(searchField, scrollPane);
-        if (viewContext.logger() != null) viewContext.logger().debug("FxListMessageView initialisée");
     }
 
     // ─────────────────────────────────────────────────────────────────────────

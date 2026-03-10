@@ -58,7 +58,18 @@ public class FxMessageView extends HBox implements View {
         setPadding(new Insets(4));
         setBackground(new Background(new BackgroundFill(BG_NORMAL, new CornerRadii(6), Insets.EMPTY)));
 
-        // ── Corps du message ─────────────────────────────────────────────
+        VBox body = createBody(message);
+        getChildren().addAll(body);
+
+        ContextMenu ctx = createContextMenu(onDeleteSupplier);
+        installContextMenuHandlers(body, ctx, onDeleteSupplier);
+
+        // Hover visual
+        setOnMouseEntered(e -> setBackground(new Background(new BackgroundFill(BG_HOVER, new CornerRadii(6), Insets.EMPTY))));
+        setOnMouseExited(e -> setBackground(new Background(new BackgroundFill(BG_NORMAL, new CornerRadii(6), Insets.EMPTY))));
+    }
+
+    private VBox createBody(Message message) {
         VBox body = new VBox(2);
         body.setMouseTransparent(false);
         HBox.setHgrow(body, Priority.ALWAYS);
@@ -72,10 +83,24 @@ public class FxMessageView extends HBox implements View {
         String timeStr = DATE_FMT.format(
                 Instant.ofEpochSecond(message.getEmissionDate()).atZone(ZoneId.systemDefault()));
 
+        HBox header = buildHeader(senderName, timeStr);
+
+        contentArea = new TextFlow();
+        contentArea.setLineSpacing(2);
+        contentArea.setPrefWidth(400);
+        contentArea.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(contentArea, Priority.ALWAYS);
+        contentArea.prefWidthProperty().bind(body.widthProperty());
+        buildTextFlow(contentArea, message.getText());
+
+        body.getChildren().addAll(header, contentArea);
+        return body;
+    }
+
+    private HBox buildHeader(String senderName, String timeStr) {
         Label authorLabel = new Label(senderName);
         authorLabel.setFont(Font.font("Arial", FontWeight.BOLD, 13));
         authorLabel.setTextFill(Color.rgb(88, 101, 242));
-        // laisser authorLabel transmettre les événements au header
         authorLabel.setMouseTransparent(true);
 
         Label timeLabel = new Label(timeStr);
@@ -84,26 +109,11 @@ public class FxMessageView extends HBox implements View {
         timeLabel.setMouseTransparent(true);
 
         HBox header = new HBox(8, authorLabel, timeLabel);
-        // header doit recevoir les événements pour ouvrir le menu si l'utilisateur clique dessus
         header.setMouseTransparent(false);
+        return header;
+    }
 
-        contentArea = new TextFlow();
-        contentArea.setLineSpacing(2);
-        contentArea.setPrefWidth(400); // largeur initiale
-        contentArea.setMaxWidth(Double.MAX_VALUE);
-        HBox.setHgrow(contentArea, Priority.ALWAYS);
-        // Lier directement la largeur préférée du TextFlow à la largeur du VBox 'body'
-        contentArea.prefWidthProperty().bind(body.widthProperty());
-        // Construire le TextFlow en colorant les mentions
-        buildTextFlow(contentArea, message.getText());
-
-        body.getChildren().addAll(header, contentArea);
-
-        // Pas d'icône : suppression via menu contextuel (clic droit)
-        getChildren().addAll(body);
-
-        // ContextMenu sur clic droit pour la suppression (sans confirmation)
-        // On attache toujours le menu, mais on active/désactive l'item au moment de l'ouverture
+    private ContextMenu createContextMenu(Supplier<Consumer<Message>> onDeleteSupplier) {
         ContextMenu ctx = new ContextMenu();
         MenuItem del = new MenuItem("Supprimer le message");
         del.setOnAction(ev -> {
@@ -111,14 +121,15 @@ public class FxMessageView extends HBox implements View {
             if (cb != null) cb.accept(message);
         });
         ctx.getItems().add(del);
+        return ctx;
+    }
 
-        // Supporter à la fois l'événement ContextMenuRequested (platform) et le clic droit classique
-        // Attacher le menu au HBox (this) et aussi aux sous-nœuds pour éviter les cas
-        // où un enfant intercepte l'événement et empêche l'ouverture du menu.
+    private void installContextMenuHandlers(VBox body, ContextMenu ctx, Supplier<Consumer<Message>> onDeleteSupplier) {
+        MenuItem del = ctx.getItems().isEmpty() ? null : ctx.getItems().get(0);
         EventHandler<ContextMenuEvent> ctxHandler = e -> {
             Consumer<Message> cb = onDeleteSupplier == null ? null : onDeleteSupplier.get();
             boolean disabled = (cb == null);
-            del.setDisable(disabled);
+            if (del != null) del.setDisable(disabled);
             if (viewContext != null && viewContext.logger() != null)
                 viewContext.logger().debug("FxMessageView.contextMenuRequested for message=" + message.getUuid() + " disabled=" + disabled);
             ctx.show(this, e.getScreenX(), e.getScreenY());
@@ -126,32 +137,22 @@ public class FxMessageView extends HBox implements View {
         };
         this.setOnContextMenuRequested(ctxHandler);
         body.setOnContextMenuRequested(ctxHandler);
-        header.setOnContextMenuRequested(ctxHandler);
-        contentArea.setOnContextMenuRequested(ctxHandler);
+        // header and contentArea set inside createBody; attach handlers if present
+        this.setOnMouseClicked(e -> handleMouseClicked(e, ctx, onDeleteSupplier));
+        body.setOnMouseClicked(e -> handleMouseClicked(e, ctx, onDeleteSupplier));
+    }
 
-        EventHandler<MouseEvent> mouseHandler = e -> {
-            if (e.getButton() == MouseButton.SECONDARY) {
-                Consumer<Message> cb = onDeleteSupplier == null ? null : onDeleteSupplier.get();
-                boolean disabled = (cb == null);
-                del.setDisable(disabled);
-                if (viewContext != null && viewContext.logger() != null)
-                    viewContext.logger().debug("FxMessageView.mouseClicked(SECONDARY) for message=" + message.getUuid() + " disabled=" + disabled);
-                ctx.show(this, e.getScreenX(), e.getScreenY());
-                e.consume();
-            }
-        };
-        this.setOnMouseClicked(mouseHandler);
-        body.setOnMouseClicked(mouseHandler);
-        header.setOnMouseClicked(mouseHandler);
-        contentArea.setOnMouseClicked(mouseHandler);
-
-        // ── Hover ────────────────────────────────────────────────────────
-        setOnMouseEntered(e -> {
-            setBackground(new Background(new BackgroundFill(BG_HOVER, new CornerRadii(6), Insets.EMPTY)));
-        });
-        setOnMouseExited(e -> {
-            setBackground(new Background(new BackgroundFill(BG_NORMAL, new CornerRadii(6), Insets.EMPTY)));
-        });
+    private void handleMouseClicked(MouseEvent e, ContextMenu ctx, Supplier<Consumer<Message>> onDeleteSupplier) {
+        if (e.getButton() == MouseButton.SECONDARY) {
+            MenuItem del = ctx.getItems().isEmpty() ? null : ctx.getItems().get(0);
+            Consumer<Message> cb = onDeleteSupplier == null ? null : onDeleteSupplier.get();
+            boolean disabled = (cb == null);
+            if (del != null) del.setDisable(disabled);
+            if (viewContext != null && viewContext.logger() != null)
+                viewContext.logger().debug("FxMessageView.mouseClicked(SECONDARY) for message=" + message.getUuid() + " disabled=" + disabled);
+            ctx.show(this, e.getScreenX(), e.getScreenY());
+            e.consume();
+        }
     }
 
     // Insert zero-width space \u200B every n characters in long sequences without whitespace to enable wrapping in TextFlow
@@ -185,7 +186,6 @@ public class FxMessageView extends HBox implements View {
         flow.getChildren().clear();
         if (text == null || text.isEmpty()) return;
         String raw = text;
-        // Detect emoji codes count and whether message contains only codes
         java.util.regex.Pattern codeOnlyPattern = java.util.regex.Pattern.compile("^(?:(:\\w+:)\\s*)+$");
         boolean onlyEmojiCodes = codeOnlyPattern.matcher(raw.trim()).matches();
         java.util.regex.Pattern codeFinder = java.util.regex.Pattern.compile("(:\\w+:)");
@@ -196,7 +196,6 @@ public class FxMessageView extends HBox implements View {
         int imgSize = 16;
         if (onlyEmojiCodes) imgSize = (codeCount == 1) ? 48 : 32;
 
-        // Ensure left alignment and that flow expands to full width so left alignment is visible
         flow.setTextAlignment(TextAlignment.LEFT);
         flow.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(flow, Priority.ALWAYS);
@@ -205,35 +204,32 @@ public class FxMessageView extends HBox implements View {
         Color mentionColor = Color.web("#5865F2");
 
         if (onlyEmojiCodes) {
-            // Add images left-aligned, with small gap
-            java.util.regex.Pattern p = java.util.regex.Pattern.compile("(:\\w+:)");
-            java.util.regex.Matcher m = p.matcher(raw);
-            boolean first = true;
-            while (m.find()) {
-                String code = m.group(1);
-                String url = EmojiBinders.getEmojiImageUrl(code);
-                if (url != null) {
-                    try {
-                        Image img = new Image(url, imgSize, imgSize, true, true);
-                        ImageView iv = new ImageView(img);
-                        iv.setFitWidth(imgSize);
-                        iv.setFitHeight(imgSize);
-                        if (!first) {
-                            // add small spacing
-                            Text spacer = new Text(" ");
-                            spacer.setStyle("-fx-font-size: " + (imgSize / 2) + "px;");
-                            flow.getChildren().add(spacer);
-                        }
-                        flow.getChildren().add(iv);
-                    } catch (Exception ex) {
-                        String uni = EmojiBinders.replaceEmojiCodesUnicode(code);
-                        uni = insertZWSEveryN(uni, 40);
-                        Text t = new Text(uni);
-                        t.setFill(normalColor);
-                        t.setStyle("-fx-font-size: " + (imgSize) + "px;");
-                        flow.getChildren().add(t);
+            renderOnlyEmoji(flow, raw, imgSize, normalColor);
+            return;
+        }
+        renderMixedContent(flow, raw, normalColor, mentionColor);
+    }
+
+    private void renderOnlyEmoji(TextFlow flow, String raw, int imgSize, Color normalColor) {
+        java.util.regex.Pattern p = java.util.regex.Pattern.compile("(:\\w+:)");
+        java.util.regex.Matcher m = p.matcher(raw);
+        boolean first = true;
+        while (m.find()) {
+            String code = m.group(1);
+            String url = EmojiBinders.getEmojiImageUrl(code);
+            if (url != null) {
+                try {
+                    Image img = new Image(url, imgSize, imgSize, true, true);
+                    ImageView iv = new ImageView(img);
+                    iv.setFitWidth(imgSize);
+                    iv.setFitHeight(imgSize);
+                    if (!first) {
+                        Text spacer = new Text(" ");
+                        spacer.setStyle("-fx-font-size: " + (imgSize / 2) + "px;");
+                        flow.getChildren().add(spacer);
                     }
-                } else {
+                    flow.getChildren().add(iv);
+                } catch (Exception ex) {
                     String uni = EmojiBinders.replaceEmojiCodesUnicode(code);
                     uni = insertZWSEveryN(uni, 40);
                     Text t = new Text(uni);
@@ -241,12 +237,19 @@ public class FxMessageView extends HBox implements View {
                     t.setStyle("-fx-font-size: " + (imgSize) + "px;");
                     flow.getChildren().add(t);
                 }
-                first = false;
+            } else {
+                String uni = EmojiBinders.replaceEmojiCodesUnicode(code);
+                uni = insertZWSEveryN(uni, 40);
+                Text t = new Text(uni);
+                t.setFill(normalColor);
+                t.setStyle("-fx-font-size: " + (imgSize) + "px;");
+                flow.getChildren().add(t);
             }
-            return;
+            first = false;
         }
+    }
 
-        // Mixed content: keep inline text and small emoji sized to ~13px
+    private void renderMixedContent(TextFlow flow, String raw, Color normalColor, Color mentionColor) {
         java.util.regex.Pattern p = java.util.regex.Pattern.compile("(:\\w+:)|(@\\w+)");
         java.util.regex.Matcher m = p.matcher(raw);
         int last = 0;

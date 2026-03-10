@@ -32,7 +32,7 @@ public class FxCanalView extends HBox implements View {
 
     private Channel channel;
     private int unreadCount = 0;
-    private Label unreadBadge;
+    private final Label unreadBadge;
 
     public FxCanalView(ViewContext viewContext, Channel channel,
                        ChannelEditCallback onEdit, boolean isOwner, Supplier<List<User>> allUsersSupplier) {
@@ -45,66 +45,20 @@ public class FxCanalView extends HBox implements View {
 
         boolean isPrivate = channel.isPrivate();
 
-        Label badge = new Label(isPrivate ? "🔒" : "#");
-        badge.setFont(Font.font("Arial", FontWeight.BOLD, isPrivate ? 11 : 14));
-        badge.setTextFill(isPrivate ? PRIVATE_CLR : PUBLIC_CLR);
-        badge.setMouseTransparent(true);
-        badge.setMinWidth(16);
-
-        Label nameLabel = new Label(channel.getName() != null ? channel.getName() : "");
-        nameLabel.setFont(Font.font("Arial", FontWeight.BOLD, 13));
-        nameLabel.setTextFill(Color.rgb(220, 221, 222));
-        nameLabel.setMouseTransparent(true);
-
+        Label badge = createBadge(isPrivate);
+        Label nameLabel = createNameLabel(channel);
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-
-        Label visibilityTag = new Label(isPrivate ? "privé" : "public");
-        visibilityTag.setFont(Font.font("Arial", 9));
-        visibilityTag.setTextFill(isPrivate ? PRIVATE_CLR : PUBLIC_CLR);
-        visibilityTag.setOpacity(0.75);
-        visibilityTag.setMouseTransparent(true);
-        visibilityTag.setPadding(new Insets(1, 4, 1, 4));
-        visibilityTag.setBackground(new Background(new BackgroundFill(
-                (isPrivate ? PRIVATE_CLR : PUBLIC_CLR).deriveColor(0, 1, 1, 0.15),
-                new CornerRadii(4), Insets.EMPTY)));
+        Label visibilityTag = createVisibilityTag(isPrivate);
 
         getChildren().addAll(badge, nameLabel, spacer, visibilityTag);
 
         // Badge messages non lus (caché par défaut)
-        unreadBadge = new Label("0");
-        unreadBadge.setFont(Font.font("Arial", FontWeight.BOLD, 9));
-        unreadBadge.setTextFill(Color.WHITE);
-        unreadBadge.setMouseTransparent(false);
-        unreadBadge.setVisible(false);
-        unreadBadge.setMinWidth(16);
-        unreadBadge.setMinHeight(16);
-        unreadBadge.setAlignment(Pos.CENTER);
-        unreadBadge.setPadding(new Insets(1, 4, 1, 4));
-        unreadBadge.setBackground(new Background(new BackgroundFill(
-                Color.rgb(240, 71, 71), new CornerRadii(8), Insets.EMPTY)));
-        unreadBadge.setOnMouseClicked(e -> {
-            e.consume();
-            clearUnread();
-        });
+        unreadBadge = createUnreadBadge();
         getChildren().add(unreadBadge);
 
         if (isPrivate && onEdit != null) {
-            Label editBtn = new Label("\u270F");
-            editBtn.setFont(Font.font("Arial", FontWeight.BOLD, 12));
-            editBtn.setTextFill(Color.rgb(180, 180, 200));
-            editBtn.setCursor(Cursor.HAND);
-            editBtn.setOpacity(0);
-            editBtn.setPadding(new Insets(0, 0, 0, 6));
-            editBtn.setMouseTransparent(false);
-            Tooltip.install(editBtn, new Tooltip("Options du canal"));
-
-            editBtn.setOnMouseClicked(e -> {
-                e.consume();
-                // Evaluer la liste fraîche au moment du clic
-                showEditMenu(editBtn, onEdit, isOwner, allUsersSupplier.get());
-            });
-
+            Label editBtn = createEditButton(onEdit, isOwner, allUsersSupplier);
             getChildren().add(editBtn);
 
             setOnMouseEntered(e -> {
@@ -120,7 +74,72 @@ public class FxCanalView extends HBox implements View {
             setOnMouseExited(e -> setBackground(new Background(new BackgroundFill(BG_NORMAL, new CornerRadii(6), Insets.EMPTY))));
         }
 
-        if (viewContext.logger() != null) viewContext.logger().debug("FxCanalView initialisée : " + channel.getName());
+        if (viewContext != null) viewContext.logger().debug("FxCanalView initialisée : " + channel.getName());
+    }
+
+    private Label createBadge(boolean isPrivate) {
+        Label badge = new Label(isPrivate ? "🔒" : "#");
+        badge.setFont(Font.font("Arial", FontWeight.BOLD, isPrivate ? 11 : 14));
+        badge.setTextFill(isPrivate ? PRIVATE_CLR : PUBLIC_CLR);
+        badge.setMouseTransparent(true);
+        badge.setMinWidth(16);
+        return badge;
+    }
+
+    private Label createNameLabel(Channel channel) {
+        Label nameLabel = new Label(channel.getName() != null ? channel.getName() : "");
+        nameLabel.setFont(Font.font("Arial", FontWeight.BOLD, 13));
+        nameLabel.setTextFill(Color.rgb(220, 221, 222));
+        nameLabel.setMouseTransparent(true);
+        return nameLabel;
+    }
+
+    private Label createVisibilityTag(boolean isPrivate) {
+        Label visibilityTag = new Label(isPrivate ? "privé" : "public");
+        visibilityTag.setFont(Font.font("Arial", 9));
+        visibilityTag.setTextFill(isPrivate ? PRIVATE_CLR : PUBLIC_CLR);
+        visibilityTag.setOpacity(0.75);
+        visibilityTag.setMouseTransparent(true);
+        visibilityTag.setPadding(new Insets(1, 4, 1, 4));
+        visibilityTag.setBackground(new Background(new BackgroundFill(
+                (isPrivate ? PRIVATE_CLR : PUBLIC_CLR).deriveColor(0, 1, 1, 0.15),
+                new CornerRadii(4), Insets.EMPTY)));
+        return visibilityTag;
+    }
+
+    private Label createUnreadBadge() {
+        Label b = new Label("0");
+        b.setFont(Font.font("Arial", FontWeight.BOLD, 9));
+        b.setTextFill(Color.WHITE);
+        b.setMouseTransparent(false);
+        b.setVisible(false);
+        b.setMinWidth(16);
+        b.setMinHeight(16);
+        b.setAlignment(Pos.CENTER);
+        b.setPadding(new Insets(1, 4, 1, 4));
+        b.setBackground(new Background(new BackgroundFill(
+                Color.rgb(240, 71, 71), new CornerRadii(8), Insets.EMPTY)));
+        b.setOnMouseClicked(e -> {
+            e.consume();
+            clearUnread();
+        });
+        return b;
+    }
+
+    private Label createEditButton(ChannelEditCallback onEdit, boolean isOwner, Supplier<List<User>> allUsersSupplier) {
+        Label editBtn = new Label("✏");
+        editBtn.setFont(Font.font("Arial", FontWeight.BOLD, 12));
+        editBtn.setTextFill(Color.rgb(180, 180, 200));
+        editBtn.setCursor(Cursor.HAND);
+        editBtn.setOpacity(0);
+        editBtn.setPadding(new Insets(0, 0, 0, 6));
+        Tooltip.install(editBtn, new Tooltip("Options du canal"));
+
+        editBtn.setOnMouseClicked(e -> {
+            e.consume();
+            showEditMenu(editBtn, onEdit, isOwner, allUsersSupplier.get());
+        });
+        return editBtn;
     }
 
     private void showEditMenu(Label anchor, ChannelEditCallback onEdit,

@@ -18,7 +18,7 @@ public class FxListUserView extends VBox implements View {
 
     private final ViewContext viewContext;
     private final VBox usersBox = new VBox(4);
-    private final TextField searchField = new TextField();
+    private final TextField searchField;
     private final List<FxUserView> allUsers = new ArrayList<>();
 
     public FxListUserView(ViewContext viewContext) {
@@ -26,18 +26,32 @@ public class FxListUserView extends VBox implements View {
         setPadding(new Insets(8));
         setBackground(new Background(new BackgroundFill(Color.rgb(54, 57, 63), CornerRadii.EMPTY, Insets.EMPTY)));
 
-        searchField.setPromptText("Rechercher un utilisateur…");
-        searchField.textProperty().addListener((obs, o, n) -> filterUsers(n));
-
+        searchField = createSearchField();
         usersBox.setPadding(new Insets(4, 0, 0, 0));
+        ScrollPane scroll = createScrollPane(usersBox);
 
-        ScrollPane scroll = new ScrollPane(usersBox);
+        initLayout(scroll);
+
+        if (viewContext.logger() != null) viewContext.logger().debug("FxListUserView initialisée");
+    }
+
+    private TextField createSearchField() {
+        TextField f = new TextField();
+        f.setPromptText("Rechercher un utilisateur…");
+        f.textProperty().addListener((obs, o, n) -> filterUsers(n));
+        return f;
+    }
+
+    private ScrollPane createScrollPane(VBox content) {
+        ScrollPane scroll = new ScrollPane(content);
         scroll.setFitToWidth(true);
         scroll.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
         VBox.setVgrow(scroll, Priority.ALWAYS);
+        return scroll;
+    }
 
+    private void initLayout(ScrollPane scroll) {
         getChildren().addAll(searchField, scroll);
-        if (viewContext.logger() != null) viewContext.logger().debug("FxListUserView initialisée");
     }
 
     public void addUserUI(FxUserView userView) {
@@ -64,4 +78,3 @@ public class FxListUserView extends VBox implements View {
         }
     }
 }
-

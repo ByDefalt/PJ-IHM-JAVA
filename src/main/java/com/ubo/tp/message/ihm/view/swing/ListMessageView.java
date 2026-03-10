@@ -37,31 +37,54 @@ public class ListMessageView extends JComponent implements View {
     public ListMessageView(ViewContext viewContext) {
         this.viewContext = viewContext;
 
-        messagesPanel = new JPanel(new GridBagLayout());
-        messagesPanel.setOpaque(false);
+        messagesPanel = createMessagesPanel();
+        scrollPane = createScrollPane(messagesPanel);
+        searchField = createSearchField();
 
-        scrollPane = new JScrollPane(messagesPanel);
-        scrollPane.getViewport().setOpaque(false);
-        scrollPane.getViewport().setBackground(UIManager.getColor("Panel.background"));
-        scrollPane.setOpaque(false);
-        scrollPane.setBackground(UIManager.getColor("Panel.background"));
-        scrollPane.setBorder(null);
-        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        initLayout();
 
-        // ── Barre de recherche ────────────────────────────────────────────
-        searchField = new JTextField();
-        searchField.setOpaque(true);
-        searchField.setBackground(new Color(47, 49, 54));
-        searchField.setForeground(new Color(220, 221, 222));
-        searchField.setCaretColor(new Color(220, 221, 222));
-        searchField.setBorder(BorderFactory.createCompoundBorder(
+        verticalGlue = Box.createVerticalGlue();
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.VERTICAL;
+        messagesPanel.add(verticalGlue, gbc);
+    }
+
+    // Initialisation des sous-composants extraites pour single responsibility
+    private JPanel createMessagesPanel() {
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setOpaque(false);
+        return panel;
+    }
+
+    private JScrollPane createScrollPane(JPanel messagesPanel) {
+        JScrollPane sp = new JScrollPane(messagesPanel);
+        sp.getViewport().setOpaque(false);
+        sp.getViewport().setBackground(UIManager.getColor("Panel.background"));
+        sp.setOpaque(false);
+        sp.setBackground(UIManager.getColor("Panel.background"));
+        sp.setBorder(null);
+        sp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        sp.getVerticalScrollBar().setUnitIncrement(16);
+        return sp;
+    }
+
+    private JTextField createSearchField() {
+        JTextField field = new JTextField();
+        field.setOpaque(true);
+        field.setBackground(new Color(47, 49, 54));
+        field.setForeground(new Color(220, 221, 222));
+        field.setCaretColor(new Color(220, 221, 222));
+        field.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(32, 34, 37), 1),
                 BorderFactory.createEmptyBorder(4, 8, 4, 8)));
-        searchField.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        field.setFont(new Font("SansSerif", Font.PLAIN, 13));
         // Placeholder via prompt text (Java 7+)
-        searchField.putClientProperty("JTextField.placeholderText", "Rechercher un message\u2026");
-        searchField.getDocument().addDocumentListener(new DocumentListener() {
+        field.putClientProperty("JTextField.placeholderText", "Rechercher un message\u2026");
+        field.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
                 applyFilter();
@@ -77,7 +100,10 @@ public class ListMessageView extends JComponent implements View {
                 applyFilter();
             }
         });
+        return field;
+    }
 
+    private void initLayout() {
         JPanel searchPanel = new JPanel(new BorderLayout());
         searchPanel.setOpaque(false);
         searchPanel.setBorder(BorderFactory.createEmptyBorder(6, 8, 4, 8));
@@ -86,15 +112,6 @@ public class ListMessageView extends JComponent implements View {
         setLayout(new BorderLayout());
         add(searchPanel, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
-
-        verticalGlue = Box.createVerticalGlue();
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.fill = GridBagConstraints.VERTICAL;
-        messagesPanel.add(verticalGlue, gbc);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -140,17 +157,19 @@ public class ListMessageView extends JComponent implements View {
      * (revalidate → layout → paint) est terminé avant de lire getMaximum().
      */
     public void scrollToBottom() {
+        invokeLaterTriple(() -> {
+            try {
+                JScrollBar sb = scrollPane.getVerticalScrollBar();
+                if (sb != null) sb.setValue(sb.getMaximum());
+            } catch (Exception ignored) {
+            }
+        });
+    }
+
+    private void invokeLaterTriple(Runnable r) {
         SwingUtilities.invokeLater(() ->
                 SwingUtilities.invokeLater(() ->
-                        SwingUtilities.invokeLater(() -> {
-                            try {
-                                JScrollBar sb = scrollPane.getVerticalScrollBar();
-                                if (sb != null) sb.setValue(sb.getMaximum());
-                            } catch (Exception ignored) {
-                            }
-                        })
-                )
-        );
+                        SwingUtilities.invokeLater(r)));
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -162,14 +181,22 @@ public class ListMessageView extends JComponent implements View {
             SwingUtilities.invokeLater(this::applyFilter);
             return;
         }
-        String q = searchField.getText().trim().toLowerCase();
-        List<MessageView> toDisplay = q.isEmpty() ? allMessages :
-                allMessages.stream().filter(mv ->
-                        mv.getMessage() != null &&
-                                mv.getMessage().getText() != null &&
-                                mv.getMessage().getText().toLowerCase().contains(q)
-                ).toList();
+        String q = getQuery();
+        List<MessageView> toDisplay = buildFilteredList(q);
         renderMessages(toDisplay);
+    }
+
+    private String getQuery() {
+        return searchField.getText().trim().toLowerCase();
+    }
+
+    private List<MessageView> buildFilteredList(String q) {
+        if (q.isEmpty()) return allMessages;
+        return allMessages.stream().filter(mv ->
+                mv.getMessage() != null &&
+                        mv.getMessage().getText() != null &&
+                        mv.getMessage().getText().toLowerCase().contains(q)
+        ).toList();
     }
 
     private void renderMessages(List<MessageView> ordered) {

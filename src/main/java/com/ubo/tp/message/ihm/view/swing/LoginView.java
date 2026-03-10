@@ -69,22 +69,25 @@ public class LoginView extends JComponent implements View {
     // -------------------------------------------------------------------------
 
     private void installListeners() {
-        loginButton.addActionListener(e -> {
-            if (viewContext.logger() != null) viewContext.logger().debug("Bouton de connexion cliqué");
-            if (onLoginRequested != null) {
-                onLoginRequested.accept(
-                        new String[]{
-                                tagField.getText(),
-                                nameField.getText(),
-                                new String(passwordField.getPassword())
-                        }, null);
-            }
-        });
+        loginButton.addActionListener(e -> handleLogin());
+        registerButton.addActionListener(e -> handleRegister());
+    }
 
-        registerButton.addActionListener(e -> {
-            if (viewContext.logger() != null) viewContext.logger().debug("Bouton d'inscription cliqué");
-            if (onRegisterRequested != null) onRegisterRequested.run();
-        });
+    private void handleLogin() {
+        if (viewContext.logger() != null) viewContext.logger().debug("Bouton de connexion cliqué");
+        if (onLoginRequested != null) {
+            onLoginRequested.accept(
+                    new String[]{
+                            tagField.getText(),
+                            nameField.getText(),
+                            new String(passwordField.getPassword())
+                    }, null);
+        }
+    }
+
+    private void handleRegister() {
+        if (viewContext.logger() != null) viewContext.logger().debug("Bouton d'inscription cliqué");
+        if (onRegisterRequested != null) onRegisterRequested.run();
     }
 
     // -------------------------------------------------------------------------

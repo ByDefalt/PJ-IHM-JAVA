@@ -32,8 +32,6 @@ public class ListUserView extends JComponent implements View {
 
         usersPanel = createUsersPanel();
         scrollPane = createScrollPane(usersPanel);
-
-        // create and insert search field
         searchField = createSearchField();
 
         addScrollPaneToThis();
@@ -53,12 +51,10 @@ public class ListUserView extends JComponent implements View {
      */
     public void addUserUI(UserView userView, int row) {
         if (userView == null) return;
+        invokeOnEDT(() -> performAddUserUI(userView, row));
+    }
 
-        if (!SwingUtilities.isEventDispatchThread()) {
-            SwingUtilities.invokeLater(() -> addUserUI(userView, row));
-            return;
-        }
-
+    private void performAddUserUI(UserView userView, int row) {
         usersPanel.remove(glue);
         usersPanel.add(userView, userConstraints(row));
 
@@ -68,22 +64,26 @@ public class ListUserView extends JComponent implements View {
         usersPanel.revalidate();
         usersPanel.repaint();
 
+        scrollToBottomAsync();
+
+        if (this.viewContext.logger() != null) this.viewContext.logger().debug("UserView ajoutée (row=" + row + ")");
+    }
+
+    private void scrollToBottomAsync() {
         SwingUtilities.invokeLater(() -> {
             JScrollBar bar = scrollPane.getVerticalScrollBar();
             if (bar != null) bar.setValue(bar.getMaximum());
         });
-
-        if (this.viewContext.logger() != null) this.viewContext.logger().debug("UserView ajoutée (row=" + row + ")");
     }
 
     /**
      * Reconstruit entièrement le panel à partir de la liste ordonnée fournie par le contrôleur.
      */
     public void rebuildUI(List<UserView> ordered) {
-        if (!SwingUtilities.isEventDispatchThread()) {
-            SwingUtilities.invokeLater(() -> rebuildUI(ordered));
-            return;
-        }
+        invokeOnEDT(() -> performRebuildUI(ordered));
+    }
+
+    private void performRebuildUI(List<UserView> ordered) {
         usersPanel.removeAll();
         int row = 0;
         for (UserView uv : ordered) {
@@ -103,10 +103,10 @@ public class ListUserView extends JComponent implements View {
      * Met à jour l'affichage d'une UserView existante.
      */
     public void updateUserUI(UserView view, User user) {
-        if (!SwingUtilities.isEventDispatchThread()) {
-            SwingUtilities.invokeLater(() -> updateUserUI(view, user));
-            return;
-        }
+        invokeOnEDT(() -> performUpdateUserUI(view, user));
+    }
+
+    private void performUpdateUserUI(UserView view, User user) {
         view.updateUser(user);
         usersPanel.revalidate();
         usersPanel.repaint();
@@ -215,8 +215,12 @@ public class ListUserView extends JComponent implements View {
     // Applique le filtre côté client en masquant/montrant les UserView
     private void applyFilter(String query) {
         String q = (query == null) ? "" : query.trim().toLowerCase();
+        invokeOnEDT(() -> performApplyFilter(q));
+    }
+
+    private void performApplyFilter(String q) {
         if (!SwingUtilities.isEventDispatchThread()) {
-            SwingUtilities.invokeLater(() -> applyFilter(query));
+            SwingUtilities.invokeLater(() -> performApplyFilter(q));
             return;
         }
         for (Component c : usersPanel.getComponents()) {
@@ -235,6 +239,11 @@ public class ListUserView extends JComponent implements View {
         if (u == null) return false;
         String name = u.getName() != null ? u.getName().toLowerCase() : "";
         return name.contains(q);
+    }
+
+    private void invokeOnEDT(Runnable r) {
+        if (SwingUtilities.isEventDispatchThread()) r.run();
+        else SwingUtilities.invokeLater(r);
     }
 }
 

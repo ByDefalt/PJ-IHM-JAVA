@@ -83,7 +83,12 @@ public class InputMessageView extends JComponent implements View {
     // -------------------------------------------------------------------------
 
     private void installInternalListeners() {
-        // Keybindings : Shift+Enter / Ctrl+Enter → saut de ligne, Enter → envoi
+        setupKeyBindings();
+        setupDocumentListener();
+        setupFocusListener();
+    }
+
+    private void setupKeyBindings() {
         InputMap im = inputField.getInputMap(JComponent.WHEN_FOCUSED);
         ActionMap am = inputField.getActionMap();
         im.put(KeyStroke.getKeyStroke("shift ENTER"), DefaultEditorKit.insertBreakAction);
@@ -96,8 +101,9 @@ public class InputMessageView extends JComponent implements View {
                 if (onSendRequested != null) onSendRequested.run();
             }
         });
+    }
 
-        // Adaptation visuelle du nombre de lignes
+    private void setupDocumentListener() {
         inputField.getDocument().addDocumentListener(new DocumentListener() {
             private void notifyChange() {
                 SwingUtilities.invokeLater(() -> {
@@ -132,8 +138,9 @@ public class InputMessageView extends JComponent implements View {
                 notifyChange();
             }
         });
+    }
 
-        // Mise en évidence de la bordure au focus
+    private void setupFocusListener() {
         inputField.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -198,6 +205,12 @@ public class InputMessageView extends JComponent implements View {
     }
 
     private void createInputField() {
+        configureColorsAndFonts();
+        configureInputFieldBasics();
+        createScrollAndWrapper();
+    }
+
+    private void configureColorsAndFonts() {
         Color inputBg = UIManager.getColor("TextArea.background");
         Color inputFg = UIManager.getColor("TextArea.foreground");
         Color caretColor = UIManager.getColor("TextArea.caretForeground");
@@ -234,9 +247,14 @@ public class InputMessageView extends JComponent implements View {
         Color selFg = UIManager.getColor("TextArea.selectionForeground");
         if (selBg != null) inputField.setSelectionColor(selBg);
         if (selFg != null) inputField.setSelectedTextColor(selFg);
+    }
 
-        // Le scrollPane wrappant le textArea
-        final Color finalInputBg = inputBg;
+    private void configureInputFieldBasics() {
+        // nothing for now; kept for future small responsibilities
+    }
+
+    private void createScrollAndWrapper() {
+        final Color finalInputBg = inputField.getBackground();
         JScrollPane sp = new JScrollPane(inputField) {
             @Override
             public Dimension getPreferredSize() {
