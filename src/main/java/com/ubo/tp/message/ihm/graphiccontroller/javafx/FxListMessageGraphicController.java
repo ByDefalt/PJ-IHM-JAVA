@@ -64,6 +64,9 @@ public class FxListMessageGraphicController implements IListMessageGraphicContro
     public void setOnDeleteMessage(Consumer<Message> onDelete, java.util.UUID connectedUserUuid) {
         this.onDeleteMessage = onDelete;
         this.deletableSenderUuid = connectedUserUuid;
+        if (viewContext != null && viewContext.logger() != null) {
+            viewContext.logger().debug("(FX) setOnDeleteMessage called; onDeletePresent=" + (onDelete != null) + ", connectedUserUuid=" + connectedUserUuid);
+        }
     }
 
     @Override
