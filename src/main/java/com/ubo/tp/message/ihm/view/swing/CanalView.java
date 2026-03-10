@@ -246,15 +246,27 @@ public class CanalView extends JComponent implements View {
             g2.fillRoundRect(pad, pad, w, h, arc, arc);
         }
 
-        // Badge messages non lus
+        // Badge messages non lus — dessiner à côté du label de visibilité si possible
         if (unreadCount > 0) {
             String text = unreadCount > 99 ? "99+" : String.valueOf(unreadCount);
             g2.setFont(new Font("SansSerif", Font.BOLD, 9));
             FontMetrics fm = g2.getFontMetrics();
             int tw = fm.stringWidth(text);
             int diameter = Math.max(tw + 8, 16);
-            int bx = getWidth() - diameter - 4;
             int by = (getHeight() - diameter) / 2;
+            int bx;
+            if (visibilityLabel != null && visibilityLabel.getWidth() > 0) {
+                // placer le badge à droite du label de visibilité (avec un petit espacement)
+                bx = visibilityLabel.getX() + visibilityLabel.getWidth() + 6;
+                // si dépasse à droite du composant, tenter de le placer à gauche du label
+                if (bx + diameter + 4 > getWidth()) {
+                    int leftBx = visibilityLabel.getX() - diameter - 6;
+                    // si la position gauche est valide, l'utiliser, sinon coller au bord droit
+                    if (leftBx >= 4) bx = leftBx; else bx = getWidth() - diameter - 4;
+                }
+            } else {
+                bx = getWidth() - diameter - 4;
+            }
             g2.setColor(new Color(240, 71, 71));
             g2.fillOval(bx, by, diameter, diameter);
             g2.setColor(Color.WHITE);

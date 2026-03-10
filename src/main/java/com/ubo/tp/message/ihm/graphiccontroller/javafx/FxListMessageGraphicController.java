@@ -74,7 +74,7 @@ public class FxListMessageGraphicController implements IListMessageGraphicContro
             // canDelete géré par le controller métier via setOnDeleteMessage :
             // si onDeleteMessage != null c'est que ce message peut être supprimé par cet utilisateur
             Consumer<Message> deleteCallback = resolveDeleteCallback(message);
-            messages.add(new FxMessageView(viewContext, message, deleteCallback, deleteCallback != null));
+            messages.add(new FxMessageView(viewContext, message, () -> resolveDeleteCallback(message), deleteCallback != null));
             if (viewContext.logger() != null) viewContext.logger().debug("(FX) Message ajouté");
         }
         rebuildView(filteredMessages);
@@ -106,7 +106,7 @@ public class FxListMessageGraphicController implements IListMessageGraphicContro
         if (opt.isPresent()) {
             messages.remove(opt.get());
             Consumer<Message> cb = resolveDeleteCallback(message);
-            messages.add(new FxMessageView(viewContext, message, cb, cb != null));
+            messages.add(new FxMessageView(viewContext, message, () -> resolveDeleteCallback(message), cb != null));
             if (viewContext.logger() != null) viewContext.logger().debug("(FX) Message mis à jour");
         } else {
             if (viewContext.logger() != null) viewContext.logger().warn("(FX) Message non trouvé pour mise à jour");
@@ -126,9 +126,9 @@ public class FxListMessageGraphicController implements IListMessageGraphicContro
         for (FxMessageView mv : toReplace) {
             Message old = mv.getMessage();
             messages.remove(mv);
-            messages.add(new FxMessageView(viewContext, new Message(
-                    old.getUuid(), updatedUser, old.getRecipient(), old.getEmissionDate(), old.getText()
-            )));
+            Message updated = new Message(old.getUuid(), updatedUser, old.getRecipient(), old.getEmissionDate(), old.getText());
+            Consumer<Message> cb = resolveDeleteCallback(updated);
+            messages.add(new FxMessageView(viewContext, updated, () -> resolveDeleteCallback(updated), cb != null));
         }
         if (!toReplace.isEmpty()) {
             if (viewContext.logger() != null)
@@ -143,4 +143,3 @@ public class FxListMessageGraphicController implements IListMessageGraphicContro
     }
 
 }
-

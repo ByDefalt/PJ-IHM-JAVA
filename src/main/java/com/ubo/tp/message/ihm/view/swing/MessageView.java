@@ -34,7 +34,6 @@ public class MessageView extends JComponent implements View {
     private JLabel authorLabel;
     private JTextArea contentArea;
     private JLabel timeLabel;
-    private JLabel deleteBtn;
     private boolean hovered = false;
     private final boolean canDelete;
 
@@ -58,7 +57,7 @@ public class MessageView extends JComponent implements View {
             public void mouseEntered(MouseEvent e) {
                 hovered = true;
                 setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                if (canDelete && deleteBtn != null) deleteBtn.setVisible(true);
+                // Indication visuelle possible quand suppression autorisée (aucune icône affichée)
                 repaint();
             }
 
@@ -66,7 +65,6 @@ public class MessageView extends JComponent implements View {
             public void mouseExited(MouseEvent e) {
                 hovered = false;
                 setCursor(Cursor.getDefaultCursor());
-                if (deleteBtn != null) deleteBtn.setVisible(false);
                 repaint();
             }
         });
@@ -78,31 +76,29 @@ public class MessageView extends JComponent implements View {
     private void init(Message message, Consumer<Message> onDelete) {
         String authorName = (message.getSender() != null) ? message.getSender().getName() : "";
         createBubble(authorName, message.getText(), message.getEmissionDate());
-        if (canDelete && onDelete != null) createDeleteButton(onDelete);
+        if (canDelete && onDelete != null) createDeletePopup(onDelete);
     }
 
-    private void createDeleteButton(Consumer<Message> onDelete) {
-        deleteBtn = new JLabel("\uD83D\uDDD1") {
-            @Override public boolean contains(int x, int y) { return true; }
-        };
-        deleteBtn.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        deleteBtn.setForeground(new Color(240, 71, 71));
-        deleteBtn.setOpaque(false);
-        deleteBtn.setVisible(false);
-        deleteBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        deleteBtn.setToolTipText("Supprimer le message");
-        deleteBtn.setBorder(BorderFactory.createEmptyBorder(2, 6, 2, 6));
-        deleteBtn.addMouseListener(new MouseAdapter() {
-            @Override public void mouseEntered(MouseEvent e) { deleteBtn.setVisible(true); }
-            @Override public void mouseClicked(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON1) { e.consume(); onDelete.accept(message); }
+    private void createDeletePopup(Consumer<Message> onDelete) {
+        // Pas de stockage additionnel nécessaire : onDelete est capturé par le listener
+        // Clic droit (popup trigger) sur le composant : ouvrir un petit menu avec l'action de suppression
+        MouseAdapter popupListener = new MouseAdapter() {
+            private void showPopupIfRequested(MouseEvent e) {
+                if (!canDelete || onDelete == null) return;
+                if (e.isPopupTrigger() || SwingUtilities.isRightMouseButton(e)) {
+                    e.consume();
+                    JPopupMenu popup = new JPopupMenu();
+                    JMenuItem deleteItem = new JMenuItem("Supprimer le message");
+                    deleteItem.addActionListener(ev -> onDelete.accept(message));
+                    popup.add(deleteItem);
+                    popup.show(MessageView.this, e.getX(), e.getY());
+                }
             }
-        });
-        // Colonne 2, ligne 0 — à droite du bubble
-        this.add(deleteBtn, new GridBagConstraints(
-                2, 0, 1, 1, 0.0, 0.0,
-                GridBagConstraints.NORTHEAST, GridBagConstraints.NONE,
-                new Insets(4, 4, 4, 4), 0, 0));
+
+            @Override public void mousePressed(MouseEvent e) { showPopupIfRequested(e); }
+            @Override public void mouseReleased(MouseEvent e) { showPopupIfRequested(e); }
+        };
+        this.addMouseListener(popupListener);
     }
 
     private void createBubble(String author, String content, long emissionMillis) {
