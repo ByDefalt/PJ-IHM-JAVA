@@ -1,14 +1,19 @@
 package com.ubo.tp.message.utils;
 
+import java.util.Map;
+
 public class EmojiBinders {
+    private EmojiBinders() {
+        /* This utility class should not be instantiated */
+    }
+
     // Liste des codes supportés
     private static final String[] CODES = new String[]{
             ":smile:", ":sad:", ":heart:", ":thumbs_up:", ":thumbs_down:",
             ":laughing:", ":crying:", ":angry:", ":surprised:"
     };
 
-    // Mapping code -> twemoji hex
-    private static final java.util.Map<String, String> TWEMOJI_HEX = new java.util.HashMap<>();
+    private static final Map<String, String> TWEMOJI_HEX = new java.util.HashMap<>();
 
     static {
         TWEMOJI_HEX.put(":smile:", "1f60a");
@@ -32,40 +37,18 @@ public class EmojiBinders {
      */
     public static String getEmojiImageUrl(String code) {
         if (code == null) return null;
-        String key = code;
-        String name = null;
-        switch (key) {
-            case ":smile:":
-                name = "smile.png";
-                break;
-            case ":sad:":
-                name = "sad.png";
-                break;
-            case ":heart:":
-                name = "heart.png";
-                break;
-            case ":thumbs_up:":
-                name = "thumbs_up.png";
-                break;
-            case ":thumbs_down:":
-                name = "thumbs_down.png";
-                break;
-            case ":laughing:":
-                name = "laughing.png";
-                break;
-            case ":crying:":
-                name = "crying.png";
-                break;
-            case ":angry:":
-                name = "angry.png";
-                break;
-            case ":surprised:":
-                name = "surprised.png";
-                break;
-            default:
-                name = null;
-                break;
-        }
+        String name = switch (code) {
+            case ":smile:" -> "smile.png";
+            case ":sad:" -> "sad.png";
+            case ":heart:" -> "heart.png";
+            case ":thumbs_up:" -> "thumbs_up.png";
+            case ":thumbs_down:" -> "thumbs_down.png";
+            case ":laughing:" -> "laughing.png";
+            case ":crying:" -> "crying.png";
+            case ":angry:" -> "angry.png";
+            case ":surprised:" -> "surprised.png";
+            default -> null;
+        };
         if (name != null) {
             java.net.URL res = EmojiBinders.class.getResource("/images/emoji/" + name);
             if (res != null) return res.toExternalForm();
