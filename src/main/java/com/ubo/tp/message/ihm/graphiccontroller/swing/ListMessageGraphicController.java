@@ -91,7 +91,6 @@ public class ListMessageGraphicController implements IListMessageGraphicControll
 
     private void handleAddMessage(Message message, List<Message> filteredMessages) {
         if (message == null || listMessageView == null) return;
-
         Runnable task = () -> {
             boolean alreadyPresent = messages.stream()
                     .anyMatch(mv -> mv.getMessage().equals(message));

@@ -3,6 +3,7 @@ package com.ubo.tp.message.ihm.view.swing;
 import com.ubo.tp.message.datamodel.User;
 import com.ubo.tp.message.ihm.contexte.ViewContext;
 import com.ubo.tp.message.ihm.view.service.View;
+import com.ubo.tp.message.utils.EmojiBinders;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -39,6 +40,13 @@ public class InputMessageView extends JComponent implements View {
     private int mentionStart = -1; // position du '@' dans le texte
     private int mentionEnd   = -1; // position du caret au moment de la complétion
 
+    // Autocomplete emoji
+    private final JPopupMenu emojiPopup = new JPopupMenu();
+    private final DefaultListModel<String> emojiModel = new DefaultListModel<>();
+    private final JList<String> emojiList = new JList<>(emojiModel);
+    private int emojiStart = -1; // position du ':' dans le texte
+    private int emojiEnd   = -1;
+
     public InputMessageView(ViewContext viewContext) {
         this.viewContext = viewContext;
         inputField = new JTextArea();
@@ -52,6 +60,7 @@ public class InputMessageView extends JComponent implements View {
         createInputField();
         installInternalListeners();
         setupSuggestionPopup();
+        setupEmojiPopup();
 
         if (this.viewContext.logger() != null) this.viewContext.logger().debug("InputMessageView initialisée");
     }
@@ -104,6 +113,8 @@ public class InputMessageView extends JComponent implements View {
                 if (suggestionPopup.isVisible()) {
                     // Entrée avec popup ouvert = valider la complétion sélectionnée
                     insertSelectedSuggestion();
+                } else if (emojiPopup.isVisible()) {
+                    insertSelectedEmoji();
                 } else {
                     // Popup fermé = envoyer le message
                     if (onSendRequested != null) onSendRequested.run();
@@ -115,6 +126,7 @@ public class InputMessageView extends JComponent implements View {
             @Override
             public void actionPerformed(ActionEvent e) {
                 hideSuggestionPopup();
+                hideEmojiPopup();
             }
         });
 
@@ -125,6 +137,10 @@ public class InputMessageView extends JComponent implements View {
                     int idx = suggestionList.getSelectedIndex();
                     if (idx < suggestionModel.size() - 1) suggestionList.setSelectedIndex(idx + 1);
                     suggestionList.ensureIndexIsVisible(suggestionList.getSelectedIndex());
+                } else if (emojiPopup.isVisible()) {
+                    int idx = emojiList.getSelectedIndex();
+                    if (idx < emojiModel.size() - 1) emojiList.setSelectedIndex(idx + 1);
+                    emojiList.ensureIndexIsVisible(emojiList.getSelectedIndex());
                 }
             }
         });
@@ -136,6 +152,10 @@ public class InputMessageView extends JComponent implements View {
                     int idx = suggestionList.getSelectedIndex();
                     if (idx > 0) suggestionList.setSelectedIndex(idx - 1);
                     suggestionList.ensureIndexIsVisible(suggestionList.getSelectedIndex());
+                } else if (emojiPopup.isVisible()) {
+                    int idx = emojiList.getSelectedIndex();
+                    if (idx > 0) emojiList.setSelectedIndex(idx - 1);
+                    emojiList.ensureIndexIsVisible(emojiList.getSelectedIndex());
                 }
             }
         });
@@ -159,6 +179,7 @@ public class InputMessageView extends JComponent implements View {
                                     : ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER
                     );
                     handleAutocomplete();
+                    handleEmojiAutocomplete();
                 });
             }
 
@@ -192,10 +213,14 @@ public class InputMessageView extends JComponent implements View {
                     if (owner == null
                             || owner == suggestionList
                             || SwingUtilities.isDescendingFrom(owner, suggestionList)
-                            || SwingUtilities.isDescendingFrom(owner, suggestionPopup)) {
+                            || SwingUtilities.isDescendingFrom(owner, suggestionPopup)
+                            || owner == emojiList
+                            || SwingUtilities.isDescendingFrom(owner, emojiList)
+                            || SwingUtilities.isDescendingFrom(owner, emojiPopup)) {
                         return;
                     }
                     hideSuggestionPopup();
+                    hideEmojiPopup();
                 });
             }
         });
@@ -552,12 +577,161 @@ public class InputMessageView extends JComponent implements View {
         } catch (BadLocationException ex) {
             // ignore
         }
-        SwingUtilities.invokeLater(() -> inputField.requestFocusInWindow());
+        SwingUtilities.invokeLater(inputField::requestFocusInWindow);
     }
 
     private void hideSuggestionPopup() {
         if (suggestionPopup.isVisible()) suggestionPopup.setVisible(false);
         mentionStart = -1;
         mentionEnd   = -1;
+    }
+
+    private void setupEmojiPopup() {
+        emojiList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        emojiList.setVisibleRowCount(8);
+        emojiList.setFixedCellHeight(24);
+        emojiList.setCellRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof String code) {
+                    String unicode = EmojiBinders.replaceEmojiCodesUnicode(code);
+                    setText(unicode + "  " + code);
+                }
+                return this;
+            }
+        });
+
+        emojiList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                int index = emojiList.locationToIndex(e.getPoint());
+                if (index >= 0) {
+                    emojiList.setSelectedIndex(index);
+                    insertSelectedEmoji();
+                }
+            }
+        });
+
+        emojiPopup.setFocusable(false);
+        emojiList.setFocusable(false);
+
+        JScrollPane sp = new JScrollPane(emojiList);
+        sp.setBorder(null);
+        sp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        emojiPopup.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        emojiPopup.add(sp);
+    }
+
+    /**
+     * Détecte un token ":xxx" actif juste avant le caret.
+     * Remonte depuis le caret : si on trouve ':' → token emoji actif.
+     * Si on trouve un espace/retour avant ':' → pas d'emoji actif.
+     */
+    private void handleEmojiAutocomplete() {
+        int caretPos = inputField.getCaretPosition();
+        String text  = inputField.getText();
+        if (text == null || text.isEmpty() || caretPos == 0) { hideEmojiPopup(); return; }
+
+        // Remonter depuis le caret pour trouver un ':' sans espace intermédiaire
+        int colonPos = -1;
+        for (int i = caretPos - 1; i >= 0; i--) {
+            char c = text.charAt(i);
+            if (c == ':') { colonPos = i; break; }
+            if (Character.isWhitespace(c)) { hideEmojiPopup(); return; }
+        }
+
+        if (colonPos < 0) { hideEmojiPopup(); return; }
+
+        // Token entre ':' et le caret
+        String token = text.substring(colonPos + 1, caretPos);
+        if (token.contains(" ") || token.contains("\t") || token.contains("\n")) {
+            hideEmojiPopup();
+            return;
+        }
+
+        // Filtrer les codes emoji supportés
+        String[] allCodes = EmojiBinders.getSupportedCodes();
+        String q = token.toLowerCase();
+        emojiModel.clear();
+        for (String code : allCodes) {
+            // code ressemble à ":smile:" — on cherche dans la partie centrale
+            String inner = code.replace(":", "");
+            if (q.isEmpty() || inner.contains(q)) {
+                emojiModel.addElement(code);
+            }
+        }
+
+        if (emojiModel.isEmpty()) { hideEmojiPopup(); return; }
+
+        // Afficher le popup sous le ':'
+        try {
+            Rectangle rect;
+            try {
+                java.awt.geom.Rectangle2D r2 = inputField.modelToView2D(colonPos);
+                rect = new Rectangle((int) Math.round(r2.getX()), (int) Math.round(r2.getY()),
+                        (int) Math.round(r2.getWidth()), (int) Math.round(r2.getHeight()));
+            } catch (Throwable t) {
+                rect = inputField.modelToView(colonPos);
+            }
+
+            Component comp = emojiPopup.getComponent(0);
+            if (comp instanceof JScrollPane jsp) {
+                int cellH = emojiList.getFixedCellHeight();
+                if (cellH <= 0) {
+                    FontMetrics fm = emojiList.getFontMetrics(emojiList.getFont());
+                    cellH = Math.max(20, fm.getHeight() + 4);
+                    emojiList.setFixedCellHeight(cellH);
+                }
+                int prefH = Math.min(8, emojiModel.getSize()) * cellH;
+                prefH = Math.max(48, Math.min(200, prefH));
+                jsp.setPreferredSize(new Dimension(200, prefH));
+            }
+
+            emojiList.setSelectedIndex(0);
+            emojiPopup.show(inputField, rect.x, rect.y + rect.height);
+
+            emojiStart = colonPos;
+            emojiEnd   = caretPos;
+
+        } catch (BadLocationException ex) {
+            hideEmojiPopup();
+        }
+    }
+
+    /**
+     * Insère le code emoji sélectionné (ex: ":smile:") en remplaçant la zone ":token" courante.
+     * Un espace final est ajouté pour éviter de rouvrir immédiatement le popup.
+     */
+    private void insertSelectedEmoji() {
+        String code = emojiList.getSelectedValue();
+        if (code == null) return;
+
+        int currentCaret = inputField.getCaretPosition();
+        int savedEmojiStart = emojiStart; // sauvegarder avant hideEmojiPopup() qui remet à -1
+        hideEmojiPopup();
+
+        String insertion = code + " ";
+        try {
+            Document doc = inputField.getDocument();
+            int docLen = doc.getLength();
+            if (savedEmojiStart >= 0 && savedEmojiStart < docLen) {
+                int end = Math.min(currentCaret, docLen);
+                int removeLen = end - savedEmojiStart;
+                if (removeLen > 0) doc.remove(savedEmojiStart, removeLen);
+                doc.insertString(savedEmojiStart, insertion, null);
+            } else {
+                int pos = Math.min(currentCaret, docLen);
+                doc.insertString(pos, insertion, null);
+            }
+        } catch (BadLocationException ex) {
+        }
+        SwingUtilities.invokeLater(inputField::requestFocusInWindow);
+    }
+
+    private void hideEmojiPopup() {
+        if (emojiPopup.isVisible()) emojiPopup.setVisible(false);
+        emojiStart = -1;
+        emojiEnd   = -1;
     }
 }

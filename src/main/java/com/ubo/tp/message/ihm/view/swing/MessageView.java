@@ -419,17 +419,18 @@ public class MessageView extends JComponent implements View {
 
     private void insertEmojiOrFallback(javax.swing.text.StyledDocument doc, String emojiCode, int imgSize, javax.swing.text.AttributeSet attr) throws Exception {
         String url = EmojiBinders.getEmojiImageUrl(emojiCode);
+        viewContext.logger().debug("Rendu emoji code '" + emojiCode + "' : url=" + url);
         if (url != null) {
             try {
                 java.net.URL u = new java.net.URL(url);
                 java.awt.Image img = javax.imageio.ImageIO.read(u);
+
                 if (img != null) {
                     java.awt.Image scaled = img.getScaledInstance(imgSize, imgSize, java.awt.Image.SCALE_SMOOTH);
                     javax.swing.ImageIcon icon = new javax.swing.ImageIcon(scaled);
-                    // insert icon
-                    javax.swing.text.StyleConstants.setIcon(new javax.swing.text.SimpleAttributeSet(), icon);
-                    doc.insertString(doc.getLength(), " ", attr);
-                    // remove icon attribute (not strictly necessary)
+                    javax.swing.text.SimpleAttributeSet iconAttr = new javax.swing.text.SimpleAttributeSet();
+                    javax.swing.text.StyleConstants.setIcon(iconAttr, icon);
+                    doc.insertString(doc.getLength(), " ", iconAttr);
                 } else {
                     String uni = EmojiBinders.replaceEmojiCodesUnicode(emojiCode);
                     uni = insertZWSEveryN(uni, 40);
@@ -469,7 +470,7 @@ public class MessageView extends JComponent implements View {
         boolean hasEmojiCode = text != null && text.matches(".*(:\\w+:).*");
         boolean hasMention = text != null && text.matches(".*@\\w+.*");
         if (!hasEmojiCode && !hasMention && text != null && text.length() > 120) {
-            // Plain long text -> JTextArea for reliable wrapping, wrapped in a JPanel so it expands
+
             javax.swing.JTextArea ta = new javax.swing.JTextArea();
             ta.setOpaque(false);
             ta.setEditable(false);
@@ -479,7 +480,7 @@ public class MessageView extends JComponent implements View {
             ta.setFocusable(false);
             ta.setFont(font);
             ta.setForeground(fg);
-            // replace emoji codes by unicode just in case
+
             String display = EmojiBinders.replaceEmojiCodesUnicode(text);
             ta.setText(display);
             JPanel wrapper = new JPanel(new BorderLayout());
