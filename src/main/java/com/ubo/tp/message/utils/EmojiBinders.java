@@ -73,15 +73,6 @@ public class EmojiBinders {
         return out;
     }
 
-    private static final class EmojiData {
-        final String fileName;
-        final String hex;
-        final String unicode;
-
-        EmojiData(String fileName, String hex, String unicode) {
-            this.fileName = fileName;
-            this.hex = hex;
-            this.unicode = unicode;
-        }
+    private record EmojiData(String fileName, String hex, String unicode) {
     }
 }
