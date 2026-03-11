@@ -6,6 +6,7 @@ import com.ubo.tp.message.controller.service.IInputMessageController;
 import com.ubo.tp.message.datamodel.Message;
 import com.ubo.tp.message.datamodel.User;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -77,7 +78,21 @@ public class InputMessageController implements IInputMessageController {
     }
 
     private List<User> handleGetAllUsersLogic() {
-        return context.dataManager().getUsers().stream().filter(user -> !user.equals(Constants.UNKNOWN_USER)).toList();
+        List<User> users = new ArrayList<>();
+        if(context.selected().getSelectedChannel() != null){
+            if(!context.selected().getSelectedChannel().getUsers().isEmpty()){
+                users = context.selected().getSelectedChannel().getUsers();
+            }else{
+                users = context.dataManager().getUsers().stream().toList();
+            }
+        }
+        if(context.selected().getSelectedUser() != null) {
+            users.add(context.selected().getSelectedUser());
+            users.add(context.session().getConnectedUser());
+        }
+        return users.stream()
+                .filter(user -> !user.equals(Constants.UNKNOWN_USER))
+                .toList();
     }
 
     private void handleSendMessageToSelectedLogic(String text) {
