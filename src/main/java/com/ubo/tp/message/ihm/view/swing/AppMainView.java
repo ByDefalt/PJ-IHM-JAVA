@@ -108,7 +108,7 @@ public class AppMainView extends JComponent implements View {
 
         JMenu fileMenu = createFileMenu();
         JMenu helpMenu = createHelpMenu();
-        JMenu accountMenu = createConnectMenu();
+        createConnectMenu();
 
         menuBar.add(fileMenu);
         menuBar.add(this.connectMenu);
