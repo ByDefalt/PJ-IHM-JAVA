@@ -103,6 +103,7 @@ public class MessageAppLauncher {
         }
         clearExchangeDirectoryFiles(path);
     }
+    
 
     public static void createTestData(IDataManager dataManager) {
         User user1 = new User("toto", "toto", "Toto");
