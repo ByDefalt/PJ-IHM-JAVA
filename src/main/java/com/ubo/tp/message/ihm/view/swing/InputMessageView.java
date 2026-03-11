@@ -104,6 +104,7 @@ public class InputMessageView extends JComponent implements View {
         im.put(KeyStroke.getKeyStroke("ctrl ENTER"), DefaultEditorKit.insertBreakAction);
         im.put(KeyStroke.getKeyStroke("ENTER"), "sendMessage");
         im.put(KeyStroke.getKeyStroke("ESCAPE"), "hideSuggestions");
+        im.put(KeyStroke.getKeyStroke("TAB"), "completeSelection");
         im.put(KeyStroke.getKeyStroke("DOWN"), "selectNextSuggestion");
         im.put(KeyStroke.getKeyStroke("UP"), "selectPrevSuggestion");
 
@@ -127,6 +128,21 @@ public class InputMessageView extends JComponent implements View {
             public void actionPerformed(ActionEvent e) {
                 hideSuggestionPopup();
                 hideEmojiPopup();
+            }
+        });
+
+        am.put("completeSelection", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (suggestionPopup.isVisible()) {
+                    insertSelectedSuggestion();
+                } else if (emojiPopup.isVisible()) {
+                    insertSelectedEmoji();
+                } else {
+                    try {
+                        inputField.getDocument().insertString(inputField.getCaretPosition(), "\t", null);
+                    } catch (BadLocationException ex) { /* ignore */ }
+                }
             }
         });
 
@@ -595,8 +611,7 @@ public class InputMessageView extends JComponent implements View {
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value instanceof String code) {
-                    String unicode = EmojiBinders.replaceEmojiCodesUnicode(code);
-                    setText(unicode + "  " + code);
+                    setText(code);
                 }
                 return this;
             }
